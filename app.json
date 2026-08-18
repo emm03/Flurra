@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "Flurra",
+    "slug": "flurra",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "flurra",
+    "userInterfaceStyle": "light",
+    "web": { "bundler": "metro", "output": "static" },
+    "plugins": ["expo-router"],
+    "experiments": { "typedRoutes": true }
+  }
+}
