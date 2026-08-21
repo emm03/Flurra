@@ -2,10 +2,11 @@ import { DMSans_400Regular, DMSans_500Medium, DMSans_700Bold } from '@expo-googl
 import { Fraunces_900Black } from '@expo-google-fonts/fraunces';
 import { Feather } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
-import { useRouter } from 'expo-router';
+import { type Href, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { ResortRun } from '@/data/heavenlyResort';
+import { heavenlyVerifiedRunIds } from '@/data/heavenlyMap';
 import { colors, fonts } from '@/theme';
 import { TopographicLines } from '../TopographicLines';
 
@@ -51,6 +52,7 @@ export function RunDetailPage({ run }: { run?: ResortRun }) {
           <Text style={styles.sideEyebrow}>SAMPLE CONDITIONS · NOT LIVE</Text>
           <View style={styles.tags}>{run.conditionTags.map((tag) => <Text key={tag} style={styles.tag}>{tag.replace('Sample: ', '')}</Text>)}</View>
           <Text style={styles.safety}>Use current resort signage, patrol guidance, and your own judgment before skiing any run.</Text>
+          {heavenlyVerifiedRunIds.has(run.id) ? <Pressable accessibilityRole="link" accessibilityLabel={`View ${run.name} on map`} onPress={() => router.push(`/resorts/heavenly?run=${encodeURIComponent(run.id)}` as Href)} style={styles.mapAction}><Feather name="map-pin" size={14} color={colors.deep} /><Text style={styles.actionText}>VIEW ON PROTOTYPE MAP</Text></Pressable> : null}
           <Pressable accessibilityRole="button" accessibilityLabel={`${saved ? 'Unsave' : 'Save'} ${run.name}`} onPress={() => setSaved((value) => !value)} style={[styles.action, saved && styles.actionSelected]}><Feather name={saved ? 'check' : 'bookmark'} size={14} color={colors.deep} /><Text style={styles.actionText}>{saved ? 'SAVED TO MY DAY' : 'SAVE THIS RUN'}</Text></Pressable>
           <Pressable accessibilityRole="button" accessibilityLabel={`${skied ? 'Remove skied' : 'I skied'} ${run.name}`} onPress={() => setSkied((value) => !value)} style={[styles.action, styles.actionDark, skied && styles.actionSelected]}><Feather name={skied ? 'check' : 'check-circle'} size={14} color={skied ? colors.deep : colors.white} /><Text style={[styles.actionText, styles.actionTextLight, skied && styles.actionTextSelected]}>{skied ? '✓ ADDED TO MY PROGRESS' : 'I SKIED THIS'}</Text></Pressable>
         </View>
@@ -101,6 +103,7 @@ const styles = StyleSheet.create({
   tags: { flexDirection: 'row', flexWrap: 'wrap', gap: 7, marginTop: 15 },
   tag: { color: colors.forest, backgroundColor: colors.paper, borderColor: colors.forest, borderWidth: 1, fontFamily: fonts.bold, fontSize: 7, textTransform: 'uppercase', paddingHorizontal: 7, paddingVertical: 5 },
   safety: { color: '#49655e', fontFamily: fonts.body, fontSize: 11, lineHeight: 17, marginTop: 20 },
+  mapAction: { minHeight: 43, backgroundColor: colors.lime, borderColor: colors.forest, borderWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, marginTop: 14 },
   action: { minHeight: 43, backgroundColor: colors.paper, borderColor: colors.forest, borderWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, marginTop: 12 },
   actionDark: { backgroundColor: colors.forest },
   actionSelected: { backgroundColor: colors.lime },

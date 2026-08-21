@@ -24,8 +24,13 @@ used to create coordinates here.
 - `match-report.json`: conservative reconciliation against the 116 provisional
   Flurra run records. Candidate links remain separate from both source datasets
   so future mapping can be many-to-many.
+- `runtime-map-data.json`: generated, UI-safe bundle containing only the 104
+  exact/normalized verified run matches and 23 lift geometries. Canonical Flurra
+  difficulty is attached for rendering; likely matches are excluded.
 - `scripts/maps/import-heavenly-osm.mjs`: reproducible Overpass importer and
   report generator.
+- `scripts/maps/build-heavenly-runtime-map.mjs`: builds the local runtime bundle
+  from the snapshot and exact-match report without making a network request.
 - `scripts/maps/validate-heavenly-osm.mjs`: structural and cross-reference
   validation.
 
@@ -60,6 +65,7 @@ From the project root, with network access for the import:
 
 ```sh
 node --no-warnings --experimental-strip-types scripts/maps/import-heavenly-osm.mjs
+node --no-warnings --experimental-strip-types scripts/maps/build-heavenly-runtime-map.mjs
 node --no-warnings --experimental-strip-types scripts/maps/validate-heavenly-osm.mjs
 ```
 

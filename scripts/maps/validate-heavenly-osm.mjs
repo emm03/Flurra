@@ -12,14 +12,16 @@ const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(scriptDirectory, '../..');
 const dataDirectory = resolve(projectRoot, 'data/maps/heavenly');
 
-const [featureCollection, matchReport] = await Promise.all([
+const [featureCollection, matchReport, runtimeMapData] = await Promise.all([
   readFile(resolve(dataDirectory, 'osm-features.geojson'), 'utf8').then(JSON.parse),
   readFile(resolve(dataDirectory, 'match-report.json'), 'utf8').then(JSON.parse),
+  readFile(resolve(dataDirectory, 'runtime-map-data.json'), 'utf8').then(JSON.parse),
 ]);
 
 assert.equal(featureCollection.type, 'FeatureCollection');
 assert.equal(featureCollection.schemaVersion, 1);
 assert.equal(matchReport.schemaVersion, 1);
+assert.equal(runtimeMapData.schemaVersion, 1);
 assert.equal(heavenlyOfficialRuns.length, 116);
 assert.ok(heavenlyOfficialRuns.every((run) => run.geometryRef === null));
 assert.ok(heavenlyMapFeatures.every((feature) => feature.geometryRef === null));
@@ -89,6 +91,26 @@ for (const match of matchReport.likelyMatches) {
   assert.ok(match.flurraCandidates.every((run) => knownRunIds.has(run.id)));
 }
 
+const exactMatchedOsmRefs = new Set(
+  matchReport.exactNormalizedMatches.flatMap((match) => (
+    match.osmFeatures.map((feature) => feature.osmRef)
+  )),
+);
+const runtimeRunIds = Object.keys(runtimeMapData.runGeometryIndex);
+const runtimeRunFeatureRefs = runtimeMapData.verifiedRuns.features
+  .map((feature) => feature.id);
+assert.equal(runtimeMapData.verifiedRunCount, matchReport.exactNormalizedMatches.length);
+assert.equal(runtimeRunIds.length, runtimeMapData.verifiedRunCount);
+assert.equal(runtimeMapData.verifiedRunFeatureCount, exactMatchedOsmRefs.size);
+assert.equal(runtimeRunFeatureRefs.length, runtimeMapData.verifiedRunFeatureCount);
+assert.deepEqual(new Set(runtimeRunFeatureRefs), exactMatchedOsmRefs);
+assert.equal(runtimeMapData.liftFeatureCount, lifts.length);
+assert.equal(runtimeMapData.lifts.features.length, lifts.length);
+assert.ok(runtimeMapData.verifiedRuns.features.every((feature) => (
+  feature.properties.verifiedMatchType === 'exact-or-normalized'
+)));
+assert.ok(runtimeRunIds.every((runId) => knownRunIds.has(runId)));
+
 console.log(JSON.stringify({
   valid: true,
   importedFeatures: featureCollection.features.length,
@@ -98,4 +120,6 @@ console.log(JSON.stringify({
   namedTerrainFeatures: namedTerrain.length,
   exactMatchedFlurraRuns: matchReport.summary.exactOrNormalizedMatchedFlurraRuns,
   likelyOrAmbiguousOsmFeatures: matchReport.summary.likelyOrAmbiguousOsmFeatures,
+  runtimeVerifiedRuns: runtimeMapData.verifiedRunCount,
+  runtimeVerifiedFeatures: runtimeMapData.verifiedRunFeatureCount,
 }, null, 2));

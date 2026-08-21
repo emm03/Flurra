@@ -12,8 +12,10 @@ type RunDirectoryProps = {
   compact: boolean;
   savedIds: string[];
   skiedIds: string[];
+  mapRunIds: ReadonlySet<string>;
   onToggleSaved: (id: string) => void;
   onToggleSkied: (id: string) => void;
+  onShowOnMap: (id: string) => void;
 };
 
 const filters: { id: FilterId; label: string }[] = [
@@ -28,7 +30,7 @@ const filters: { id: FilterId; label: string }[] = [
 
 const difficultyFilters: DifficultyKey[] = ['Green', 'Blue', 'Black'];
 
-export function RunDirectory({ runs, compact, savedIds, skiedIds, onToggleSaved, onToggleSkied }: RunDirectoryProps) {
+export function RunDirectory({ runs, compact, savedIds, skiedIds, mapRunIds, onToggleSaved, onToggleSkied, onShowOnMap }: RunDirectoryProps) {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState<FilterId[]>([]);
@@ -102,6 +104,7 @@ export function RunDirectory({ runs, compact, savedIds, skiedIds, onToggleSaved,
         {filteredRuns.map((run) => {
           const saved = savedIds.includes(run.id);
           const skied = skiedIds.includes(run.id);
+          const hasVerifiedMapGeometry = mapRunIds.has(run.id);
           return <View key={run.id} style={[styles.card, compact && styles.cardMobile]}>
             <View style={styles.cardTop}>
               <View style={[styles.difficultyBadge, run.difficulty === 'Green' && styles.green, run.difficulty === 'Blue' && styles.blue, run.difficulty === 'Black' && styles.black]}>
@@ -120,6 +123,9 @@ export function RunDirectory({ runs, compact, savedIds, skiedIds, onToggleSaved,
               <Pressable accessibilityRole="button" accessibilityLabel={`${skied ? 'Remove skied' : 'I skied'} ${run.name}`} onPress={() => onToggleSkied(run.id)} style={[styles.actionSecondary, skied && styles.actionSelected]}>
                 <Feather name={skied ? 'check' : 'check-circle'} size={13} color={colors.forest} /><Text style={styles.actionSecondaryText}>{skied ? 'SKIED' : 'I SKIED THIS'}</Text>
               </Pressable>
+              {hasVerifiedMapGeometry ? <Pressable accessibilityRole="button" accessibilityLabel={`Show ${run.name} on map`} onPress={() => onShowOnMap(run.id)} style={({ hovered }: any) => [styles.mapAction, hovered && styles.mapActionHover]}>
+                <Feather name="map-pin" size={13} color={colors.forest} /><Text style={styles.mapActionText}>SHOW ON MAP</Text>
+              </Pressable> : null}
               <Pressable accessibilityRole="link" accessibilityLabel={`View ${run.name}`} onPress={() => router.push(`/resorts/heavenly/runs/${run.id}` as Href)} style={({ hovered }: any) => [styles.viewAction, hovered && styles.viewHover]}>
                 <Text style={styles.viewText}>VIEW RUN</Text><Feather name="arrow-up-right" size={14} color={colors.white} />
               </Pressable>
@@ -182,6 +188,9 @@ const styles = StyleSheet.create({
   actionSecondary: { minHeight: 36, borderColor: colors.forest, borderWidth: 1, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 },
   actionSelected: { backgroundColor: colors.lime },
   actionSecondaryText: { color: colors.forest, fontFamily: fonts.bold, fontSize: 8, letterSpacing: .5 },
+  mapAction: { minHeight: 36, backgroundColor: colors.lime, borderColor: colors.forest, borderWidth: 1, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 },
+  mapActionHover: { backgroundColor: colors.blue },
+  mapActionText: { color: colors.forest, fontFamily: fonts.bold, fontSize: 8, letterSpacing: .5 },
   viewAction: { minHeight: 36, backgroundColor: colors.orange, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, marginLeft: 'auto' },
   viewHover: { backgroundColor: colors.forest },
   viewText: { color: colors.white, fontFamily: fonts.bold, fontSize: 8, letterSpacing: .6 },
