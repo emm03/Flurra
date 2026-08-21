@@ -1,0 +1,4549 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-21T01:37:24.343Z",
+  "sourceSnapshot": {
+    "provider": "OpenStreetMap",
+    "attribution": "© OpenStreetMap contributors",
+    "license": "ODbL 1.0",
+    "licenseUrl": "https://www.openstreetmap.org/copyright",
+    "overpassEndpoint": "https://overpass-api.de/api/interpreter",
+    "osmBaseTimestamp": "2026-08-21T01:35:38Z",
+    "retrievedAt": "2026-08-21T01:37:24.337Z",
+    "resortBoundary": {
+      "type": "relation",
+      "id": 12152028,
+      "osmUrl": "https://www.openstreetmap.org/relation/12152028",
+      "bounds": {
+        "south": 38.9130342,
+        "west": -119.9437925,
+        "north": 38.9678267,
+        "east": -119.8802563
+      }
+    },
+    "overpassQuery": "[out:json][timeout:180];\nrel(12152028);\nmap_to_area->.resort;\n(\n  nwr(area.resort)[\"piste:type\"];\n  way(area.resort)[\"aerialway\"][\"aerialway\"!~\"^(station|pylon)$\"];\n  relation[\"piste:type\"](38.9130342,-119.9437925,38.9678267,-119.8802563);\n  relation[\"aerialway\"](38.9130342,-119.9437925,38.9678267,-119.8802563);\n);\nout tags geom;"
+  },
+  "comparisonRules": {
+    "exactNormalization": [
+      "Unicode normalization (NFKC)",
+      "case folding",
+      "curly/straight apostrophe normalization",
+      "leading/trailing whitespace removal",
+      "internal whitespace collapse"
+    ],
+    "likelyMatches": "Explicit review rules only; no general fuzzy matching is applied.",
+    "mappingModel": "Candidate many-to-many links are stored in this report; no OSM ID is written onto a Flurra run."
+  },
+  "summary": {
+    "flurraProvisionalRunRecords": 116,
+    "downhillOsmFeatures": 165,
+    "namedDownhillOsmFeatures": 131,
+    "uniqueNamedDownhillLabels": 126,
+    "exactOrNormalizedMatchedFlurraRuns": 104,
+    "exactOrNormalizedMatchedOsmFeatures": 109,
+    "likelyOrAmbiguousOsmFeatures": 11,
+    "likelyOrAmbiguousCandidateLinks": 12,
+    "flurraRunsWithoutOsmGeometry": 3,
+    "downhillOsmFeaturesWithoutFlurraMatch": 46,
+    "osmSkiFeaturesWithoutFlurraRunMatch": 47,
+    "namedDownhillOsmFeaturesWithoutFlurraMatch": 12,
+    "unnamedDownhillOsmFeaturesWithoutFlurraMatch": 34,
+    "oneFlurraRunToMultipleOsmFeatureCases": 8,
+    "downhillRelations": 0,
+    "matchedFeatureDifficultyDifferences": 23,
+    "matchedFeaturesMissingOsmDifficulty": 0,
+    "lifts": 23,
+    "namedLifts": 22,
+    "namedNonDownhillSkiTerrainFeatures": 2
+  },
+  "exactNormalizedMatches": [
+    {
+      "flurraRun": {
+        "id": "outer-limits",
+        "officialName": "Outer Limits",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466657",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466657,
+          "originalName": "Outer Limits",
+          "pisteDifficulty": "expert",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "pipeline",
+        "officialName": "Pipeline",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/1389656303",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1389656303,
+          "originalName": "Pipeline",
+          "pisteDifficulty": "expert",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "the-fingers",
+        "officialName": "The Fingers",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/1389656309",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1389656309,
+          "originalName": "The Fingers",
+          "pisteDifficulty": "expert",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "sweetwater",
+        "officialName": "Sweetwater",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/1389656307",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1389656307,
+          "originalName": "Sweetwater",
+          "pisteDifficulty": "expert",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "the-y",
+        "officialName": "The \"Y\"",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/1389656312",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1389656312,
+          "originalName": "The \"Y\"",
+          "pisteDifficulty": "expert",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "bills",
+        "officialName": "Bill's",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466505",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466505,
+          "originalName": "Bill's",
+          "pisteDifficulty": "expert",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "snake-eyes",
+        "officialName": "Snake Eyes",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466705",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466705,
+          "originalName": "Snake Eyes",
+          "pisteDifficulty": "expert",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "hully-gully",
+        "officialName": "Hully Gully",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466587",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466587,
+          "originalName": "Hully Gully",
+          "pisteDifficulty": "expert",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "pinenuts",
+        "officialName": "Pinenuts",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466671",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466671,
+          "originalName": "Pinenuts",
+          "pisteDifficulty": "expert",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "southern-comfort",
+        "officialName": "Southern Comfort",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466709",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466709,
+          "originalName": "Southern Comfort",
+          "pisteDifficulty": "expert",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "on-hold",
+        "officialName": "On Hold",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466652",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466652,
+          "originalName": "On Hold",
+          "pisteDifficulty": "expert",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "north-40",
+        "officialName": "North 40",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466640",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466640,
+          "originalName": "North 40",
+          "pisteDifficulty": "expert",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "hemlock",
+        "officialName": "Hemlock",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466579",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466579,
+          "originalName": "Hemlock",
+          "pisteDifficulty": "expert",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "ernies",
+        "officialName": "Ernie's",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466559",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466559,
+          "originalName": "Ernie's",
+          "pisteDifficulty": "expert",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "rim-trail",
+        "officialName": "Rim Trail",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466691",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466691,
+          "originalName": "Rim Trail",
+          "pisteDifficulty": "expert",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "perimeter",
+        "officialName": "Perimeter",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466668",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466668,
+          "originalName": "Perimeter",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "upper-perimeter",
+        "officialName": "Upper Perimeter",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466732",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466732,
+          "originalName": "Upper Perimeter",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "milky-way-bowl",
+        "officialName": "Milky Way Bowl",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466629",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466629,
+          "originalName": "Milky Way Bowl",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "milky-way",
+        "officialName": "Milky Way",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/1382406254",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1382406254,
+          "originalName": "Milky Way",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "galaxy",
+        "officialName": "Galaxy",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Galaxy / Stagecoach"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466566",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466566,
+          "originalName": "Galaxy",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "outlaw",
+        "officialName": "Outlaw",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Galaxy / Stagecoach"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466659",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466659,
+          "originalName": "Outlaw",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "nevada-trail",
+        "officialName": "Nevada Trail",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Galaxy / Stagecoach"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466638",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466638,
+          "originalName": "Nevada Trail",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "mineshaft",
+        "officialName": "Mineshaft",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Galaxy / Stagecoach"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466632",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466632,
+          "originalName": "Mineshaft",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "comstock",
+        "officialName": "Comstock",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Galaxy / Stagecoach"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466527",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466527,
+          "originalName": "Comstock",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "stagecoach",
+        "officialName": "Stagecoach",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Galaxy / Stagecoach"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466714",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466714,
+          "originalName": "Stagecoach",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "emilys-run",
+        "officialName": "Emily's Run",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Galaxy / Stagecoach"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466557",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466557,
+          "originalName": "Emily's Run",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "lower-stagecoach",
+        "officialName": "Lower Stagecoach",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Galaxy / Stagecoach"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466621",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466621,
+          "originalName": "Lower Stagecoach",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "stagecoach-return",
+        "officialName": "Stagecoach Return",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Galaxy / Stagecoach"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466711",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466711,
+          "originalName": "Stagecoach Return",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "stagecoach-woods",
+        "officialName": "Stagecoach Woods",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Galaxy / Stagecoach"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/1386306553",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1386306553,
+          "originalName": "Stagecoach Woods",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "boulder-bowl",
+        "officialName": "Boulder Bowl",
+        "officialDifficulty": "easier",
+        "mountainArea": "Boulder / North Bowl"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466512",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466512,
+          "originalName": "Boulder Bowl",
+          "pisteDifficulty": "easy",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "boulder-chute",
+        "officialName": "Boulder Chute",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Boulder / North Bowl"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/1382406255",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1382406255,
+          "originalName": "Boulder Chute",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "upper-north-bowl",
+        "officialName": "Upper North Bowl",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Boulder / North Bowl"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466731",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466731,
+          "originalName": "Upper North Bowl",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "100-saddle",
+        "officialName": "$100 Saddle",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Boulder / North Bowl"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466160",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466160,
+          "originalName": "$100 Saddle",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "north-bowl",
+        "officialName": "North Bowl",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Boulder / North Bowl"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466642",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466642,
+          "originalName": "North Bowl",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "bohemian-grove",
+        "officialName": "Bohemian Grove",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Boulder / North Bowl"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/1386306550",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1386306550,
+          "originalName": "Bohemian Grove",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "nevada-woods",
+        "officialName": "Nevada Woods",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Boulder / North Bowl"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/1386306551",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1386306551,
+          "originalName": "Nevada Woods",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "the-burn",
+        "officialName": "The Burn",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Boulder / North Bowl"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/1386306552",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1386306552,
+          "originalName": "The Burn",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "the-pines",
+        "officialName": "The Pines",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Boulder / North Bowl"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/1386306548",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1386306548,
+          "originalName": "The Pines",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "olympic-downhill",
+        "officialName": "Olympic Downhill",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466647",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466647,
+          "originalName": "Olympic Downhill",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "pepis",
+        "officialName": "Pepi's",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466667",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466667,
+          "originalName": "Pepi's",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "orion",
+        "officialName": "Orion",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466656",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466656,
+          "originalName": "Orion",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "jacks",
+        "officialName": "Jack's",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466591",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466591,
+          "originalName": "Jack's",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "nova",
+        "officialName": "Nova",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466644",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466644,
+          "originalName": "Nova",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "lower-dipper-return",
+        "officialName": "Lower Dipper Return",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466620",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466620,
+          "originalName": "Lower Dipper Return",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "upper-dipper-return",
+        "officialName": "Upper Dipper Return",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466729",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466729,
+          "originalName": "Upper Dipper Return",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "orions-belt",
+        "officialName": "Orion's Belt",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466654",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466654,
+          "originalName": "Orion's Belt",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "big-dipper",
+        "officialName": "Big Dipper",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466502",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466502,
+          "originalName": "Big Dipper",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "meteor",
+        "officialName": "Meteor",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466628",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466628,
+          "originalName": "Meteor",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "dipper-bowl",
+        "officialName": "Dipper Bowl",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466537",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466537,
+          "originalName": "Dipper Bowl",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "dipper-line",
+        "officialName": "Dipper Line",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466539",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466539,
+          "originalName": "Dipper Line",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "dipper-woods",
+        "officialName": "Dipper Woods",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/1386306547",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1386306547,
+          "originalName": "Dipper Woods",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "aries-woods",
+        "officialName": "Aries Woods",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/1386306546",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1386306546,
+          "originalName": "Aries Woods",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "cosmic-wave",
+        "officialName": "Cosmic Wave",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/1382706264",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1382706264,
+          "originalName": "Cosmic Wave",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "aries",
+        "officialName": "Aries",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466498",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466498,
+          "originalName": "Aries",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "little-dipper",
+        "officialName": "Little Dipper",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466618",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466618,
+          "originalName": "Little Dipper",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "comet",
+        "officialName": "Comet",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466526",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466526,
+          "originalName": "Comet",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "bonanza",
+        "officialName": "Bonanza",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466509",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466509,
+          "originalName": "Bonanza",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "crossover",
+        "officialName": "Crossover",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466529",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466529,
+          "originalName": "Crossover",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "silver-spur",
+        "officialName": "Silver Spur",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466699",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466699,
+          "originalName": "Silver Spur",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "ponderosa",
+        "officialName": "Ponderosa",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466678",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466678,
+          "originalName": "Ponderosa",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "cloud-9",
+        "officialName": "Cloud 9",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466524",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466524,
+          "originalName": "Cloud 9",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "49er",
+        "officialName": "49'er",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466490",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466490,
+          "originalName": "49'er",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "sams-dream",
+        "officialName": "Sam's Dream",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466695",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466695,
+          "originalName": "Sam's Dream",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "cascade",
+        "officialName": "Cascade",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Sky / Canyon"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466495",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466495,
+          "originalName": "Cascade",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "tamarack-return",
+        "officialName": "Tamarack Return",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Sky / Canyon"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466496",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466496,
+          "originalName": "Tamarack Return",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        },
+        {
+          "osmRef": "way/1134266922",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1134266922,
+          "originalName": "Tamarack Return",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "california-trail",
+        "officialName": "California Trail",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Sky / Canyon"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466518",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466518,
+          "originalName": "California Trail",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "skyline-trail",
+        "officialName": "Skyline Trail",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Sky / Canyon"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466704",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466704,
+          "originalName": "Skyline Trail",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "sand-dunes",
+        "officialName": "Sand Dunes",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Sky / Canyon"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466254",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466254,
+          "originalName": "Sand Dunes",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "ski-ways-glades",
+        "officialName": "Ski Ways Glades",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Sky / Canyon"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/1389656300",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1389656300,
+          "originalName": "Ski Ways Glades",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        },
+        {
+          "osmRef": "way/1389656301",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1389656301,
+          "originalName": "Ski Ways Glades",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "pinnacles",
+        "officialName": "Pinnacles",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Sky / Canyon"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466673",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466673,
+          "originalName": "Pinnacles",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        },
+        {
+          "osmRef": "way/1389656299",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1389656299,
+          "originalName": "Pinnacles",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "ellies",
+        "officialName": "Ellie's",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Sky / Canyon"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466556",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466556,
+          "originalName": "Ellie's",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "ellies-swing",
+        "officialName": "Ellie's Swing",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Sky / Canyon"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466555",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466555,
+          "originalName": "Ellie's Swing",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "express-line",
+        "officialName": "Express Line",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Sky / Canyon"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466560",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466560,
+          "originalName": "Express Line",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "lizs",
+        "officialName": "Liz's",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Sky / Canyon"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466619",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466619,
+          "originalName": "Liz's",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "canyonland",
+        "officialName": "Canyonland",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Sky / Canyon"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466581",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466581,
+          "originalName": "Canyonland",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        },
+        {
+          "osmRef": "way/313466582",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466582,
+          "originalName": "Canyonland",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "double-down",
+        "officialName": "Double Down",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Sky / Canyon"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466542",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466542,
+          "originalName": "Double Down",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "high-five",
+        "officialName": "High Five",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Sky / Canyon"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466580",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466580,
+          "originalName": "High Five",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "ridge-run",
+        "officialName": "Ridge Run",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Sky / Canyon"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466690",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466690,
+          "originalName": "Ridge Run",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "maggies-canyon",
+        "officialName": "Maggie's Canyon",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Sky / Canyon"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466622",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466622,
+          "originalName": "Maggie's Canyon",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "ridge-bowl",
+        "officialName": "Ridge Bowl",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466687",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466687,
+          "originalName": "Ridge Bowl",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "powderbowl-run",
+        "officialName": "Powderbowl Run",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466680",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466680,
+          "originalName": "Powderbowl Run",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "powderbowl-woods",
+        "officialName": "Powderbowl Woods",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466682",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466682,
+          "originalName": "Powderbowl Woods",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "upper-mombo",
+        "officialName": "Upper Mombo",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466730",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466730,
+          "originalName": "Upper Mombo",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "mombo",
+        "officialName": "Mombo",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466633",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466633,
+          "originalName": "Mombo",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "fall-line",
+        "officialName": "Fall Line",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466561",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466561,
+          "originalName": "Fall Line",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "powder-line",
+        "officialName": "Powder Line",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466681",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466681,
+          "originalName": "Powder Line",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "waterfall",
+        "officialName": "Waterfall",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466740",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466740,
+          "originalName": "Waterfall",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "swing-trail",
+        "officialName": "Swing Trail",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466716",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466716,
+          "originalName": "Swing Trail",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "steins-way",
+        "officialName": "Steins Way",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466520",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466520,
+          "originalName": "Steins Way",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "maggies",
+        "officialName": "Maggie's",
+        "officialDifficulty": "easier",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466623",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466623,
+          "originalName": "Maggie's",
+          "pisteDifficulty": "easy",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "patsys",
+        "officialName": "Patsy's",
+        "officialDifficulty": "easier",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466665",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466665,
+          "originalName": "Patsy's",
+          "pisteDifficulty": "easy",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "round-a-bout",
+        "officialName": "Round-A-Bout",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466694",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466694,
+          "originalName": "Round-a-Bout",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "hogsback",
+        "officialName": "Hogsback",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/1386306540",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1386306540,
+          "originalName": "Hogsback",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        },
+        {
+          "osmRef": "way/1386306541",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1386306541,
+          "originalName": "Hogsback",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "east-bowl-woods",
+        "officialName": "East Bowl Woods",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/1386306543",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1386306543,
+          "originalName": "East Bowl Woods",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "east-bowl",
+        "officialName": "East Bowl",
+        "officialDifficulty": "experts-only",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466544",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466544,
+          "originalName": "East Bowl",
+          "pisteDifficulty": "expert",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "pistol",
+        "officialName": "Pistol",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466675",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466675,
+          "originalName": "Pistol",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "gunbarrel",
+        "officialName": "Gunbarrel",
+        "officialDifficulty": "experts-only",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466575",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466575,
+          "originalName": "Gunbarrel",
+          "pisteDifficulty": "expert",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "the-face",
+        "officialName": "The Face",
+        "officialDifficulty": "experts-only",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466720",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466720,
+          "originalName": "The Face",
+          "pisteDifficulty": "expert",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "world-cup",
+        "officialName": "World Cup",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466745",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466745,
+          "originalName": "World Cup",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "west-bowl",
+        "officialName": "West Bowl",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466742",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466742,
+          "originalName": "West Bowl",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "von-schmidt",
+        "officialName": "Von Schmidt",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Top of Gondola"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466739",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466739,
+          "originalName": "Von Schmidt",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "easy-street",
+        "officialName": "Easy Street",
+        "officialDifficulty": "easier",
+        "mountainArea": "Top of Gondola"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466546",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466546,
+          "originalName": "Easy Street",
+          "pisteDifficulty": "easy",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "poma-trail",
+        "officialName": "Poma Trail",
+        "officialDifficulty": "easier",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466677",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466677,
+          "originalName": "Poma Trail",
+          "pisteDifficulty": "easy",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "enchanted-forest",
+        "officialName": "Enchanted Forest",
+        "officialDifficulty": "easier",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466558",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466558,
+          "originalName": "Enchanted Forest",
+          "pisteDifficulty": "easy",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "matchType": "exact-or-normalized"
+    }
+  ],
+  "likelyMatches": [
+    {
+      "osmFeature": {
+        "osmRef": "way/313466516",
+        "osmFeatureType": "way",
+        "osmFeatureId": 313466516,
+        "originalName": "Boundry Chutes",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "flurraCandidates": [
+        {
+          "id": "boundary-chutes",
+          "officialName": "Boundary Chutes",
+          "officialDifficulty": "experts-only",
+          "mountainArea": "Mott & Killebrew Canyons"
+        }
+      ],
+      "classification": "likely",
+      "reviewRequired": true,
+      "reason": "OSM appears to contain a spelling error in Boundary."
+    },
+    {
+      "osmFeature": {
+        "osmRef": "way/313466683",
+        "osmFeatureType": "way",
+        "osmFeatureId": 313466683,
+        "originalName": "Promised Land",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "flurraCandidates": [
+        {
+          "id": "promised-land",
+          "officialName": "Promise Land",
+          "officialDifficulty": "most-difficult",
+          "mountainArea": "Mott & Killebrew Canyons"
+        }
+      ],
+      "classification": "likely",
+      "reviewRequired": true,
+      "reason": "OSM uses Promised Land while the supplied official map label is Promise Land."
+    },
+    {
+      "osmFeature": {
+        "osmRef": "way/313466702",
+        "osmFeatureType": "way",
+        "osmFeatureId": 313466702,
+        "originalName": "Sky Canyon",
+        "pisteDifficulty": "advanced",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "flurraCandidates": [
+        {
+          "id": "sky",
+          "officialName": "Sky",
+          "officialDifficulty": "most-difficult",
+          "mountainArea": "Sky / Canyon"
+        },
+        {
+          "id": "canyon",
+          "officialName": "Canyon",
+          "officialDifficulty": "most-difficult",
+          "mountainArea": "Sky / Canyon"
+        }
+      ],
+      "classification": "ambiguous",
+      "reviewRequired": true,
+      "reason": "OSM has one composite label where the supplied official map has separate Sky and Canyon records."
+    },
+    {
+      "osmFeature": {
+        "osmRef": "way/313466743",
+        "osmFeatureType": "way",
+        "osmFeatureId": 313466743,
+        "originalName": "Widow Maker",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "flurraCandidates": [
+        {
+          "id": "lone-wolf",
+          "officialName": "Lone Wolf",
+          "officialDifficulty": "most-difficult",
+          "mountainArea": "Mott & Killebrew Canyons"
+        }
+      ],
+      "classification": "likely",
+      "reviewRequired": true,
+      "reason": "Widow Maker is retained in Flurra as a map-version-conflict name for Lone Wolf."
+    },
+    {
+      "osmFeature": {
+        "osmRef": "way/1382670950",
+        "osmFeatureType": "way",
+        "osmFeatureId": 1382670950,
+        "originalName": "Upper Bonanza",
+        "pisteDifficulty": "intermediate",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "flurraCandidates": [
+        {
+          "id": "bonanza",
+          "officialName": "Bonanza",
+          "officialDifficulty": "more-difficult",
+          "mountainArea": "East Peak / Dipper"
+        }
+      ],
+      "classification": "likely",
+      "reviewRequired": true,
+      "reason": "OSM appears to name an upper segment of Bonanza."
+    },
+    {
+      "osmFeature": {
+        "osmRef": "way/1386306542",
+        "osmFeatureType": "way",
+        "osmFeatureId": 1386306542,
+        "originalName": "Advanced Round-a-Bout",
+        "pisteDifficulty": "advanced",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "flurraCandidates": [
+        {
+          "id": "round-a-bout",
+          "officialName": "Round-A-Bout",
+          "officialDifficulty": "more-difficult",
+          "mountainArea": "California"
+        }
+      ],
+      "classification": "likely",
+      "reviewRequired": true,
+      "reason": "OSM appears to name an advanced segment of the broader Round-A-Bout run."
+    },
+    {
+      "osmFeature": {
+        "osmRef": "way/1389656304",
+        "osmFeatureType": "way",
+        "osmFeatureId": 1389656304,
+        "originalName": "Ramarah's",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "flurraCandidates": [
+        {
+          "id": "ramarrahs",
+          "officialName": "Ramarrah's",
+          "officialDifficulty": "most-difficult",
+          "mountainArea": "Mott & Killebrew Canyons"
+        }
+      ],
+      "classification": "likely",
+      "reviewRequired": true,
+      "reason": "OSM uses one r in Ramarah's; the supplied official map uses Ramarrah's."
+    },
+    {
+      "osmFeature": {
+        "osmRef": "way/1389656305",
+        "osmFeatureType": "way",
+        "osmFeatureId": 1389656305,
+        "originalName": "Bobs Boulevard",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "flurraCandidates": [
+        {
+          "id": "bobs-boulevard",
+          "officialName": "Bob's Boulevard",
+          "officialDifficulty": "most-difficult",
+          "mountainArea": "Mott & Killebrew Canyons"
+        }
+      ],
+      "classification": "likely",
+      "reviewRequired": true,
+      "reason": "OSM omits the possessive apostrophe from Bob's."
+    },
+    {
+      "osmFeature": {
+        "osmRef": "way/1389656306",
+        "osmFeatureType": "way",
+        "osmFeatureId": 1389656306,
+        "originalName": "Stateline",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "flurraCandidates": [
+        {
+          "id": "stateline-chute",
+          "officialName": "Stateline Chute",
+          "officialDifficulty": "most-difficult",
+          "mountainArea": "Mott & Killebrew Canyons"
+        }
+      ],
+      "classification": "likely",
+      "reviewRequired": true,
+      "reason": "OSM uses the shortened name Stateline."
+    },
+    {
+      "osmFeature": {
+        "osmRef": "way/1389656314",
+        "osmFeatureType": "way",
+        "osmFeatureId": 1389656314,
+        "originalName": "Advanced California Trail",
+        "pisteDifficulty": "intermediate",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "flurraCandidates": [
+        {
+          "id": "california-trail",
+          "officialName": "California Trail",
+          "officialDifficulty": "more-difficult",
+          "mountainArea": "Sky / Canyon"
+        }
+      ],
+      "classification": "likely",
+      "reviewRequired": true,
+      "reason": "OSM appears to name an advanced segment of the broader California Trail run."
+    },
+    {
+      "osmFeature": {
+        "osmRef": "way/313466676",
+        "osmFeatureType": "way",
+        "osmFeatureId": 313466676,
+        "originalName": "Upper Powder Bowl",
+        "pisteDifficulty": "intermediate",
+        "pisteType": "snow_park",
+        "aerialway": null,
+        "kind": "named-ski-terrain"
+      },
+      "flurraCandidates": [
+        {
+          "id": "upper-powderbowl",
+          "officialName": "Upper Powderbowl",
+          "officialDifficulty": "more-difficult",
+          "mountainArea": "California"
+        }
+      ],
+      "classification": "likely",
+      "reviewRequired": true,
+      "reason": "OSM inserts a space and classifies this geometry as a snow park rather than downhill."
+    }
+  ],
+  "mapFeatureLinks": [
+    {
+      "osmFeature": {
+        "osmRef": "way/313466571",
+        "osmFeatureType": "way",
+        "osmFeatureId": 313466571,
+        "originalName": "Groove Park",
+        "pisteDifficulty": "easy",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "flurraMapFeatures": [
+        {
+          "id": "groove-park",
+          "name": "Groove Park",
+          "featureKind": "terrain-park",
+          "mountainArea": "California"
+        }
+      ],
+      "matchType": "exact-or-normalized",
+      "reviewRequired": false,
+      "reason": "OSM name matches a separately stored Flurra map feature."
+    },
+    {
+      "osmFeature": {
+        "osmRef": "way/313466631",
+        "osmFeatureType": "way",
+        "osmFeatureId": 313466631,
+        "originalName": "Mott Canyon Trail",
+        "pisteDifficulty": "advanced",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "flurraMapFeatures": [
+        {
+          "id": "mott-canyon",
+          "name": "Mott Canyon",
+          "featureKind": "expert-terrain-area",
+          "mountainArea": "Mott & Killebrew Canyons"
+        }
+      ],
+      "matchType": "likely",
+      "reviewRequired": true,
+      "reason": "OSM maps a downhill way named Mott Canyon Trail; Flurra classifies Mott Canyon as a parent terrain area."
+    },
+    {
+      "osmFeature": {
+        "osmRef": "way/313466572",
+        "osmFeatureType": "way",
+        "osmFeatureId": 313466572,
+        "originalName": "Groove Park",
+        "pisteDifficulty": "easy",
+        "pisteType": "snow_park",
+        "aerialway": null,
+        "kind": "named-ski-terrain"
+      },
+      "flurraMapFeatures": [
+        {
+          "id": "groove-park",
+          "name": "Groove Park",
+          "featureKind": "terrain-park",
+          "mountainArea": "California"
+        }
+      ],
+      "matchType": "exact-or-normalized",
+      "reviewRequired": false,
+      "reason": "OSM name matches a separately stored Flurra map feature."
+    }
+  ],
+  "osmDownhillWithoutFlurraMatch": [
+    {
+      "osmRef": "way/313466173",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466173,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466188",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466188,
+      "originalName": null,
+      "pisteDifficulty": "easy",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466191",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466191,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466282",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466282,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466286",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466286,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466371",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466371,
+      "originalName": null,
+      "pisteDifficulty": "easy",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466402",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466402,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466404",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466404,
+      "originalName": null,
+      "pisteDifficulty": "easy",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466406",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466406,
+      "originalName": null,
+      "pisteDifficulty": "easy",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466410",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466410,
+      "originalName": null,
+      "pisteDifficulty": "easy",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466412",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466412,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466426",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466426,
+      "originalName": null,
+      "pisteDifficulty": "easy",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466428",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466428,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466430",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466430,
+      "originalName": null,
+      "pisteDifficulty": "easy",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466433",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466433,
+      "originalName": null,
+      "pisteDifficulty": "easy",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466437",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466437,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466443",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466443,
+      "originalName": null,
+      "pisteDifficulty": "advanced",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466447",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466447,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466462",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466462,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466464",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466464,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466475",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466475,
+      "originalName": null,
+      "pisteDifficulty": "advanced",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466571",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466571,
+      "originalName": "Groove Park",
+      "pisteDifficulty": "easy",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466631",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466631,
+      "originalName": "Mott Canyon Trail",
+      "pisteDifficulty": "advanced",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1134266918",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1134266918,
+      "originalName": null,
+      "pisteDifficulty": "easy",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1134266919",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1134266919,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1134266920",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1134266920,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1134266921",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1134266921,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1350361938",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1350361938,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1350361939",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1350361939,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1350361940",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1350361940,
+      "originalName": null,
+      "pisteDifficulty": null,
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1350361941",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1350361941,
+      "originalName": null,
+      "pisteDifficulty": null,
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1350369025",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1350369025,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1350661275",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1350661275,
+      "originalName": null,
+      "pisteDifficulty": null,
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1351486717",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1351486717,
+      "originalName": null,
+      "pisteDifficulty": "easy",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1351487651",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1351487651,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1382406256",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1382406256,
+      "originalName": "Cepheus",
+      "pisteDifficulty": "advanced",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1382406259",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1382406259,
+      "originalName": "Stage Line",
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1386306545",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1386306545,
+      "originalName": "Upper Tamarack Woods",
+      "pisteDifficulty": "expert",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1386306549",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1386306549,
+      "originalName": null,
+      "pisteDifficulty": null,
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1386306554",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1386306554,
+      "originalName": "Scorpion Woods",
+      "pisteDifficulty": "advanced",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1389656302",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1389656302,
+      "originalName": "Tamarack Woods",
+      "pisteDifficulty": "advanced",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1389656308",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1389656308,
+      "originalName": "Under the Gun",
+      "pisteDifficulty": "expert",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1389656310",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1389656310,
+      "originalName": "Meadows",
+      "pisteDifficulty": "expert",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1389656313",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1389656313,
+      "originalName": "Backstroke",
+      "pisteDifficulty": "expert",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1389656316",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1389656316,
+      "originalName": "Galaxy Woods",
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1390253280",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1390253280,
+      "originalName": "Pac-Man",
+      "pisteDifficulty": "expert",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    }
+  ],
+  "osmSkiFeaturesWithoutFlurraRunMatch": [
+    {
+      "osmRef": "way/313466173",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466173,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466188",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466188,
+      "originalName": null,
+      "pisteDifficulty": "easy",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466191",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466191,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466282",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466282,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466286",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466286,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466371",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466371,
+      "originalName": null,
+      "pisteDifficulty": "easy",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466402",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466402,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466404",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466404,
+      "originalName": null,
+      "pisteDifficulty": "easy",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466406",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466406,
+      "originalName": null,
+      "pisteDifficulty": "easy",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466410",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466410,
+      "originalName": null,
+      "pisteDifficulty": "easy",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466412",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466412,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466426",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466426,
+      "originalName": null,
+      "pisteDifficulty": "easy",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466428",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466428,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466430",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466430,
+      "originalName": null,
+      "pisteDifficulty": "easy",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466433",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466433,
+      "originalName": null,
+      "pisteDifficulty": "easy",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466437",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466437,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466443",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466443,
+      "originalName": null,
+      "pisteDifficulty": "advanced",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466447",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466447,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466462",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466462,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466464",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466464,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466475",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466475,
+      "originalName": null,
+      "pisteDifficulty": "advanced",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466571",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466571,
+      "originalName": "Groove Park",
+      "pisteDifficulty": "easy",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466631",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466631,
+      "originalName": "Mott Canyon Trail",
+      "pisteDifficulty": "advanced",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1134266918",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1134266918,
+      "originalName": null,
+      "pisteDifficulty": "easy",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1134266919",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1134266919,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1134266920",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1134266920,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1134266921",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1134266921,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1350361938",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1350361938,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1350361939",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1350361939,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1350361940",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1350361940,
+      "originalName": null,
+      "pisteDifficulty": null,
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1350361941",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1350361941,
+      "originalName": null,
+      "pisteDifficulty": null,
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1350369025",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1350369025,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1350661275",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1350661275,
+      "originalName": null,
+      "pisteDifficulty": null,
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1351486717",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1351486717,
+      "originalName": null,
+      "pisteDifficulty": "easy",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1351487651",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1351487651,
+      "originalName": null,
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1382406256",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1382406256,
+      "originalName": "Cepheus",
+      "pisteDifficulty": "advanced",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1382406259",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1382406259,
+      "originalName": "Stage Line",
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1386306545",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1386306545,
+      "originalName": "Upper Tamarack Woods",
+      "pisteDifficulty": "expert",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1386306549",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1386306549,
+      "originalName": null,
+      "pisteDifficulty": null,
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1386306554",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1386306554,
+      "originalName": "Scorpion Woods",
+      "pisteDifficulty": "advanced",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1389656302",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1389656302,
+      "originalName": "Tamarack Woods",
+      "pisteDifficulty": "advanced",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1389656308",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1389656308,
+      "originalName": "Under the Gun",
+      "pisteDifficulty": "expert",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1389656310",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1389656310,
+      "originalName": "Meadows",
+      "pisteDifficulty": "expert",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1389656313",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1389656313,
+      "originalName": "Backstroke",
+      "pisteDifficulty": "expert",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1389656316",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1389656316,
+      "originalName": "Galaxy Woods",
+      "pisteDifficulty": "intermediate",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/1390253280",
+      "osmFeatureType": "way",
+      "osmFeatureId": 1390253280,
+      "originalName": "Pac-Man",
+      "pisteDifficulty": "expert",
+      "pisteType": "downhill",
+      "aerialway": null,
+      "kind": "downhill"
+    },
+    {
+      "osmRef": "way/313466572",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466572,
+      "originalName": "Groove Park",
+      "pisteDifficulty": "easy",
+      "pisteType": "snow_park",
+      "aerialway": null,
+      "kind": "named-ski-terrain"
+    }
+  ],
+  "flurraRunsWithoutOsmGeometry": [
+    {
+      "id": "galaxy-line",
+      "officialName": "Galaxy Line",
+      "officialDifficulty": "more-difficult",
+      "mountainArea": "Galaxy / Stagecoach"
+    },
+    {
+      "id": "sky-chute",
+      "officialName": "Sky Chute",
+      "officialDifficulty": "more-difficult",
+      "mountainArea": "Sky / Canyon"
+    },
+    {
+      "id": "big-easy",
+      "officialName": "Big Easy",
+      "officialDifficulty": "easier",
+      "mountainArea": "Top of Gondola"
+    }
+  ],
+  "oneFlurraRunToMultipleOsmFeatures": [
+    {
+      "flurraRun": {
+        "id": "bonanza",
+        "officialName": "Bonanza",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "East Peak / Dipper"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466509",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466509,
+          "originalName": "Bonanza",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        },
+        {
+          "osmRef": "way/1382670950",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1382670950,
+          "originalName": "Upper Bonanza",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "reviewRequired": true
+    },
+    {
+      "flurraRun": {
+        "id": "tamarack-return",
+        "officialName": "Tamarack Return",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Sky / Canyon"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466496",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466496,
+          "originalName": "Tamarack Return",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        },
+        {
+          "osmRef": "way/1134266922",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1134266922,
+          "originalName": "Tamarack Return",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "reviewRequired": true
+    },
+    {
+      "flurraRun": {
+        "id": "california-trail",
+        "officialName": "California Trail",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Sky / Canyon"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466518",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466518,
+          "originalName": "California Trail",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        },
+        {
+          "osmRef": "way/1389656314",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1389656314,
+          "originalName": "Advanced California Trail",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "reviewRequired": true
+    },
+    {
+      "flurraRun": {
+        "id": "ski-ways-glades",
+        "officialName": "Ski Ways Glades",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Sky / Canyon"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/1389656300",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1389656300,
+          "originalName": "Ski Ways Glades",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        },
+        {
+          "osmRef": "way/1389656301",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1389656301,
+          "originalName": "Ski Ways Glades",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "reviewRequired": true
+    },
+    {
+      "flurraRun": {
+        "id": "pinnacles",
+        "officialName": "Pinnacles",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Sky / Canyon"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466673",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466673,
+          "originalName": "Pinnacles",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        },
+        {
+          "osmRef": "way/1389656299",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1389656299,
+          "originalName": "Pinnacles",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "reviewRequired": true
+    },
+    {
+      "flurraRun": {
+        "id": "canyonland",
+        "officialName": "Canyonland",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Sky / Canyon"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466581",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466581,
+          "originalName": "Canyonland",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        },
+        {
+          "osmRef": "way/313466582",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466582,
+          "originalName": "Canyonland",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "reviewRequired": true
+    },
+    {
+      "flurraRun": {
+        "id": "round-a-bout",
+        "officialName": "Round-A-Bout",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/313466694",
+          "osmFeatureType": "way",
+          "osmFeatureId": 313466694,
+          "originalName": "Round-a-Bout",
+          "pisteDifficulty": "intermediate",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        },
+        {
+          "osmRef": "way/1386306542",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1386306542,
+          "originalName": "Advanced Round-a-Bout",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "reviewRequired": true
+    },
+    {
+      "flurraRun": {
+        "id": "hogsback",
+        "officialName": "Hogsback",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "California"
+      },
+      "osmFeatures": [
+        {
+          "osmRef": "way/1386306540",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1386306540,
+          "originalName": "Hogsback",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        },
+        {
+          "osmRef": "way/1386306541",
+          "osmFeatureType": "way",
+          "osmFeatureId": 1386306541,
+          "originalName": "Hogsback",
+          "pisteDifficulty": "advanced",
+          "pisteType": "downhill",
+          "aerialway": null,
+          "kind": "downhill"
+        }
+      ],
+      "reviewRequired": true
+    }
+  ],
+  "osmRelationsRepresentingCompleteRuns": [],
+  "difficultyDifferences": [
+    {
+      "flurraRun": {
+        "id": "outer-limits",
+        "officialName": "Outer Limits",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeature": {
+        "osmRef": "way/313466657",
+        "osmFeatureType": "way",
+        "osmFeatureId": 313466657,
+        "originalName": "Outer Limits",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "expectedOsmDifficulty": "advanced",
+      "comparison": "different",
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "pipeline",
+        "officialName": "Pipeline",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeature": {
+        "osmRef": "way/1389656303",
+        "osmFeatureType": "way",
+        "osmFeatureId": 1389656303,
+        "originalName": "Pipeline",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "expectedOsmDifficulty": "advanced",
+      "comparison": "different",
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "the-fingers",
+        "officialName": "The Fingers",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeature": {
+        "osmRef": "way/1389656309",
+        "osmFeatureType": "way",
+        "osmFeatureId": 1389656309,
+        "originalName": "The Fingers",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "expectedOsmDifficulty": "advanced",
+      "comparison": "different",
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "sweetwater",
+        "officialName": "Sweetwater",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeature": {
+        "osmRef": "way/1389656307",
+        "osmFeatureType": "way",
+        "osmFeatureId": 1389656307,
+        "originalName": "Sweetwater",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "expectedOsmDifficulty": "advanced",
+      "comparison": "different",
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "the-y",
+        "officialName": "The \"Y\"",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeature": {
+        "osmRef": "way/1389656312",
+        "osmFeatureType": "way",
+        "osmFeatureId": 1389656312,
+        "originalName": "The \"Y\"",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "expectedOsmDifficulty": "advanced",
+      "comparison": "different",
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "bills",
+        "officialName": "Bill's",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeature": {
+        "osmRef": "way/313466505",
+        "osmFeatureType": "way",
+        "osmFeatureId": 313466505,
+        "originalName": "Bill's",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "expectedOsmDifficulty": "advanced",
+      "comparison": "different",
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "snake-eyes",
+        "officialName": "Snake Eyes",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeature": {
+        "osmRef": "way/313466705",
+        "osmFeatureType": "way",
+        "osmFeatureId": 313466705,
+        "originalName": "Snake Eyes",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "expectedOsmDifficulty": "advanced",
+      "comparison": "different",
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "hully-gully",
+        "officialName": "Hully Gully",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeature": {
+        "osmRef": "way/313466587",
+        "osmFeatureType": "way",
+        "osmFeatureId": 313466587,
+        "originalName": "Hully Gully",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "expectedOsmDifficulty": "advanced",
+      "comparison": "different",
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "pinenuts",
+        "officialName": "Pinenuts",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeature": {
+        "osmRef": "way/313466671",
+        "osmFeatureType": "way",
+        "osmFeatureId": 313466671,
+        "originalName": "Pinenuts",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "expectedOsmDifficulty": "advanced",
+      "comparison": "different",
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "southern-comfort",
+        "officialName": "Southern Comfort",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeature": {
+        "osmRef": "way/313466709",
+        "osmFeatureType": "way",
+        "osmFeatureId": 313466709,
+        "originalName": "Southern Comfort",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "expectedOsmDifficulty": "advanced",
+      "comparison": "different",
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "on-hold",
+        "officialName": "On Hold",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeature": {
+        "osmRef": "way/313466652",
+        "osmFeatureType": "way",
+        "osmFeatureId": 313466652,
+        "originalName": "On Hold",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "expectedOsmDifficulty": "advanced",
+      "comparison": "different",
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "north-40",
+        "officialName": "North 40",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeature": {
+        "osmRef": "way/313466640",
+        "osmFeatureType": "way",
+        "osmFeatureId": 313466640,
+        "originalName": "North 40",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "expectedOsmDifficulty": "advanced",
+      "comparison": "different",
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "hemlock",
+        "officialName": "Hemlock",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeature": {
+        "osmRef": "way/313466579",
+        "osmFeatureType": "way",
+        "osmFeatureId": 313466579,
+        "originalName": "Hemlock",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "expectedOsmDifficulty": "advanced",
+      "comparison": "different",
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "ernies",
+        "officialName": "Ernie's",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeature": {
+        "osmRef": "way/313466559",
+        "osmFeatureType": "way",
+        "osmFeatureId": 313466559,
+        "originalName": "Ernie's",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "expectedOsmDifficulty": "advanced",
+      "comparison": "different",
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "rim-trail",
+        "officialName": "Rim Trail",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeature": {
+        "osmRef": "way/313466691",
+        "osmFeatureType": "way",
+        "osmFeatureId": 313466691,
+        "originalName": "Rim Trail",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "expectedOsmDifficulty": "advanced",
+      "comparison": "different",
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "boulder-chute",
+        "officialName": "Boulder Chute",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "Boulder / North Bowl"
+      },
+      "osmFeature": {
+        "osmRef": "way/1382406255",
+        "osmFeatureType": "way",
+        "osmFeatureId": 1382406255,
+        "originalName": "Boulder Chute",
+        "pisteDifficulty": "advanced",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "expectedOsmDifficulty": "intermediate",
+      "comparison": "different",
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "sand-dunes",
+        "officialName": "Sand Dunes",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Sky / Canyon"
+      },
+      "osmFeature": {
+        "osmRef": "way/313466254",
+        "osmFeatureType": "way",
+        "osmFeatureId": 313466254,
+        "originalName": "Sand Dunes",
+        "pisteDifficulty": "intermediate",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "expectedOsmDifficulty": "advanced",
+      "comparison": "different",
+      "matchType": "exact-or-normalized"
+    },
+    {
+      "flurraRun": {
+        "id": "promised-land",
+        "officialName": "Promise Land",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeature": {
+        "osmRef": "way/313466683",
+        "osmFeatureType": "way",
+        "osmFeatureId": 313466683,
+        "originalName": "Promised Land",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "expectedOsmDifficulty": "advanced",
+      "comparison": "different",
+      "matchType": "likely"
+    },
+    {
+      "flurraRun": {
+        "id": "lone-wolf",
+        "officialName": "Lone Wolf",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeature": {
+        "osmRef": "way/313466743",
+        "osmFeatureType": "way",
+        "osmFeatureId": 313466743,
+        "originalName": "Widow Maker",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "expectedOsmDifficulty": "advanced",
+      "comparison": "different",
+      "matchType": "likely"
+    },
+    {
+      "flurraRun": {
+        "id": "round-a-bout",
+        "officialName": "Round-A-Bout",
+        "officialDifficulty": "more-difficult",
+        "mountainArea": "California"
+      },
+      "osmFeature": {
+        "osmRef": "way/1386306542",
+        "osmFeatureType": "way",
+        "osmFeatureId": 1386306542,
+        "originalName": "Advanced Round-a-Bout",
+        "pisteDifficulty": "advanced",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "expectedOsmDifficulty": "intermediate",
+      "comparison": "different",
+      "matchType": "likely"
+    },
+    {
+      "flurraRun": {
+        "id": "ramarrahs",
+        "officialName": "Ramarrah's",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeature": {
+        "osmRef": "way/1389656304",
+        "osmFeatureType": "way",
+        "osmFeatureId": 1389656304,
+        "originalName": "Ramarah's",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "expectedOsmDifficulty": "advanced",
+      "comparison": "different",
+      "matchType": "likely"
+    },
+    {
+      "flurraRun": {
+        "id": "bobs-boulevard",
+        "officialName": "Bob's Boulevard",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeature": {
+        "osmRef": "way/1389656305",
+        "osmFeatureType": "way",
+        "osmFeatureId": 1389656305,
+        "originalName": "Bobs Boulevard",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "expectedOsmDifficulty": "advanced",
+      "comparison": "different",
+      "matchType": "likely"
+    },
+    {
+      "flurraRun": {
+        "id": "stateline-chute",
+        "officialName": "Stateline Chute",
+        "officialDifficulty": "most-difficult",
+        "mountainArea": "Mott & Killebrew Canyons"
+      },
+      "osmFeature": {
+        "osmRef": "way/1389656306",
+        "osmFeatureType": "way",
+        "osmFeatureId": 1389656306,
+        "originalName": "Stateline",
+        "pisteDifficulty": "expert",
+        "pisteType": "downhill",
+        "aerialway": null,
+        "kind": "downhill"
+      },
+      "expectedOsmDifficulty": "advanced",
+      "comparison": "different",
+      "matchType": "likely"
+    }
+  ],
+  "missingOsmDifficultiesForMatchedFeatures": [],
+  "lifts": [
+    {
+      "osmRef": "way/258139827",
+      "osmFeatureType": "way",
+      "osmFeatureId": 258139827,
+      "originalName": null,
+      "pisteDifficulty": null,
+      "pisteType": null,
+      "aerialway": "magic_carpet",
+      "kind": "lift"
+    },
+    {
+      "osmRef": "way/313466491",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466491,
+      "originalName": "Aerial Tramway",
+      "pisteDifficulty": null,
+      "pisteType": null,
+      "aerialway": "cable_car",
+      "kind": "lift"
+    },
+    {
+      "osmRef": "way/313466503",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466503,
+      "originalName": "Big Easy",
+      "pisteDifficulty": null,
+      "pisteType": null,
+      "aerialway": "chair_lift",
+      "kind": "lift"
+    },
+    {
+      "osmRef": "way/313466515",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466515,
+      "originalName": "Boulder",
+      "pisteDifficulty": null,
+      "pisteType": null,
+      "aerialway": "chair_lift",
+      "kind": "lift"
+    },
+    {
+      "osmRef": "way/313466519",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466519,
+      "originalName": "Canyon Express",
+      "pisteDifficulty": null,
+      "pisteType": null,
+      "aerialway": "chair_lift",
+      "kind": "lift"
+    },
+    {
+      "osmRef": "way/313466525",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466525,
+      "originalName": "Comet Express",
+      "pisteDifficulty": null,
+      "pisteType": null,
+      "aerialway": "chair_lift",
+      "kind": "lift"
+    },
+    {
+      "osmRef": "way/313466538",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466538,
+      "originalName": "Dipper Express",
+      "pisteDifficulty": null,
+      "pisteType": null,
+      "aerialway": "chair_lift",
+      "kind": "lift"
+    },
+    {
+      "osmRef": "way/313466562",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466562,
+      "originalName": "First Ride",
+      "pisteDifficulty": null,
+      "pisteType": null,
+      "aerialway": "chair_lift",
+      "kind": "lift"
+    },
+    {
+      "osmRef": "way/313466565",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466565,
+      "originalName": "Galaxy",
+      "pisteDifficulty": null,
+      "pisteType": null,
+      "aerialway": "chair_lift",
+      "kind": "lift"
+    },
+    {
+      "osmRef": "way/313466568",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466568,
+      "originalName": "Heavenly Gondola",
+      "pisteDifficulty": null,
+      "pisteType": null,
+      "aerialway": "gondola",
+      "kind": "lift"
+    },
+    {
+      "osmRef": "way/313466573",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466573,
+      "originalName": "Groove",
+      "pisteDifficulty": null,
+      "pisteType": null,
+      "aerialway": "chair_lift",
+      "kind": "lift"
+    },
+    {
+      "osmRef": "way/313466574",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466574,
+      "originalName": "Gunbarrel Express",
+      "pisteDifficulty": null,
+      "pisteType": null,
+      "aerialway": "chair_lift",
+      "kind": "lift"
+    },
+    {
+      "osmRef": "way/313466634",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466634,
+      "originalName": "Mott Canyon",
+      "pisteDifficulty": null,
+      "pisteType": null,
+      "aerialway": "chair_lift",
+      "kind": "lift"
+    },
+    {
+      "osmRef": "way/313466643",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466643,
+      "originalName": "North Bowl Express",
+      "pisteDifficulty": null,
+      "pisteType": null,
+      "aerialway": "chair_lift",
+      "kind": "lift"
+    },
+    {
+      "osmRef": "way/313466651",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466651,
+      "originalName": "Olympic Express",
+      "pisteDifficulty": null,
+      "pisteType": null,
+      "aerialway": "chair_lift",
+      "kind": "lift"
+    },
+    {
+      "osmRef": "way/313466666",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466666,
+      "originalName": "Patsy's",
+      "pisteDifficulty": null,
+      "pisteType": null,
+      "aerialway": "chair_lift",
+      "kind": "lift"
+    },
+    {
+      "osmRef": "way/313466679",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466679,
+      "originalName": "Powderbowl Express",
+      "pisteDifficulty": null,
+      "pisteType": null,
+      "aerialway": "chair_lift",
+      "kind": "lift"
+    },
+    {
+      "osmRef": "way/313466703",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466703,
+      "originalName": "Sky Express",
+      "pisteDifficulty": null,
+      "pisteType": null,
+      "aerialway": "chair_lift",
+      "kind": "lift"
+    },
+    {
+      "osmRef": "way/313466710",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466710,
+      "originalName": "Stagecoach Express",
+      "pisteDifficulty": null,
+      "pisteType": null,
+      "aerialway": "chair_lift",
+      "kind": "lift"
+    },
+    {
+      "osmRef": "way/313466717",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466717,
+      "originalName": "Tamarack Express",
+      "pisteDifficulty": null,
+      "pisteType": null,
+      "aerialway": "chair_lift",
+      "kind": "lift"
+    },
+    {
+      "osmRef": "way/313466728",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466728,
+      "originalName": "Tubing Hill",
+      "pisteDifficulty": null,
+      "pisteType": null,
+      "aerialway": "magic_carpet",
+      "kind": "lift"
+    },
+    {
+      "osmRef": "way/313466746",
+      "osmFeatureType": "way",
+      "osmFeatureId": 313466746,
+      "originalName": "World Cup",
+      "pisteDifficulty": null,
+      "pisteType": null,
+      "aerialway": "chair_lift",
+      "kind": "lift"
+    },
+    {
+      "osmRef": "way/390004784",
+      "osmFeatureType": "way",
+      "osmFeatureId": 390004784,
+      "originalName": "Pioneer",
+      "pisteDifficulty": null,
+      "pisteType": null,
+      "aerialway": "rope_tow",
+      "kind": "lift"
+    }
+  ]
+}
