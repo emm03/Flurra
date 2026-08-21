@@ -1,13 +1,17 @@
+import type { VibeLabel } from './runRecommendations';
+
+import { heavenlyTrailCatalogProvenance } from './heavenlyOfficialRuns';
+
 export type Resort = { name: string; location: string; vertical: string; trails: number; image: string; color: string };
 export type Report = { author: string; initials: string; mountain: string; time: string; text: string; accent: string };
 
 export const resorts: Resort[] = [
-  { name: 'Heavenly', location: 'Lake Tahoe, CA', vertical: '3,500 ft', trails: 97, color: '#5f99a2', image: 'https://images.unsplash.com/photo-1486911278844-a81c5267e227?auto=format&fit=crop&w=1200&q=85' },
+  { name: 'Heavenly', location: 'Lake Tahoe, CA', vertical: '3,500 ft', trails: heavenlyTrailCatalogProvenance.currentPublishedTrailCount.value, color: '#5f99a2', image: 'https://images.unsplash.com/photo-1486911278844-a81c5267e227?auto=format&fit=crop&w=1200&q=85' },
   { name: 'Palisades Tahoe', location: 'Olympic Valley, CA', vertical: '2,850 ft', trails: 170, color: '#d06b3a', image: 'https://images.unsplash.com/photo-1551524559-8af4e6624178?auto=format&fit=crop&w=1200&q=85' },
   { name: 'Mammoth Mountain', location: 'Mammoth Lakes, CA', vertical: '3,100 ft', trails: 175, color: '#a7b84a', image: 'https://images.unsplash.com/photo-1520962880247-cfaf541c8724?auto=format&fit=crop&w=1200&q=85' },
 ];
 
-export const vibes = [
+export const vibes: { icon: string; label: VibeLabel; sub: string }[] = [
   { icon: '⚡', label: 'Fast & steep', sub: 'Let it rip' },
   { icon: '🌲', label: 'Trees, please', sub: 'Find the secret stash' },
   { icon: '☀️', label: 'Cruisy laps', sub: 'Good views, no rush' },

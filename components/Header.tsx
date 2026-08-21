@@ -2,12 +2,24 @@ import { Feather } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, fonts } from '@/theme';
 
-export function Header({ compact }: { compact: boolean }) {
+type HeaderProps = {
+  compact: boolean;
+  onExplore: () => void;
+  onVibe: () => void;
+  onMountainReport: () => void;
+  onPlanSkiDay: () => void;
+};
+
+export function Header({ compact, onExplore, onVibe, onMountainReport, onPlanSkiDay }: HeaderProps) {
   return <View style={styles.header}>
     <View style={styles.brand}><View style={styles.snow}><Text style={styles.snowText}>✳</Text></View><Text style={styles.logo}>flurra</Text></View>
     {compact ? <Pressable style={styles.menu}><Feather name="menu" size={22} color={colors.white} /></Pressable> : <>
-      <View style={styles.nav}><Text style={styles.active}>EXPLORE</Text><Text style={styles.link}>THE VIBE</Text><Text style={styles.link}>MOUNTAIN REPORT</Text></View>
-      <Pressable style={({ hovered }: any) => [styles.dayButton, hovered && styles.dayHover]}><Text style={styles.dayText}>PLAN A SKI DAY</Text><Feather name="arrow-up-right" size={16} color={colors.deep} /></Pressable>
+      <View style={styles.nav}>
+        <Pressable accessibilityRole="button" onPress={onExplore}><Text style={styles.active}>EXPLORE</Text></Pressable>
+        <Pressable accessibilityRole="button" onPress={onVibe}><Text style={styles.link}>THE VIBE</Text></Pressable>
+        <Pressable accessibilityRole="button" onPress={onMountainReport}><Text style={styles.link}>MOUNTAIN REPORT</Text></Pressable>
+      </View>
+      <Pressable accessibilityRole="button" onPress={onPlanSkiDay} style={({ hovered }: any) => [styles.dayButton, hovered && styles.dayHover]}><Text style={styles.dayText}>PLAN A SKI DAY</Text><Feather name="arrow-up-right" size={16} color={colors.deep} /></Pressable>
     </>}
   </View>;
 }

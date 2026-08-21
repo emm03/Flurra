@@ -1,21 +1,58 @@
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import { ImageBackground, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { colors, fonts } from '@/theme';
 import { Header } from './Header';
 import { TopographicLines } from './TopographicLines';
 
-export function Hero({ compact }: { compact: boolean }) {
+type HeroProps = {
+  compact: boolean;
+  onExplore: () => void;
+  onVibe: () => void;
+  onMountainReport: () => void;
+  onPlanSkiDay: () => void;
+};
+
+const popularResorts = [
+  { label: 'Heavenly', route: '/resorts/heavenly' },
+  { label: 'Palisades Tahoe', route: '/resorts/palisades-tahoe' },
+  { label: 'Mammoth', route: '/resorts/mammoth-mountain' },
+] as const;
+
+export function Hero({ compact, onExplore, onVibe, onMountainReport, onPlanSkiDay }: HeroProps) {
+  const router = useRouter();
+  const [query, setQuery] = useState('');
+  const [searchMessage, setSearchMessage] = useState('');
+
+  const searchResorts = () => {
+    const resort = query.trim();
+    if (!resort) {
+      setSearchMessage('Type a resort name to start exploring.');
+      return;
+    }
+
+    if (resort.toLowerCase().includes('heavenly')) {
+      setSearchMessage('');
+      router.push('/resorts/heavenly');
+      return;
+    }
+
+    setSearchMessage(`${resort} is coming soon to Flurra.`);
+  };
+
   return <View style={styles.hero}>
     <TopographicLines light />
-    <Header compact={compact} />
+    <Header compact={compact} onExplore={onExplore} onVibe={onVibe} onMountainReport={onMountainReport} onPlanSkiDay={onPlanSkiDay} />
     <View style={[styles.inner, compact && styles.innerMobile]}>
       <View style={styles.copy}>
         <View style={styles.sticker}><Text style={styles.stickerText}>YOUR SKI DAY, SORTED.</Text></View>
         <Text style={[styles.title, compact && styles.titleMobile]}>Find your mountain.{`\n`}<Text style={styles.script}>Meet your people.</Text></Text>
         <Text style={styles.sub}>Real-time mountain intel, runs that match your mood, and a whole crew who&apos;d rather be skiing.</Text>
-        <View style={[styles.search, compact && styles.searchMobile]}><Feather name="search" size={21} color={colors.forest} /><TextInput accessibilityLabel="Search resorts" placeholder="Search a resort or mountain..." placeholderTextColor="#748078" style={styles.input} /><Pressable style={styles.searchButton}><Text style={styles.searchText}>LET&apos;S GO</Text><Feather name="arrow-right" size={17} color={colors.deep} /></Pressable></View>
-        <View style={styles.popular}><Text style={styles.popularLabel}>POPULAR:</Text>{['Heavenly', 'Palisades Tahoe', 'Mammoth'].map(x => <Pressable key={x}><Text style={styles.popularLink}>{x}</Text></Pressable>)}</View>
+        <View style={[styles.search, compact && styles.searchMobile]}><Feather name="search" size={21} color={colors.forest} /><TextInput accessibilityLabel="Search resorts" value={query} onChangeText={(value) => { setQuery(value); setSearchMessage(''); }} onSubmitEditing={searchResorts} returnKeyType="search" placeholder="Search a resort or mountain..." placeholderTextColor="#748078" style={styles.input} /><Pressable accessibilityRole="button" accessibilityLabel="Search Flurra resorts" onPress={searchResorts} style={styles.searchButton}><Text style={styles.searchText}>LET&apos;S GO</Text><Feather name="arrow-right" size={17} color={colors.deep} /></Pressable></View>
+        {searchMessage ? <Text accessibilityLiveRegion="polite" style={styles.searchResult}>{searchMessage}</Text> : null}
+        <View style={styles.popular}><Text style={styles.popularLabel}>POPULAR:</Text>{popularResorts.map((resort) => <Pressable accessibilityRole="link" key={resort.label} onPress={() => router.push(resort.route)}><Text style={styles.popularLink}>{resort.label}</Text></Pressable>)}</View>
       </View>
       <View style={[styles.visual, compact && styles.visualMobile]}>
         <View style={styles.tape} />
@@ -30,5 +67,6 @@ export function Hero({ compact }: { compact: boolean }) {
 const styles = StyleSheet.create({
   hero: { backgroundColor: colors.forest, minHeight: 740, overflow: 'hidden' }, inner: { alignSelf: 'center', maxWidth: 1240, width: '100%', flexDirection: 'row', paddingHorizontal: 32, paddingTop: 64, paddingBottom: 100, gap: 70, alignItems: 'center' }, innerMobile: { flexDirection: 'column', paddingTop: 35, paddingHorizontal: 20, gap: 55 }, copy: { flex: 1, zIndex: 3 }, sticker: { alignSelf: 'flex-start', backgroundColor: colors.orange, paddingHorizontal: 13, paddingVertical: 7, marginBottom: 25, transform: [{ rotate: '-2deg' }] }, stickerText: { fontFamily: fonts.bold, color: colors.deep, fontSize: 11, letterSpacing: 1.5 }, title: { color: colors.white, fontFamily: fonts.display, fontSize: 66, lineHeight: 68, letterSpacing: -3 }, titleMobile: { fontSize: 45, lineHeight: 49, letterSpacing: -2 }, script: { color: colors.lime, fontStyle: 'italic' }, sub: { color: '#d6e0dc', fontFamily: fonts.body, fontSize: 17, lineHeight: 27, maxWidth: 540, marginTop: 24 },
   search: { marginTop: 36, backgroundColor: colors.paper, borderRadius: 5, height: 64, alignItems: 'center', paddingLeft: 18, paddingRight: 7, flexDirection: 'row', maxWidth: 585, shadowColor: '#000', shadowOpacity: .25, shadowRadius: 15, shadowOffset: { width: 0, height: 8 } }, searchMobile: { height: 58 }, input: { flex: 1, height: '100%', paddingHorizontal: 12, fontFamily: fonts.body, fontSize: 15, color: colors.ink, outlineStyle: 'none' } as any, searchButton: { height: 48, paddingHorizontal: 18, backgroundColor: colors.lime, alignItems: 'center', flexDirection: 'row', gap: 8, borderRadius: 3 }, searchText: { color: colors.deep, fontFamily: fonts.bold, fontSize: 11, letterSpacing: 1 }, popular: { flexDirection: 'row', flexWrap: 'wrap', gap: 13, marginTop: 17 }, popularLabel: { color: '#8ca69d', fontFamily: fonts.bold, fontSize: 10, letterSpacing: 1.4 }, popularLink: { color: '#c6d6d0', fontFamily: fonts.medium, fontSize: 11, textDecorationLine: 'underline' },
+  searchResult: { color: colors.lime, fontFamily: fonts.medium, fontSize: 11, marginTop: 10 },
   visual: { width: 470, height: 430, transform: [{ rotate: '2deg' }] }, visualMobile: { width: '92%', maxWidth: 440, height: 370 }, tape: { position: 'absolute', zIndex: 4, top: -16, left: 160, width: 115, height: 38, backgroundColor: 'rgba(245,215,140,.8)', transform: [{ rotate: '-5deg' }] }, photoFrame: { backgroundColor: '#f7efe0', padding: 12, paddingBottom: 55, shadowColor: '#000', shadowOpacity: .3, shadowRadius: 15, shadowOffset: { width: 5, height: 12 }, height: '100%' }, photo: { flex: 1, justifyContent: 'flex-end' }, photoImage: { backgroundColor: '#7ba5ac' }, photoTag: { padding: 20 }, photoTagTop: { color: colors.lime, fontFamily: fonts.bold, fontSize: 10, letterSpacing: 1.5 }, photoTagBig: { color: colors.white, fontFamily: fonts.display, fontSize: 25, marginTop: 3 }, sun: { position: 'absolute', right: -35, top: 60, backgroundColor: colors.lime, width: 105, height: 105, borderRadius: 55, alignItems: 'center', justifyContent: 'center', transform: [{ rotate: '9deg' }] }, sunIcon: { fontSize: 26, color: colors.deep }, sunText: { fontFamily: fonts.bold, fontSize: 9, textAlign: 'center', color: colors.deep, letterSpacing: 1.2 }, verticalLabel: { position: 'absolute', bottom: 12, left: 28 }, verticalText: { color: colors.deep, fontFamily: fonts.bold, fontSize: 10, letterSpacing: 2 }, squiggle: { position: 'absolute', bottom: 15, right: 35 }, squiggleText: { color: colors.orange, fontSize: 35 },
 });
