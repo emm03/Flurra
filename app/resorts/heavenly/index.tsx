@@ -76,6 +76,15 @@ export default function HeavenlyPage() {
       explorationProgress={progress}
       onFindRun={() => scrollRef.current?.scrollTo({ y: directoryY.current || 760, animated: true })}
     />
+    <View ref={mapSectionRef}>
+      <FutureMapSection
+        resortName={heavenlyResort.name}
+        compact={compact}
+        runs={heavenlyRuns}
+        selectedRunId={selectedMapRunId}
+        onSelectRun={setSelectedMapRunId}
+      />
+    </View>
     <View onLayout={(event) => { directoryY.current = event.nativeEvent.layout.y; }}>
       <RunDirectory
         runs={heavenlyRuns}
@@ -86,15 +95,6 @@ export default function HeavenlyPage() {
         onToggleSaved={(id) => toggle(id, savedIds, setSavedIds)}
         onToggleSkied={(id) => toggle(id, skiedIds, setSkiedIds)}
         onShowOnMap={showRunOnMap}
-      />
-    </View>
-    <View ref={mapSectionRef}>
-      <FutureMapSection
-        resortName={heavenlyResort.name}
-        compact={compact}
-        runs={heavenlyRuns}
-        selectedRunId={selectedMapRunId}
-        onSelectRun={setSelectedMapRunId}
       />
     </View>
     <MountainPulse reports={mountainReports} skiers={mountainSkiers} groups={skiGroups} photos={communityPhotos} compact={compact} />

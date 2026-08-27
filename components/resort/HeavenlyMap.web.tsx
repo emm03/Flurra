@@ -1,16 +1,21 @@
+import mlcontour from 'maplibre-contour';
+import * as maplibregl from 'maplibre-gl';
 import {
   type FilterSpecification,
   LngLatBounds,
   Map as MapLibreMap,
   type MapLayerMouseEvent,
   NavigationControl,
-  type StyleSpecification,
 } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { heavenlyMapData } from '@/data/heavenlyMap';
 import { colors, fonts } from '@/theme';
+import {
+  createHeavenlyWinterStyle,
+  heavenlyLocalFallbackStyle,
+} from './map/heavenlyMapStyle';
 
 type HeavenlyMapProps = {
   selectedRunId: string | null;
@@ -26,18 +31,83 @@ const runLayerIds = [
   'selected-run',
 ];
 
-const mapStyle: StyleSpecification = {
-  version: 8,
-  name: 'Flurra Heavenly prototype',
-  sources: {},
-  layers: [
-    {
-      id: 'background',
-      type: 'background',
-      paint: { 'background-color': '#bcdde2' },
+let sharedDemSource: InstanceType<typeof mlcontour.DemSource> | null = null;
+
+function getDemSource() {
+  if (!sharedDemSource) {
+    sharedDemSource = new mlcontour.DemSource({
+      url: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
+      encoding: 'terrarium',
+      maxzoom: 15,
+      worker: true,
+      cacheSize: 80,
+      timeoutMs: 10000,
+    });
+    sharedDemSource.setupMaplibre(maplibregl);
+  }
+  return sharedDemSource;
+}
+
+function allRunGeometryBounds() {
+  const coordinates: [number, number][] = [];
+
+  function collect(value: unknown) {
+    if (!Array.isArray(value)) return;
+    if (value.length >= 2 && value.every((item) => typeof item === 'number')) {
+      coordinates.push(value as [number, number]);
+      return;
+    }
+    value.forEach(collect);
+  }
+
+  for (const feature of heavenlyMapData.verifiedRuns.features) {
+    if (feature.geometry.type === 'GeometryCollection') {
+      feature.geometry.geometries?.forEach((geometry: any) => collect(geometry.coordinates));
+    } else {
+      collect(feature.geometry.coordinates);
+    }
+  }
+
+  const longitudes = coordinates.map(([longitude]) => longitude);
+  const latitudes = coordinates.map(([, latitude]) => latitude);
+  return new LngLatBounds(
+    [Math.min(...longitudes), Math.min(...latitudes)],
+    [Math.max(...longitudes), Math.max(...latitudes)],
+  );
+}
+
+function addMajorContours(map: MapLibreMap, demSource: ReturnType<typeof getDemSource>) {
+  map.addSource('major-contours', {
+    type: 'vector',
+    tiles: [demSource.contourProtocolUrl({
+      multiplier: 3.28084,
+      thresholds: {
+        11: [200, 1000],
+        12: [100, 500],
+        14: [50, 200],
+        15: [20, 100],
+      },
+      contourLayer: 'contours',
+      elevationKey: 'ele',
+      levelKey: 'level',
+      extent: 4096,
+      buffer: 1,
+    })],
+    maxzoom: 15,
+  });
+  map.addLayer({
+    id: 'major-contours',
+    type: 'line',
+    source: 'major-contours',
+    'source-layer': 'contours',
+    filter: ['>', ['get', 'level'], 0],
+    paint: {
+      'line-color': '#5f7b75',
+      'line-width': ['interpolate', ['linear'], ['zoom'], 11, 0.55, 15, 1.05],
+      'line-opacity': 0.34,
     },
-  ],
-};
+  });
+}
 
 function geometryBounds(runId: string) {
   const osmRefs = new Set(heavenlyMapData.runGeometryIndex[runId] ?? []);
@@ -76,6 +146,7 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
   const selectRunRef = useRef(onSelectRun);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [terrainLimited, setTerrainLimited] = useState(false);
 
   useEffect(() => {
     selectRunRef.current = onSelectRun;
@@ -84,13 +155,23 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
+    const forceTerrainFallback = new URLSearchParams(window.location.search).get('terrain') === 'fallback';
+    const initialBounds = allRunGeometryBounds();
+    const initialPadding = containerRef.current.clientWidth < 600 ? 34 : 48;
+    const demSource = forceTerrainFallback ? null : getDemSource();
+    let fallbackActivated = forceTerrainFallback;
+    let localLayersAdded = false;
+    let contextTimer: ReturnType<typeof setTimeout> | undefined;
+    let startupTimer: ReturnType<typeof setTimeout> | undefined;
     let map: MapLibreMap;
     try {
       map = new MapLibreMap({
         container: containerRef.current,
-        style: mapStyle,
-        bounds: heavenlyMapData.bounds,
-        fitBoundsOptions: { padding: 42 },
+        style: demSource
+          ? createHeavenlyWinterStyle(demSource.sharedDemProtocolUrl)
+          : heavenlyLocalFallbackStyle,
+        bounds: initialBounds,
+        fitBoundsOptions: { padding: initialPadding, maxZoom: 13.3 },
         minZoom: 11,
         maxZoom: 17,
         attributionControl: false,
@@ -103,7 +184,16 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
     }
 
     mapRef.current = map;
+    setTerrainLimited(forceTerrainFallback);
     map.addControl(new NavigationControl({ showCompass: false }), 'top-right');
+
+    const activateLocalFallback = () => {
+      if (fallbackActivated || localLayersAdded) return;
+      fallbackActivated = true;
+      setTerrainLimited(true);
+      map.setStyle(heavenlyLocalFallbackStyle);
+    };
+    if (!forceTerrainFallback) startupTimer = setTimeout(activateLocalFallback, 8000);
 
     const handleRunClick = (event: MapLayerMouseEvent) => {
       const runId = event.features?.[0]?.properties?.flurraRunId;
@@ -112,7 +202,9 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
     const showPointer = () => { map.getCanvas().style.cursor = 'pointer'; };
     const hidePointer = () => { map.getCanvas().style.cursor = ''; };
 
-    map.on('load', () => {
+    const addLocalLayers = () => {
+      if (map.getSource('verified-runs')) return;
+      if (demSource && !fallbackActivated) addMajorContours(map, demSource);
       map.addSource('verified-runs', {
         type: 'geojson',
         data: heavenlyMapData.verifiedRuns as any,
@@ -212,11 +304,41 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
         map.on('mouseleave', layerId, hidePointer);
       }
 
+      localLayersAdded = true;
+      if (startupTimer) clearTimeout(startupTimer);
+      map.resize();
+      map.fitBounds(initialBounds, {
+        padding: initialPadding,
+        duration: 0,
+        maxZoom: 13.3,
+      });
       setReady(true);
-    });
 
+      if (!fallbackActivated) {
+        contextTimer = setTimeout(() => {
+          const vectorReady = map.getSource('openmaptiles') && map.isSourceLoaded('openmaptiles');
+          const terrainReady = map.getSource('terrain-dem') && map.isSourceLoaded('terrain-dem');
+          if (!vectorReady || !terrainReady) setTerrainLimited(true);
+        }, 8000);
+      }
+    };
+
+    map.on('style.load', addLocalLayers);
+    map.on('idle', () => {
+      if (!fallbackActivated
+        && map.getSource('openmaptiles')
+        && map.getSource('terrain-dem')
+        && map.isSourceLoaded('openmaptiles')
+        && map.isSourceLoaded('terrain-dem')) {
+        if (contextTimer) clearTimeout(contextTimer);
+        setTerrainLimited(false);
+      }
+    });
     map.on('error', (event) => {
-      if (!map.loaded() && event.error) setFailed(true);
+      const sourceId = (event as any).sourceId as string | undefined;
+      if (!localLayersAdded && !fallbackActivated && sourceId === 'openmaptiles') {
+        activateLocalFallback();
+      }
     });
 
     return () => {
@@ -225,6 +347,9 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
         map.off('mouseenter', layerId, showPointer);
         map.off('mouseleave', layerId, hidePointer);
       }
+      if (contextTimer) clearTimeout(contextTimer);
+      if (startupTimer) clearTimeout(startupTimer);
+      map.off('style.load', addLocalLayers);
       map.remove();
       mapRef.current = null;
     };
@@ -232,7 +357,11 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !ready) return;
+    if (!map
+      || !ready
+      || !map.isStyleLoaded()
+      || !map.getLayer('selected-run')
+      || !map.getLayer('selected-run-casing')) return;
     const selectedFilter: FilterSpecification = [
       '==',
       ['get', 'flurraRunId'],
@@ -267,7 +396,7 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
   }
 
   return <View style={styles.container}>
-    {!ready ? <View style={styles.loading}><ActivityIndicator color={colors.orange} /><Text style={styles.loadingText}>LOADING LOCAL TRAIL GEOMETRY</Text></View> : null}
+    {!ready ? <View style={styles.loading}><ActivityIndicator color={colors.orange} /><Text style={styles.loadingText}>LOADING WINTER TERRAIN</Text></View> : null}
     <div
       ref={containerRef}
       aria-label="Interactive Heavenly prototype trail map"
@@ -275,13 +404,18 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
       data-testid="heavenly-map-canvas"
       style={{ width: '100%', height: '100%', minHeight: 520 }}
     />
+    {terrainLimited ? <View style={styles.terrainNotice} accessibilityRole="alert">
+      <Text style={styles.terrainNoticeText}>Terrain context unavailable · local runs and lifts remain active</Text>
+    </View> : null}
   </View>;
 }
 
 const styles = StyleSheet.create({
-  container: { minHeight: 520, width: '100%', backgroundColor: colors.blue, position: 'relative', overflow: 'hidden' },
-  loading: { ...StyleSheet.absoluteFillObject, zIndex: 2, backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center', gap: 10 },
+  container: { minHeight: 520, width: '100%', backgroundColor: '#eaf0e7', position: 'relative', overflow: 'hidden' },
+  loading: { ...StyleSheet.absoluteFillObject, zIndex: 2, backgroundColor: '#eaf0e7', alignItems: 'center', justifyContent: 'center', gap: 10 },
   loadingText: { color: colors.forest, fontFamily: fonts.bold, fontSize: 8, letterSpacing: 1.3 },
+  terrainNotice: { position: 'absolute', zIndex: 4, left: 12, right: 12, top: 58, backgroundColor: 'rgba(246,240,228,.94)', borderColor: colors.orange, borderWidth: 1, paddingHorizontal: 10, paddingVertical: 8 },
+  terrainNoticeText: { color: colors.forest, fontFamily: fonts.bold, fontSize: 7, lineHeight: 11, letterSpacing: .65, textTransform: 'uppercase' },
   fallback: { minHeight: 420, backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center', padding: 35 },
   fallbackKicker: { color: colors.orange, fontFamily: fonts.bold, fontSize: 9, letterSpacing: 1.8 },
   fallbackTitle: { color: colors.forest, fontFamily: fonts.display, fontSize: 34, textAlign: 'center', marginTop: 10 },

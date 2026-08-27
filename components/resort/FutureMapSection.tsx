@@ -64,7 +64,7 @@ export function FutureMapSection({ resortName, compact, runs, selectedRunId, onS
             <Text style={styles.factValue}>{heavenlyMapData.liftFeatureCount}</Text>
             <Text style={styles.factLabel}>OSM LIFT GEOMETRIES</Text>
           </View>
-          <Text style={styles.attribution}>© OpenStreetMap contributors · ODbL 1.0</Text>
+          <Text style={styles.attribution}>OpenFreeMap © OpenMapTiles · © OpenStreetMap contributors (ODbL) · Terrain: Mapzen / USGS</Text>
         </View>
       </View>
 
@@ -89,7 +89,7 @@ export function FutureMapSection({ resortName, compact, runs, selectedRunId, onS
           </View>
         </> : <View style={styles.emptySelection}>
           <Text style={styles.emptyMark}>✳</Text>
-          <View><Text style={styles.emptyTitle}>Pick a trail line.</Text><Text style={styles.emptyCopy}>Click any verified colored run on the map, or use “Show on map” in the searchable directory above.</Text></View>
+          <View><Text style={styles.emptyTitle}>Pick a trail line.</Text><Text style={styles.emptyCopy}>Click any verified colored run on the map, or use “Show on map” in the searchable directory below.</Text></View>
         </View>}
       </View>
 
