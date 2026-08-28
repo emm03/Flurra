@@ -19,7 +19,7 @@ const legendItems = [
   { label: 'BLUE', color: '#176da0', shape: '■' },
   { label: 'BLACK', color: colors.deep, shape: '◆' },
   { label: 'EXPERT', color: '#070d0b', shape: '◆◆' },
-  { label: 'LIFT', color: colors.orange, shape: '┄' },
+  { label: 'LIFT', color: colors.orange, shape: '━' },
 ];
 
 export function FutureMapSection({ resortName, compact, runs, selectedRunId, onSelectRun }: FutureMapSectionProps) {
