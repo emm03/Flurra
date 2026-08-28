@@ -8,9 +8,11 @@ import {
   NavigationControl,
 } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { Feather } from '@expo/vector-icons';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { heavenlyMapData } from '@/data/heavenlyMap';
+import { heavenlyOfficialRuns } from '@/data/heavenlyOfficialRuns';
 import { colors, fonts } from '@/theme';
 import {
   createHeavenlyWinterStyle,
@@ -19,7 +21,7 @@ import {
 
 type HeavenlyMapProps = {
   selectedRunId: string | null;
-  onSelectRun: (runId: string) => void;
+  onSelectRun: (runId: string | null) => void;
 };
 
 type HeavenlyMapMode = 'resort' | 'topographic';
@@ -34,18 +36,81 @@ const runLayerIds = [
 ];
 
 const RESORT_VIEW_CAMERA = {
-  bearing: 165,
-  pitch: 46,
+  bearing: 155,
+  pitch: 48,
   exaggeration: 1.15,
+};
+
+const LANDMARK_RUN_IDS = new Set([
+  'ridge-run',
+  'skyline-trail',
+  'california-trail',
+  'maggies',
+  'orion',
+  'big-dipper',
+  'stagecoach',
+  'galaxy',
+  'gunbarrel',
+  'world-cup',
+  'east-bowl',
+  'boulder-bowl',
+  'easy-street',
+]);
+
+const MAJOR_LIFT_NAMES = [
+  'Heavenly Gondola',
+  'Sky Express',
+  'Canyon Express',
+  'Dipper Express',
+  'Comet Express',
+  'Stagecoach Express',
+  'Gunbarrel Express',
+];
+
+const VERIFIED_BASE_NAMES = [
+  'Heavenly Village',
+  'California Lodge',
+  'Stagecoach Lodge',
+  'Boulder Lodge',
+  'Tamarack Lodge',
+  'East Peak Lodge',
+  'Lakeview Lodge',
+];
+
+const DIFFICULTY_SYMBOLS: Record<string, string> = {
+  easier: '●',
+  'more-difficult': '■',
+  'most-difficult': '◆',
+  'experts-only': '◆◆',
+};
+
+const AREA_LABEL_OFFSETS: Record<string, [number, number]> = {
+  'Mott & Killebrew Canyons': [-3.4, -1.4],
+  'Galaxy / Stagecoach': [-2.4, 2.2],
+  'Boulder / North Bowl': [-1.9, 2.8],
+  'East Peak / Dipper': [-2.6, 1.2],
+  'Sky / Canyon': [0.1, -1.4],
+  California: [2.3, 0.1],
+  'Top of Gondola': [2.2, 2.1],
+};
+
+const AREA_LABEL_PRIORITIES: Record<string, number> = {
+  'Sky / Canyon': 1,
+  California: 2,
+  'East Peak / Dipper': 3,
+  'Galaxy / Stagecoach': 4,
+  'Boulder / North Bowl': 5,
+  'Mott & Killebrew Canyons': 6,
+  'Top of Gondola': 7,
 };
 
 const selectedDifficultyColor = [
   'match',
   ['get', 'officialDifficulty'],
-  'easier', '#34875a',
-  'more-difficult', '#176da0',
-  'most-difficult', colors.deep,
-  'experts-only', '#111916',
+  'easier', '#14834f',
+  'more-difficult', '#086fa9',
+  'most-difficult', '#152b26',
+  'experts-only', '#050a08',
   colors.deep,
 ] as any;
 
@@ -66,6 +131,181 @@ function getDemSource() {
   return sharedDemSource;
 }
 
+type Coordinate = [number, number];
+type LineCoordinates = Coordinate[];
+
+const runCatalogById = new Map(heavenlyOfficialRuns.map((run) => [run.id, run]));
+
+function collectLineParts(geometry: any): LineCoordinates[] {
+  if (!geometry) return [];
+  if (geometry.type === 'LineString') return [geometry.coordinates as LineCoordinates];
+  if (geometry.type === 'MultiLineString') return geometry.coordinates as LineCoordinates[];
+  if (geometry.type === 'GeometryCollection') {
+    return (geometry.geometries ?? []).flatMap((child: any) => collectLineParts(child));
+  }
+  return [];
+}
+
+function lineLength(coordinates: LineCoordinates) {
+  let length = 0;
+  for (let index = 1; index < coordinates.length; index += 1) {
+    const [previousLongitude, previousLatitude] = coordinates[index - 1];
+    const [longitude, latitude] = coordinates[index];
+    const latitudeScale = Math.cos((latitude * Math.PI) / 180);
+    length += Math.hypot(
+      (longitude - previousLongitude) * latitudeScale,
+      latitude - previousLatitude,
+    );
+  }
+  return length;
+}
+
+function lineMidpoint(coordinates: LineCoordinates): Coordinate {
+  const totalLength = lineLength(coordinates);
+  if (!totalLength) return coordinates[Math.floor(coordinates.length / 2)] ?? [0, 0];
+  let travelled = 0;
+  for (let index = 1; index < coordinates.length; index += 1) {
+    const previous = coordinates[index - 1];
+    const current = coordinates[index];
+    const segmentLength = lineLength([previous, current]);
+    if (travelled + segmentLength >= totalLength / 2) {
+      const progress = (totalLength / 2 - travelled) / segmentLength;
+      return [
+        previous[0] + (current[0] - previous[0]) * progress,
+        previous[1] + (current[1] - previous[1]) * progress,
+      ];
+    }
+    travelled += segmentLength;
+  }
+  return coordinates[coordinates.length - 1];
+}
+
+function createRunSources() {
+  const enrichedFeatures: any[] = heavenlyMapData.verifiedRuns.features.map((feature) => {
+    const runId = String(feature.properties.flurraRunId);
+    const run = runCatalogById.get(runId);
+    return {
+      ...feature,
+      properties: {
+        ...feature.properties,
+        mountainArea: run?.mountainArea ?? null,
+        difficultySymbol: DIFFICULTY_SYMBOLS[String(feature.properties.officialDifficulty)] ?? '',
+        labelPriority: LANDMARK_RUN_IDS.has(runId) ? 1 : 2,
+      },
+    };
+  });
+
+  const labelFeatureByRun = new Map<string, any>();
+  for (const feature of enrichedFeatures) {
+    const runId = String(feature.properties.flurraRunId);
+    for (const coordinates of collectLineParts(feature.geometry)) {
+      const current = labelFeatureByRun.get(runId);
+      const length = lineLength(coordinates);
+      if (!current || length > current.properties.displayLength) {
+        labelFeatureByRun.set(runId, {
+          type: 'Feature',
+          id: `label/${runId}`,
+          geometry: { type: 'LineString', coordinates },
+          properties: { ...feature.properties, displayLength: length },
+        });
+      }
+    }
+  }
+
+  const areaCoordinates = new Map<string, Coordinate[]>();
+  for (const feature of enrichedFeatures) {
+    const mountainArea = String(feature.properties.mountainArea ?? '');
+    if (!mountainArea) continue;
+    const coordinates = areaCoordinates.get(mountainArea) ?? [];
+    for (const line of collectLineParts(feature.geometry)) coordinates.push(...line);
+    areaCoordinates.set(mountainArea, coordinates);
+  }
+
+  const areaFeatures = [...areaCoordinates.entries()].map(([mountainArea, coordinates]) => {
+    const longitudes = coordinates.map(([longitude]) => longitude);
+    const latitudes = coordinates.map(([, latitude]) => latitude);
+    return {
+      type: 'Feature' as const,
+      id: `area/${mountainArea}`,
+      geometry: {
+        type: 'Point' as const,
+        coordinates: [
+          (Math.min(...longitudes) + Math.max(...longitudes)) / 2,
+          (Math.min(...latitudes) + Math.max(...latitudes)) / 2,
+        ],
+      },
+      properties: {
+        mountainArea,
+        labelOffset: AREA_LABEL_OFFSETS[mountainArea] ?? [0, 0],
+        labelPriority: AREA_LABEL_PRIORITIES[mountainArea] ?? 99,
+      },
+    };
+  });
+
+  const landmarkFeatures = [...labelFeatureByRun.values()]
+    .filter((feature) => feature.properties.labelPriority === 1)
+    .map((feature) => ({
+      type: 'Feature' as const,
+      id: `landmark/${feature.properties.flurraRunId}`,
+      geometry: {
+        type: 'Point' as const,
+        coordinates: lineMidpoint(feature.geometry.coordinates),
+      },
+      properties: feature.properties,
+    }));
+  const pointFeatures = [...labelFeatureByRun.values()].map((feature) => ({
+    type: 'Feature' as const,
+    id: `point/${feature.properties.flurraRunId}`,
+    geometry: {
+      type: 'Point' as const,
+      coordinates: lineMidpoint(feature.geometry.coordinates),
+    },
+    properties: feature.properties,
+  }));
+
+  return {
+    runs: { type: 'FeatureCollection' as const, features: enrichedFeatures },
+    labels: { type: 'FeatureCollection' as const, features: [...labelFeatureByRun.values()] },
+    landmarks: { type: 'FeatureCollection' as const, features: landmarkFeatures },
+    points: { type: 'FeatureCollection' as const, features: pointFeatures },
+    areas: { type: 'FeatureCollection' as const, features: areaFeatures },
+  };
+}
+
+const runSources = createRunSources();
+
+function coordinateKey([longitude, latitude]: Coordinate) {
+  return `${longitude.toFixed(6)},${latitude.toFixed(6)}`;
+}
+
+function createRunAdjacencyIndex() {
+  const runsByCoordinate = new Map<string, Set<string>>();
+  for (const feature of runSources.runs.features) {
+    const runId = String(feature.properties.flurraRunId);
+    for (const line of collectLineParts(feature.geometry)) {
+      for (const coordinate of line) {
+        const key = coordinateKey(coordinate);
+        const runs = runsByCoordinate.get(key) ?? new Set<string>();
+        runs.add(runId);
+        runsByCoordinate.set(key, runs);
+      }
+    }
+  }
+
+  const adjacency = new Map<string, Set<string>>();
+  for (const runs of runsByCoordinate.values()) {
+    if (runs.size < 2) continue;
+    for (const runId of runs) {
+      const adjacent = adjacency.get(runId) ?? new Set<string>();
+      for (const otherRunId of runs) if (otherRunId !== runId) adjacent.add(otherRunId);
+      adjacency.set(runId, adjacent);
+    }
+  }
+  return adjacency;
+}
+
+const runAdjacencyIndex = createRunAdjacencyIndex();
+
 function allRunGeometryBounds() {
   const coordinates: [number, number][] = [];
 
@@ -78,7 +318,7 @@ function allRunGeometryBounds() {
     value.forEach(collect);
   }
 
-  for (const feature of heavenlyMapData.verifiedRuns.features) {
+  for (const feature of runSources.runs.features) {
     if (feature.geometry.type === 'GeometryCollection') {
       feature.geometry.geometries?.forEach((geometry: any) => collect(geometry.coordinates));
     } else {
@@ -126,29 +366,31 @@ function applyTerrainTreatment(map: MapLibreMap, mode: HeavenlyMapMode) {
   const resortView = mode === 'resort';
 
   if (map.getLayer('winter-open-land')) {
-    map.setPaintProperty('winter-open-land', 'fill-color', resortView ? '#edf2ec' : '#dbe3d7');
-    map.setPaintProperty('winter-open-land', 'fill-outline-color', resortView ? '#edf2ec' : '#dbe3d7');
-    map.setPaintProperty('winter-open-land', 'fill-opacity', resortView ? 0 : 0.2);
+    map.setPaintProperty('winter-open-land', 'fill-color', resortView ? '#edf4f0' : '#dbe3d7');
+    map.setPaintProperty('winter-open-land', 'fill-outline-color', resortView ? '#edf4f0' : '#dbe3d7');
+    map.setPaintProperty('winter-open-land', 'fill-opacity', resortView ? 0.08 : 0.2);
   }
   if (map.getLayer('winter-forest')) {
-    map.setPaintProperty('winter-forest', 'fill-color', resortView ? '#6f8c81' : '#bfd0c6');
-    map.setPaintProperty('winter-forest', 'fill-outline-color', resortView ? '#6f8c81' : '#bfd0c6');
+    map.setPaintProperty('winter-forest', 'fill-color', resortView ? '#315f4f' : '#bfd0c6');
+    map.setPaintProperty('winter-forest', 'fill-outline-color', resortView ? '#315f4f' : '#bfd0c6');
     map.setPaintProperty('winter-forest', 'fill-opacity', resortView
-      ? ['interpolate', ['linear'], ['zoom'], 10, 0, 14, 0.16, 16, 0.32]
+      ? ['interpolate', ['linear'], ['zoom'], 10, 0.07, 12, 0.11, 14, 0.18, 16, 0.3]
       : ['interpolate', ['linear'], ['zoom'], 10, 0.42, 14, 0.5]);
   }
   if (map.getLayer('winter-water')) {
-    map.setPaintProperty('winter-water', 'fill-color', resortView ? '#90bac6' : '#a9cfda');
-    map.setPaintProperty('winter-water', 'fill-opacity', resortView ? 0.62 : 0.82);
+    map.setPaintProperty('winter-water', 'fill-color', resortView ? '#7ba7b7' : '#a9cfda');
+    map.setPaintProperty('winter-water', 'fill-opacity', resortView ? 0.56 : 0.82);
   }
   if (map.getLayer('terrain-hillshade')) {
-    map.setPaintProperty('terrain-hillshade', 'hillshade-shadow-color', resortView ? '#365c56' : '#42645f');
-    map.setPaintProperty('terrain-hillshade', 'hillshade-highlight-color', resortView ? '#fffef8' : '#fffdf5');
-    map.setPaintProperty('terrain-hillshade', 'hillshade-accent-color', resortView ? '#6f8d88' : '#6f8d87');
-    map.setPaintProperty('terrain-hillshade', 'hillshade-exaggeration', resortView ? 0.58 : 0.44);
+    map.setPaintProperty('terrain-hillshade', 'hillshade-shadow-color', resortView ? '#294f5d' : '#42645f');
+    map.setPaintProperty('terrain-hillshade', 'hillshade-highlight-color', resortView ? '#fffff8' : '#fffdf5');
+    map.setPaintProperty('terrain-hillshade', 'hillshade-accent-color', resortView ? '#67828b' : '#6f8d87');
+    map.setPaintProperty('terrain-hillshade', 'hillshade-exaggeration', resortView ? 0.68 : 0.44);
   }
   if (map.getLayer('major-contours')) {
-    map.setPaintProperty('major-contours', 'line-opacity', resortView ? 0.06 : 0.34);
+    map.setPaintProperty('major-contours', 'line-opacity', resortView
+      ? ['interpolate', ['linear'], ['zoom'], 11, 0.025, 14, 0.09, 16, 0.16]
+      : 0.34);
   }
   if (map.getLayer('winter-waterways')) {
     map.setPaintProperty('winter-waterways', 'line-opacity', resortView ? 0.2 : 0.48);
@@ -158,20 +400,33 @@ function applyTerrainTreatment(map: MapLibreMap, mode: HeavenlyMapMode) {
 function applyRunAndLiftTreatment(map: MapLibreMap, mode: HeavenlyMapMode) {
   const resortView = mode === 'resort';
   const runWidth = resortView
-    ? ['interpolate', ['linear'], ['zoom'], 11, 2.15, 15, 4.5]
+    ? ['interpolate', ['linear'], ['zoom'], 11, 2.05, 13, 2.8, 15, 4.35]
     : 3.5;
   const expertWidth = resortView
-    ? ['interpolate', ['linear'], ['zoom'], 11, 2.45, 15, 4.8]
+    ? ['interpolate', ['linear'], ['zoom'], 11, 2.1, 13, 2.9, 15, 4.45]
     : 5.2;
 
   map.setPaintProperty('verified-run-casing', 'line-width', resortView
-    ? ['interpolate', ['linear'], ['zoom'], 11, 4.6, 15, 8.2]
+    ? ['interpolate', ['linear'], ['zoom'], 11, 4.4, 13, 5.6, 15, 8.1]
     : 6);
   for (const layerId of ['verified-green', 'verified-blue', 'verified-black']) {
     map.setPaintProperty(layerId, 'line-width', runWidth);
   }
   map.setPaintProperty('verified-expert', 'line-width', expertWidth);
   setLayerVisibility(map, 'verified-expert-markers', !resortView);
+
+  for (const layerId of [
+    'major-run-labels',
+    'area-run-labels',
+    'selected-run-label',
+    'black-difficulty-markers',
+    'expert-difficulty-markers',
+    'mountain-area-labels',
+    'major-lift-labels',
+    'all-lift-labels',
+    'verified-peak-labels',
+    'verified-base-labels',
+  ]) setLayerVisibility(map, layerId, resortView);
 
   setLayerVisibility(map, 'heavenly-lifts-topographic', !resortView);
   for (const layerId of ['heavenly-lift-casing', 'heavenly-lifts', 'heavenly-gondola-casing', 'heavenly-gondola']) {
@@ -180,10 +435,10 @@ function applyRunAndLiftTreatment(map: MapLibreMap, mode: HeavenlyMapMode) {
 
   map.setPaintProperty('selected-run-halo', 'line-opacity', resortView ? 1 : 0);
   map.setPaintProperty('selected-run-casing', 'line-width', resortView
-    ? ['interpolate', ['linear'], ['zoom'], 11, 7.3, 15, 12.5]
+    ? ['interpolate', ['linear'], ['zoom'], 11, 7.1, 13, 9.2, 15, 12.5]
     : 10);
   map.setPaintProperty('selected-run', 'line-width', resortView
-    ? ['interpolate', ['linear'], ['zoom'], 11, 2.7, 15, 5.3]
+    ? ['interpolate', ['linear'], ['zoom'], 11, 2.45, 13, 3.35, 15, 5.15]
     : 6.5);
   map.setPaintProperty('selected-run', 'line-color', resortView ? selectedDifficultyColor : colors.lime);
 }
@@ -218,16 +473,16 @@ function applyMapMode(
     padding: resortView
       ? { top: 110, right: Math.max(22, basePadding - 18), bottom: 30, left: Math.max(22, basePadding - 18) }
       : basePadding,
-    duration: animate ? 750 : 0,
+    duration: 0,
     maxZoom: resortView ? 13.1 : 13.3,
     bearing: resortView ? camera.bearing : 0,
     pitch: resortView ? camera.pitch : 0,
     offset: [0, 0],
   });
 
-  if (resortView && !animate) {
-    map.setZoom(Math.min(map.getZoom() + 0.3, 13.45));
-    map.panBy([0, -105], { duration: 0 });
+  if (resortView) {
+    map.setZoom(Math.min(map.getZoom() + 0.6, 13.54));
+    map.panBy([0, -130], { duration: animate ? 420 : 0 });
   }
 
 }
@@ -265,8 +520,8 @@ function addMajorContours(map: MapLibreMap, demSource: ReturnType<typeof getDemS
   });
 }
 
-function geometryBounds(runId: string) {
-  const osmRefs = new Set(heavenlyMapData.runGeometryIndex[runId] ?? []);
+function geometryBoundsForRunIds(runIds: Iterable<string>) {
+  const runIdSet = new Set(runIds);
   const coordinates: [number, number][] = [];
 
   function collect(value: unknown) {
@@ -278,8 +533,8 @@ function geometryBounds(runId: string) {
     value.forEach(collect);
   }
 
-  for (const feature of heavenlyMapData.verifiedRuns.features) {
-    if (!osmRefs.has(feature.id)) continue;
+  for (const feature of runSources.runs.features) {
+    if (!runIdSet.has(String(feature.properties.flurraRunId))) continue;
     if (feature.geometry.type === 'GeometryCollection') {
       feature.geometry.geometries?.forEach((geometry: any) => collect(geometry.coordinates));
     } else {
@@ -372,6 +627,10 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
       const runId = event.features?.[0]?.properties?.flurraRunId;
       if (typeof runId === 'string') selectRunRef.current(runId);
     };
+    const handleMapClick = (event: MapLayerMouseEvent) => {
+      const runHits = map.queryRenderedFeatures(event.point, { layers: ['verified-run-hitbox'] });
+      if (!runHits.length) selectRunRef.current(null);
+    };
     const showPointer = () => { map.getCanvas().style.cursor = 'pointer'; };
     const hidePointer = () => { map.getCanvas().style.cursor = ''; };
 
@@ -380,11 +639,28 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
       if (demSource && !fallbackActivated) addMajorContours(map, demSource);
       map.addSource('verified-runs', {
         type: 'geojson',
-        data: heavenlyMapData.verifiedRuns as any,
+        data: runSources.runs as any,
+      });
+      map.addSource('run-labels', {
+        type: 'geojson',
+        data: runSources.labels as any,
+      });
+      map.addSource('landmark-run-labels', {
+        type: 'geojson',
+        data: runSources.landmarks as any,
+      });
+      map.addSource('run-point-labels', {
+        type: 'geojson',
+        data: runSources.points as any,
+      });
+      map.addSource('mountain-areas', {
+        type: 'geojson',
+        data: runSources.areas as any,
       });
       map.addSource('heavenly-lifts', {
         type: 'geojson',
         data: heavenlyMapData.lifts as any,
+        lineMetrics: true,
       });
 
       map.addLayer({
@@ -404,7 +680,7 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
         source: 'verified-runs',
         filter: ['==', ['get', 'officialDifficulty'], 'easier'],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
-        paint: { 'line-color': '#34875a', 'line-width': 3.5, 'line-opacity': 0.94 },
+        paint: { 'line-color': '#14834f', 'line-width': 3.5, 'line-opacity': 0.97 },
       });
       map.addLayer({
         id: 'verified-blue',
@@ -412,7 +688,7 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
         source: 'verified-runs',
         filter: ['==', ['get', 'officialDifficulty'], 'more-difficult'],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
-        paint: { 'line-color': '#176da0', 'line-width': 3.5, 'line-opacity': 0.94 },
+        paint: { 'line-color': '#086fa9', 'line-width': 3.5, 'line-opacity': 0.97 },
       });
       map.addLayer({
         id: 'verified-black',
@@ -420,7 +696,7 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
         source: 'verified-runs',
         filter: ['==', ['get', 'officialDifficulty'], 'most-difficult'],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
-        paint: { 'line-color': colors.deep, 'line-width': 3.7, 'line-opacity': 0.94 },
+        paint: { 'line-color': '#152b26', 'line-width': 3.7, 'line-opacity': 0.96 },
       });
       map.addLayer({
         id: 'verified-expert',
@@ -428,7 +704,7 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
         source: 'verified-runs',
         filter: ['==', ['get', 'officialDifficulty'], 'experts-only'],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
-        paint: { 'line-color': '#070d0b', 'line-width': 5.2, 'line-opacity': 0.98 },
+        paint: { 'line-color': '#050a08', 'line-width': 4.1, 'line-opacity': 0.96 },
       });
       map.addLayer({
         id: 'verified-expert-markers',
@@ -462,9 +738,9 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
         filter: ['!=', ['get', 'name'], 'Heavenly Gondola'],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#f8f3e8',
-          'line-width': ['interpolate', ['linear'], ['zoom'], 11, 3.8, 15, 6.2],
-          'line-opacity': 0.92,
+          'line-color': '#fbf7ee',
+          'line-width': ['interpolate', ['linear'], ['zoom'], 11, 3.4, 15, 5.4],
+          'line-opacity': 0.88,
         },
       });
       map.addLayer({
@@ -475,8 +751,8 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
           'line-color': colors.orange,
-          'line-width': ['interpolate', ['linear'], ['zoom'], 11, 1.8, 15, 3.1],
-          'line-opacity': 0.88,
+          'line-width': ['interpolate', ['linear'], ['zoom'], 11, 1.5, 15, 2.7],
+          'line-opacity': 0.86,
         },
       });
       map.addLayer({
@@ -486,9 +762,9 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
         filter: ['==', ['get', 'name'], 'Heavenly Gondola'],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': colors.deep,
-          'line-width': ['interpolate', ['linear'], ['zoom'], 11, 5, 15, 8.4],
-          'line-opacity': 0.88,
+          'line-color': '#fbf7ee',
+          'line-width': ['interpolate', ['linear'], ['zoom'], 11, 3.1, 15, 4.7],
+          'line-opacity': 0.82,
         },
       });
       map.addLayer({
@@ -498,9 +774,15 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
         filter: ['==', ['get', 'name'], 'Heavenly Gondola'],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': colors.orange,
-          'line-width': ['interpolate', ['linear'], ['zoom'], 11, 2.4, 15, 4.4],
-          'line-opacity': 0.96,
+          'line-gradient': [
+            'interpolate', ['linear'], ['line-progress'],
+            0, 'rgba(231,123,78,0.30)',
+            0.28, 'rgba(231,123,78,0.48)',
+            1, 'rgba(231,123,78,0.92)',
+          ],
+          'line-width': ['interpolate', ['linear'], ['zoom'], 11, 0.8, 15, 1.2],
+          'line-gap-width': ['interpolate', ['linear'], ['zoom'], 11, 1.15, 15, 1.7],
+          'line-opacity': 1,
         },
       });
       map.addLayer({
@@ -540,6 +822,222 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
         },
       });
       map.addLayer({
+        id: 'mountain-area-labels',
+        type: 'symbol',
+        source: 'mountain-areas',
+        minzoom: 11.2,
+        maxzoom: 13.05,
+        layout: {
+          'text-field': ['get', 'mountainArea'],
+          'text-font': ['Noto Sans Bold'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 11, 10.5, 13.3, 15],
+          'text-letter-spacing': 0.12,
+          'text-transform': 'uppercase',
+          'text-offset': ['get', 'labelOffset'],
+          'symbol-sort-key': ['get', 'labelPriority'],
+          'text-allow-overlap': true,
+          'text-ignore-placement': true,
+          'text-padding': 4,
+        },
+        paint: {
+          'text-color': '#244f44',
+          'text-halo-color': 'rgba(249,250,242,0.94)',
+          'text-halo-width': 1.8,
+          'text-halo-blur': 0.6,
+        },
+      } as any);
+      map.addLayer({
+        id: 'verified-peak-labels',
+        type: 'symbol',
+        source: 'openmaptiles',
+        'source-layer': 'mountain_peak',
+        minzoom: 10.8,
+        filter: ['all', ['has', 'name'], ['<=', ['coalesce', ['get', 'rank'], 99], 2]],
+        layout: {
+          'text-field': ['format', ['get', 'name'], {}, '\n', {}, ['to-string', ['get', 'ele']], { 'font-scale': 0.78 }, ' m', { 'font-scale': 0.78 }],
+          'text-font': ['Noto Sans Bold'],
+          'text-size': 10.5,
+          'text-anchor': 'bottom',
+          'text-offset': [0, -0.5],
+          'text-allow-overlap': false,
+          'text-padding': 16,
+        },
+        paint: {
+          'text-color': '#294e52',
+          'text-halo-color': 'rgba(249,250,242,0.96)',
+          'text-halo-width': 1.7,
+        },
+      } as any);
+      map.addLayer({
+        id: 'verified-base-labels',
+        type: 'symbol',
+        source: 'openmaptiles',
+        'source-layer': 'poi',
+        minzoom: 11.8,
+        filter: ['in', ['get', 'name'], ['literal', VERIFIED_BASE_NAMES]],
+        layout: {
+          'text-field': ['get', 'name'],
+          'text-font': ['Noto Sans Bold'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 12, 10, 15, 13],
+          'text-letter-spacing': 0.08,
+          'text-transform': 'uppercase',
+          'text-allow-overlap': false,
+          'text-padding': 12,
+        },
+        paint: {
+          'text-color': colors.orange,
+          'text-halo-color': 'rgba(252,248,238,0.97)',
+          'text-halo-width': 2,
+        },
+      } as any);
+      map.addLayer({
+        id: 'major-lift-labels',
+        type: 'symbol',
+        source: 'heavenly-lifts',
+        minzoom: 11.5,
+        maxzoom: 14.4,
+        filter: ['in', ['get', 'name'], ['literal', MAJOR_LIFT_NAMES]],
+        layout: {
+          'symbol-placement': 'line',
+          'symbol-spacing': 330,
+          'text-field': ['get', 'name'],
+          'text-font': ['Noto Sans Bold'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 11.5, 9, 14, 11],
+          'text-letter-spacing': 0.08,
+          'text-keep-upright': true,
+          'text-allow-overlap': false,
+          'text-padding': 12,
+        },
+        paint: {
+          'text-color': '#b85238',
+          'text-halo-color': 'rgba(252,248,238,0.96)',
+          'text-halo-width': 1.8,
+        },
+      } as any);
+      map.addLayer({
+        id: 'all-lift-labels',
+        type: 'symbol',
+        source: 'heavenly-lifts',
+        minzoom: 13.35,
+        filter: ['all', ['has', 'name'], ['!', ['in', ['get', 'name'], ['literal', MAJOR_LIFT_NAMES]]]],
+        layout: {
+          'symbol-placement': 'line',
+          'symbol-spacing': 300,
+          'text-field': ['get', 'name'],
+          'text-font': ['Noto Sans Regular'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 13.35, 9, 16, 12],
+          'text-keep-upright': true,
+          'text-allow-overlap': false,
+          'text-padding': 9,
+        },
+        paint: {
+          'text-color': '#b85238',
+          'text-halo-color': 'rgba(252,248,238,0.96)',
+          'text-halo-width': 1.6,
+        },
+      } as any);
+      map.addLayer({
+        id: 'major-run-labels',
+        type: 'symbol',
+        source: 'landmark-run-labels',
+        minzoom: 11.45,
+        maxzoom: 13.65,
+        filter: ['==', ['get', 'labelPriority'], 1],
+        layout: {
+          'text-field': ['concat', ['get', 'difficultySymbol'], '  ', ['get', 'flurraRunName']],
+          'text-font': ['Noto Sans Bold'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 11.45, 8.2, 13.6, 10.4],
+          'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
+          'text-radial-offset': 0.7,
+          'text-allow-overlap': false,
+          'text-ignore-placement': true,
+          'text-padding': 6,
+        },
+        paint: {
+          'text-color': '#153d34',
+          'text-halo-color': 'rgba(252,250,242,0.98)',
+          'text-halo-width': 2,
+          'text-halo-blur': 0.4,
+        },
+      } as any);
+      map.addLayer({
+        id: 'area-run-labels',
+        type: 'symbol',
+        source: 'run-labels',
+        minzoom: 13.05,
+        layout: {
+          'symbol-placement': 'line',
+          'symbol-spacing': 300,
+          'text-field': ['concat', ['get', 'difficultySymbol'], '  ', ['get', 'flurraRunName']],
+          'text-font': ['Noto Sans Regular'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 13.05, 9.5, 16, 12.5],
+          'text-keep-upright': true,
+          'text-allow-overlap': false,
+          'text-padding': 8,
+        },
+        paint: {
+          'text-color': '#153d34',
+          'text-halo-color': 'rgba(252,250,242,0.98)',
+          'text-halo-width': 1.9,
+          'text-halo-blur': 0.35,
+        },
+      } as any);
+      map.addLayer({
+        id: 'black-difficulty-markers',
+        type: 'symbol',
+        source: 'run-labels',
+        minzoom: 13.55,
+        filter: ['==', ['get', 'officialDifficulty'], 'most-difficult'],
+        layout: {
+          'symbol-placement': 'line',
+          'symbol-spacing': 520,
+          'text-field': '◆',
+          'text-font': ['Noto Sans Bold'],
+          'text-size': 8,
+          'text-keep-upright': true,
+          'text-allow-overlap': false,
+        },
+        paint: { 'text-color': '#07100d', 'text-halo-color': '#fbf8ef', 'text-halo-width': 1 },
+      } as any);
+      map.addLayer({
+        id: 'expert-difficulty-markers',
+        type: 'symbol',
+        source: 'run-labels',
+        minzoom: 13.1,
+        filter: ['==', ['get', 'officialDifficulty'], 'experts-only'],
+        layout: {
+          'symbol-placement': 'line',
+          'symbol-spacing': 420,
+          'text-field': '◆◆',
+          'text-font': ['Noto Sans Bold'],
+          'text-size': 8,
+          'text-keep-upright': true,
+          'text-allow-overlap': false,
+        },
+        paint: { 'text-color': '#050a08', 'text-halo-color': '#fbf8ef', 'text-halo-width': 1.2 },
+      } as any);
+      map.addLayer({
+        id: 'selected-run-label',
+        type: 'symbol',
+        source: 'run-point-labels',
+        filter: ['==', ['get', 'flurraRunId'], '__none__'],
+        layout: {
+          'text-field': ['concat', ['get', 'difficultySymbol'], '  ', ['get', 'flurraRunName']],
+          'text-font': ['Noto Sans Bold'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 11, 11, 16, 14],
+          'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
+          'text-radial-offset': 0.85,
+          'text-allow-overlap': true,
+          'text-ignore-placement': true,
+        },
+        paint: {
+          'text-color': '#123c32',
+          'text-halo-color': '#fbf8ef',
+          'text-halo-width': 2.5,
+          'text-halo-blur': 0.4,
+        },
+      } as any);
+      map.addLayer({
         id: 'verified-run-hitbox',
         type: 'line',
         source: 'verified-runs',
@@ -556,6 +1054,7 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
         map.on('mouseenter', layerId, showPointer);
         map.on('mouseleave', layerId, hidePointer);
       }
+      map.on('click', handleMapClick);
 
       localLayersAdded = true;
       if (startupTimer) clearTimeout(startupTimer);
@@ -596,6 +1095,7 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
         map.off('mouseenter', layerId, showPointer);
         map.off('mouseleave', layerId, hidePointer);
       }
+      map.off('click', handleMapClick);
       if (contextTimer) clearTimeout(contextTimer);
       if (startupTimer) clearTimeout(startupTimer);
       map.off('style.load', addLocalLayers);
@@ -632,34 +1132,54 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
     map.setFilter('selected-run-halo', selectedFilter);
     map.setFilter('selected-run', selectedFilter);
     map.setFilter('selected-run-casing', selectedFilter);
+    map.setFilter('selected-run-label', selectedFilter);
+    const excludeSelectedFilter: FilterSpecification = selectedRunId
+      ? ['!=', ['get', 'flurraRunId'], selectedRunId]
+      : ['has', 'flurraRunId'];
+    map.setFilter('major-run-labels', ['all', ['==', ['get', 'labelPriority'], 1], excludeSelectedFilter]);
+    map.setFilter('area-run-labels', excludeSelectedFilter);
+    map.setFilter('black-difficulty-markers', ['all', ['==', ['get', 'officialDifficulty'], 'most-difficult'], excludeSelectedFilter]);
+    map.setFilter('expert-difficulty-markers', ['all', ['==', ['get', 'officialDifficulty'], 'experts-only'], excludeSelectedFilter]);
 
     const resortView = mapMode === 'resort' && terrainAvailableRef.current;
-    const baseOpacity = selectedRunId ? (resortView ? 0.44 : 0.26) : 0.94;
-    map.setPaintProperty('verified-run-casing', 'line-opacity', selectedRunId ? (resortView ? 0.3 : 0.16) : 0.9);
+    setLayerVisibility(map, 'mountain-area-labels', resortView && !selectedRunId);
+    const adjacentRunIds = selectedRunId ? [...(runAdjacencyIndex.get(selectedRunId) ?? [])] : [];
+    const contextRunIds = selectedRunId ? [selectedRunId, ...adjacentRunIds] : [];
+    const baseOpacity = selectedRunId
+      ? (resortView
+        ? ['case', ['in', ['get', 'flurraRunId'], ['literal', contextRunIds]], 0.64, 0.3]
+        : 0.26)
+      : 0.97;
+    map.setPaintProperty('verified-run-casing', 'line-opacity', selectedRunId
+      ? (resortView
+        ? ['case', ['in', ['get', 'flurraRunId'], ['literal', contextRunIds]], 0.58, 0.27]
+        : 0.16)
+      : 0.92);
     for (const layerId of ['verified-green', 'verified-blue', 'verified-black']) {
       map.setPaintProperty(layerId, 'line-opacity', baseOpacity);
     }
-    map.setPaintProperty('verified-expert', 'line-opacity', selectedRunId ? (resortView ? 0.5 : 0.3) : 0.98);
+    map.setPaintProperty('verified-expert', 'line-opacity', selectedRunId ? baseOpacity : 0.97);
     map.setPaintProperty('verified-expert-markers', 'line-opacity', selectedRunId ? 0.3 : 0.95);
-    map.setPaintProperty('heavenly-lifts-topographic', 'line-opacity', selectedRunId ? 0.48 : 0.92);
+    map.setPaintProperty('heavenly-lifts-topographic', 'line-opacity', selectedRunId ? 0.5 : 0.92);
     for (const layerId of ['heavenly-lift-casing', 'heavenly-lifts', 'heavenly-gondola-casing', 'heavenly-gondola']) {
-      map.setPaintProperty(layerId, 'line-opacity', selectedRunId ? 0.58 : (layerId.includes('gondola') ? 0.96 : 0.88));
+      map.setPaintProperty(layerId, 'line-opacity', selectedRunId ? 0.52 : (layerId.includes('gondola') ? 0.84 : 0.86));
     }
 
     if (selectedRunId) {
-      const bounds = geometryBounds(selectedRunId);
+      const bounds = geometryBoundsForRunIds(contextRunIds);
       if (bounds && !bounds.isEmpty()) {
         if (resortView) {
-          const focusCamera = map.cameraForBounds(bounds, { padding: 90, maxZoom: 15 });
+          const focusCamera = map.cameraForBounds(bounds, { padding: 125, maxZoom: 15 });
           if (focusCamera) {
             const focusZoom = focusCamera.zoom ?? map.getZoom();
             map.easeTo({
               center: focusCamera.center,
-              zoom: Math.min(focusZoom - 1.8, 13.2),
+              zoom: Math.min(focusZoom - 0.15, 12.85),
               duration: 650,
               bearing: resortCamera().bearing,
               pitch: resortCamera().pitch,
             });
+            map.once('moveend', () => map.panBy([0, -315], { duration: 260 }));
           }
         } else {
           map.fitBounds(bounds, { padding: 90, duration: 650, maxZoom: 15 });
@@ -667,6 +1187,31 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
       }
     }
   }, [mapMode, ready, selectedRunId]);
+
+  const fitWholeMountain = () => {
+    const map = mapRef.current;
+    const bounds = initialBoundsRef.current;
+    if (!map || !bounds || !ready) return;
+    applyMapMode(
+      map,
+      mapMode,
+      bounds,
+      initialPaddingRef.current,
+      terrainAvailableRef.current,
+      true,
+    );
+  };
+
+  const resetCamera = () => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+    const camera = resortCamera();
+    map.easeTo({
+      bearing: mapMode === 'resort' ? camera.bearing : 0,
+      pitch: mapMode === 'resort' ? camera.pitch : 0,
+      duration: 500,
+    });
+  };
 
   if (failed) {
     return <View style={styles.fallback} accessibilityRole="alert">
@@ -685,6 +1230,26 @@ export function HeavenlyMap({ selectedRunId, onSelectRun }: HeavenlyMapProps) {
       data-testid="heavenly-map-canvas"
       style={{ width: '100%', height: '100%', minHeight: 520 }}
     />
+    {ready ? <View style={styles.cameraControls}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Fit the whole Heavenly ski mountain"
+        onPress={fitWholeMountain}
+        style={({ hovered }: any) => [styles.cameraButton, hovered && styles.cameraButtonHover]}
+      >
+        <Feather name="maximize" size={14} color={colors.forest} />
+        <Text style={styles.cameraButtonText}>FIT</Text>
+      </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Reset map compass and camera"
+        onPress={resetCamera}
+        style={({ hovered }: any) => [styles.cameraButton, hovered && styles.cameraButtonHover]}
+      >
+        <Feather name="compass" size={14} color={colors.forest} />
+        <Text style={styles.cameraButtonText}>RESET</Text>
+      </Pressable>
+    </View> : null}
     {ready ? <View style={styles.viewToggle} accessibilityRole="tablist">
       <Pressable
         testID="resort-view-toggle"
@@ -716,6 +1281,10 @@ const styles = StyleSheet.create({
   container: { minHeight: 520, width: '100%', backgroundColor: '#eaf0e7', position: 'relative', overflow: 'hidden' },
   loading: { ...StyleSheet.absoluteFillObject, zIndex: 2, backgroundColor: '#eaf0e7', alignItems: 'center', justifyContent: 'center', gap: 10 },
   loadingText: { color: colors.forest, fontFamily: fonts.bold, fontSize: 8, letterSpacing: 1.3 },
+  cameraControls: { position: 'absolute', zIndex: 5, top: 72, right: 10, gap: 6 },
+  cameraButton: { minWidth: 46, minHeight: 42, backgroundColor: 'rgba(252,248,238,.95)', borderColor: colors.forest, borderWidth: 1, alignItems: 'center', justifyContent: 'center', gap: 2, shadowColor: colors.forest, shadowOpacity: .18, shadowRadius: 0, shadowOffset: { width: 2, height: 2 } },
+  cameraButtonHover: { backgroundColor: colors.lime },
+  cameraButtonText: { color: colors.forest, fontFamily: fonts.bold, fontSize: 6, letterSpacing: .65 },
   viewToggle: { position: 'absolute', zIndex: 5, left: 12, bottom: 12, flexDirection: 'row', backgroundColor: 'rgba(246,240,228,.94)', borderColor: colors.forest, borderWidth: 1, padding: 3, gap: 3 },
   viewToggleButton: { minHeight: 32, paddingHorizontal: 10, alignItems: 'center', justifyContent: 'center' },
   viewToggleButtonActive: { backgroundColor: colors.forest },

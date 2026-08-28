@@ -11,7 +11,7 @@ type FutureMapSectionProps = {
   compact: boolean;
   runs: ResortRun[];
   selectedRunId: string | null;
-  onSelectRun: (runId: string) => void;
+  onSelectRun: (runId: string | null) => void;
 };
 
 const legendItems = [
