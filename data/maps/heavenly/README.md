@@ -1,7 +1,7 @@
 # Heavenly OpenStreetMap data spike
 
-This directory is an isolated geographic-data experiment. It is not consumed by
-the current Flurra UI and does not modify `heavenlyOfficialRuns.ts`.
+This directory contains the isolated Heavenly geographic-data pipeline consumed
+by the prototype map. It does not modify `heavenlyOfficialRuns.ts`.
 
 ## Source and scope
 
@@ -24,9 +24,14 @@ used to create coordinates here.
 - `match-report.json`: conservative reconciliation against the 116 provisional
   Flurra run records. Candidate links remain separate from both source datasets
   so future mapping can be many-to-many.
-- `runtime-map-data.json`: generated, UI-safe bundle containing only the 104
-  exact/normalized verified run matches and 23 lift geometries. Canonical Flurra
-  difficulty is attached for rendering; likely matches are excluded.
+- `manual-reviewed-matches.json`: explicit review ledger for approved aliases,
+  unresolved candidates, and Mott/Killebrew subarea assignments. It preserves
+  both source names, OSM references, explanations, and source provenance.
+- `mott-killebrew-audit.md`: the 25-record canyon audit used for this review.
+- `runtime-map-data.json`: generated, UI-safe bundle containing 104
+  exact/normalized matches, five manually reviewed aliases, and 23 lift
+  geometries. Canonical Flurra difficulty is attached for rendering; all other
+  likely or ambiguous matches remain excluded.
 - `scripts/maps/import-heavenly-osm.mjs`: reproducible Overpass importer and
   report generator.
 - `scripts/maps/build-heavenly-runtime-map.mjs`: builds the local runtime bundle
@@ -39,6 +44,9 @@ used to create coordinates here.
 - 165 downhill OSM features; 131 are named and represent 126 unique labels.
 - 104 Flurra records match 109 OSM features exactly or after harmless name
   normalization.
+- 5 additional OSM features are included through documented
+  `manual-reviewed-alias` decisions, producing 109 verified Flurra records and
+  114 verified run geometries in the runtime bundle.
 - 11 OSM features produce 12 explicit likely/ambiguous candidate links.
 - 3 Flurra records have no exact or candidate OSM geometry.
 - 46 downhill OSM features have no Flurra run match, including 34 unnamed ways.
@@ -53,7 +61,14 @@ used to create coordinates here.
 Exact comparison normalizes only case, Unicode apostrophe style, and whitespace.
 Likely matches come from explicit review rules in the importer; there is no
 general fuzzy-matching step. A likely or ambiguous candidate is not an approved
-mapping.
+mapping unless it is separately recorded in `manual-reviewed-matches.json` with
+source provenance and a review explanation. The Widow Maker / Lone Wolf
+map-version conflict remains unresolved and excluded from the runtime map.
+
+Mott and Killebrew subarea assignments are review metadata, not geographic
+boundaries. Map label anchors are derived reproducibly from the verified OSM run
+geometry assigned to each canyon; no illustrated-map geometry is traced or
+copied.
 
 OSM-only map features remain distinct from Flurra run records. For example,
 `Groove Park` links to the separate Flurra map-feature catalog, and `Mott Canyon

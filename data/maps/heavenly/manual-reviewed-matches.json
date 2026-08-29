@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-08-28",
+  "reviewPolicy": "Manual links require an explicit OSM reference, preserved source names, a review explanation, and official-map provenance. Ambiguous map-version conflicts remain excluded.",
+  "sourceProvenance": {
+    "officialMap": {
+      "sourceMapRef": "heavenly-official-winter-trail-map",
+      "sourceUrl": "https://www.skiheavenly.com/-/aemasset/sitecore/heavenly/maps/20211109_HV_Winter-Trail_Map..001.pdf",
+      "use": "Human review of names, difficulty symbols, area restrictions, and organizational placement only; never geographic geometry."
+    },
+    "osmSnapshot": {
+      "provider": "OpenStreetMap",
+      "snapshotTimestamp": "2026-08-21T01:35:38Z",
+      "license": "ODbL 1.0",
+      "licenseUrl": "https://www.openstreetmap.org/copyright"
+    }
+  },
+  "approvedMatches": [
+    {
+      "flurraRunId": "boundary-chutes",
+      "flurraOriginalName": "Boundary Chutes",
+      "osmRef": "way/313466516",
+      "osmOriginalName": "Boundry Chutes",
+      "matchType": "manual-reviewed-alias",
+      "reviewExplanation": "OSM omits the second a in Boundary; the official map spells the same distinct run Boundary Chutes.",
+      "sourceMapRef": "heavenly-official-winter-trail-map"
+    },
+    {
+      "flurraRunId": "ramarrahs",
+      "flurraOriginalName": "Ramarrah's",
+      "osmRef": "way/1389656304",
+      "osmOriginalName": "Ramarah's",
+      "matchType": "manual-reviewed-alias",
+      "reviewExplanation": "OSM uses one r in Ramarah's; the official map uses Ramarrah's for the same distinct run.",
+      "sourceMapRef": "heavenly-official-winter-trail-map"
+    },
+    {
+      "flurraRunId": "bobs-boulevard",
+      "flurraOriginalName": "Bob's Boulevard",
+      "osmRef": "way/1389656305",
+      "osmOriginalName": "Bobs Boulevard",
+      "matchType": "manual-reviewed-alias",
+      "reviewExplanation": "OSM omits the possessive apostrophe from Bob's; the remainder of the official run name is identical.",
+      "sourceMapRef": "heavenly-official-winter-trail-map"
+    },
+    {
+      "flurraRunId": "stateline-chute",
+      "flurraOriginalName": "Stateline Chute",
+      "osmRef": "way/1389656306",
+      "osmOriginalName": "Stateline",
+      "matchType": "manual-reviewed-alias",
+      "reviewExplanation": "OSM uses the shortened label Stateline; the official map names the same distinct line Stateline Chute.",
+      "sourceMapRef": "heavenly-official-winter-trail-map"
+    },
+    {
+      "flurraRunId": "promised-land",
+      "flurraOriginalName": "Promise Land",
+      "osmRef": "way/313466683",
+      "osmOriginalName": "Promised Land",
+      "matchType": "manual-reviewed-alias",
+      "reviewExplanation": "OSM inserts d in Promised; the official map label is Promise Land for the same distinct run.",
+      "sourceMapRef": "heavenly-official-winter-trail-map"
+    }
+  ],
+  "unresolvedCandidates": [
+    {
+      "flurraRunId": "lone-wolf",
+      "flurraOriginalName": "Lone Wolf",
+      "osmRef": "way/313466743",
+      "osmOriginalName": "Widow Maker",
+      "status": "unresolved-map-version-conflict",
+      "reviewExplanation": "Widow Maker is retained as an alternate historical/map-version-conflict name, but the existing records do not conclusively establish that this OSM way represents the current Lone Wolf record.",
+      "sourceMapRefs": [
+        "heavenly-official-winter-trail-map",
+        "heavenly-official-winter-trail-map-2018-19"
+      ]
+    }
+  ],
+  "canyonAssignments": [
+    { "flurraRunId": "boundary-chutes", "subarea": "killebrew-canyon", "status": "manual-reviewed-official-map", "evidence": "Official-map Killebrew run cluster west of Rocky Point." },
+    { "flurraRunId": "outer-limits", "subarea": "killebrew-canyon", "status": "manual-reviewed-official-map", "evidence": "Official-map Killebrew run cluster west of Rocky Point." },
+    { "flurraRunId": "pipeline", "subarea": "killebrew-canyon", "status": "manual-reviewed-official-map", "evidence": "Official-map Killebrew run cluster west of Rocky Point." },
+    { "flurraRunId": "ramarrahs", "subarea": "killebrew-canyon", "status": "manual-reviewed-official-map", "evidence": "Official-map Killebrew run cluster west of Rocky Point." },
+    { "flurraRunId": "the-fingers", "subarea": "killebrew-canyon", "status": "manual-reviewed-official-map", "evidence": "Official-map Killebrew run cluster west of Rocky Point." },
+    { "flurraRunId": "stateline-chute", "subarea": "killebrew-canyon", "status": "manual-reviewed-official-map", "evidence": "Official-map Killebrew run cluster west of Rocky Point." },
+    { "flurraRunId": "bobs-boulevard", "subarea": "killebrew-canyon", "status": "manual-reviewed-official-map", "evidence": "Official-map Killebrew run cluster west of Rocky Point." },
+    { "flurraRunId": "sweetwater", "subarea": "killebrew-canyon", "status": "manual-reviewed-official-map", "evidence": "Official-map Killebrew run cluster west of Rocky Point." },
+    { "flurraRunId": "promised-land", "subarea": "killebrew-canyon", "status": "manual-reviewed-official-map", "evidence": "Official-map Killebrew run cluster west of Rocky Point." },
+    { "flurraRunId": "north-40", "subarea": "killebrew-canyon", "status": "manual-reviewed-official-map", "evidence": "Official-map Killebrew run cluster west of Rocky Point." },
+    { "flurraRunId": "hemlock", "subarea": "killebrew-canyon", "status": "manual-reviewed-official-map", "evidence": "Official-map Killebrew run cluster west of Rocky Point." },
+    { "flurraRunId": "ernies", "subarea": "killebrew-canyon", "status": "manual-reviewed-official-map", "evidence": "Official-map Killebrew run cluster west of Rocky Point." },
+    { "flurraRunId": "rim-trail", "subarea": "killebrew-canyon", "status": "manual-reviewed-official-map", "evidence": "Official-map Killebrew run cluster west of Rocky Point." },
+    { "flurraRunId": "the-y", "subarea": "mott-canyon", "status": "manual-reviewed-official-map", "evidence": "Official-map Mott run cluster east of Rocky Point." },
+    { "flurraRunId": "bills", "subarea": "mott-canyon", "status": "manual-reviewed-official-map", "evidence": "Official-map Mott run cluster east of Rocky Point." },
+    { "flurraRunId": "snake-eyes", "subarea": "mott-canyon", "status": "manual-reviewed-official-map", "evidence": "Official-map Mott run cluster east of Rocky Point." },
+    { "flurraRunId": "lone-wolf", "subarea": "mott-canyon", "status": "manual-reviewed-official-map", "evidence": "Official-map current-version Mott run cluster east of Rocky Point; this placement does not resolve the OSM Widow Maker geometry conflict." },
+    { "flurraRunId": "hully-gully", "subarea": "mott-canyon", "status": "manual-reviewed-official-map", "evidence": "Official-map Mott run cluster east of Rocky Point." },
+    { "flurraRunId": "pinenuts", "subarea": "mott-canyon", "status": "manual-reviewed-official-map", "evidence": "Official-map Mott run cluster east of Rocky Point." },
+    { "flurraRunId": "southern-comfort", "subarea": "mott-canyon", "status": "manual-reviewed-official-map", "evidence": "Official-map Mott run cluster east of Rocky Point." },
+    { "flurraRunId": "on-hold", "subarea": "mott-canyon", "status": "manual-reviewed-official-map", "evidence": "Official-map Mott run cluster east of Rocky Point." },
+    { "flurraRunId": "perimeter", "subarea": "shared-access", "status": "not-conclusively-inside-canyon", "evidence": "Official map shows this approach/access route outside either printed canyon label cluster." },
+    { "flurraRunId": "upper-perimeter", "subarea": "shared-access", "status": "not-conclusively-inside-canyon", "evidence": "Official map shows this approach/access route outside either printed canyon label cluster." },
+    { "flurraRunId": "milky-way-bowl", "subarea": "shared-access", "status": "not-conclusively-inside-canyon", "evidence": "Official map shows the bowl above the shared gate complex, not conclusively inside one printed canyon label cluster." },
+    { "flurraRunId": "milky-way", "subarea": "shared-access", "status": "not-conclusively-inside-canyon", "evidence": "Official map shows the route above the shared gate complex, not conclusively inside one printed canyon label cluster." }
+  ]
+}

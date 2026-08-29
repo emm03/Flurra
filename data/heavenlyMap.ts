@@ -18,6 +18,7 @@ export type HeavenlyRuntimeMapData = {
   generatedFrom: {
     osmSnapshotTimestamp: string;
     matchReportGeneratedAt: string;
+    manualReviewDate: string;
     policy: string;
   };
   attribution: {
