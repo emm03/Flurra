@@ -1,11 +1,13 @@
 import type { StyleSpecification } from 'maplibre-gl';
 
-export const OPEN_FREE_MAP_ATTRIBUTION = 'OpenFreeMap © OpenMapTiles Data from OpenStreetMap';
-export const TERRAIN_ATTRIBUTION = 'Terrain: Mapzen · USGS';
+export const OPEN_FREE_MAP_ATTRIBUTION = '<a href="https://openfreemap.org/" target="_blank" rel="noopener noreferrer">OpenFreeMap</a> · <a href="https://openmaptiles.org/" target="_blank" rel="noopener noreferrer">OpenMapTiles</a> · © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>';
+export const TERRAIN_ATTRIBUTION = 'Terrain: <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener noreferrer">Mapzen</a> / <a href="https://www.usgs.gov/3d-elevation-program" target="_blank" rel="noopener noreferrer">USGS</a>';
+export const OSM_GEOMETRY_ATTRIBUTION = 'Trail geometry © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>';
 
 export const heavenlyLocalFallbackStyle: StyleSpecification = {
   version: 8,
   name: 'Flurra Heavenly local fallback',
+  glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
   sources: {},
   layers: [
     { id: 'winter-paper', type: 'background', paint: { 'background-color': '#eaf0e7' } },

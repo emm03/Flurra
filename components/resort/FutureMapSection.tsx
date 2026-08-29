@@ -1,6 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import { type Href, useRouter } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { heavenlyMapData } from '@/data/heavenlyMap';
 import type { ResortRun } from '@/data/heavenlyResort';
 import { colors, fonts } from '@/theme';
@@ -22,9 +23,24 @@ const legendItems = [
   { label: 'LIFT', color: colors.orange, shape: '━' },
 ];
 
+const baseAttributionLinks = [
+  { label: 'OpenFreeMap', url: 'https://openfreemap.org/' },
+  { label: 'OpenMapTiles', url: 'https://openmaptiles.org/' },
+  { label: '© OpenStreetMap contributors', url: 'https://www.openstreetmap.org/copyright' },
+];
+
+const terrainAttributionLinks = [
+  { label: 'Mapzen terrain', url: 'https://registry.opendata.aws/terrain-tiles/' },
+  { label: 'USGS 3DEP', url: 'https://www.usgs.gov/3d-elevation-program' },
+];
+
 export function FutureMapSection({ resortName, compact, runs, selectedRunId, onSelectRun }: FutureMapSectionProps) {
   const router = useRouter();
   const selectedRun = runs.find((run) => run.id === selectedRunId);
+  const [terrainAvailable, setTerrainAvailable] = useState(true);
+  const attributionLinks = terrainAvailable
+    ? [...baseAttributionLinks, ...terrainAttributionLinks]
+    : baseAttributionLinks;
 
   return <View style={styles.section}>
     <View style={styles.inner}>
@@ -40,7 +56,11 @@ export function FutureMapSection({ resortName, compact, runs, selectedRunId, onS
       <View style={styles.mapFrame}>
         <View style={styles.tape} />
         <View style={styles.mapShell}>
-          <HeavenlyMap selectedRunId={selectedRunId} onSelectRun={onSelectRun} />
+          <HeavenlyMap
+            selectedRunId={selectedRunId}
+            onSelectRun={onSelectRun}
+            onTerrainAvailabilityChange={setTerrainAvailable}
+          />
           <View style={[styles.legend, compact && styles.legendMobile]} pointerEvents="none">
             <Text style={styles.legendTitle}>TRAIL KEY</Text>
             <View style={styles.legendItems}>
@@ -64,7 +84,22 @@ export function FutureMapSection({ resortName, compact, runs, selectedRunId, onS
             <Text style={styles.factValue}>{heavenlyMapData.liftFeatureCount}</Text>
             <Text style={styles.factLabel}>OSM LIFT GEOMETRIES</Text>
           </View>
-          <Text style={styles.attribution}>OpenFreeMap © OpenMapTiles · © OpenStreetMap contributors (ODbL) · Terrain: Mapzen / USGS</Text>
+          <View style={styles.attribution} accessibilityLabel="Map data attribution">
+            {attributionLinks.map((item, index) => <View key={item.label} style={styles.attributionItem}>
+              {index > 0 ? <Text style={styles.attributionSeparator}>·</Text> : null}
+              <Pressable
+                accessibilityRole="link"
+                accessibilityLabel={`Attribution: ${item.label}`}
+                onPress={() => Linking.openURL(item.url)}
+                style={({ hovered, focused }: any) => [
+                  styles.attributionLink,
+                  (hovered || focused) && styles.attributionLinkActive,
+                ]}
+              >
+                <Text style={styles.attributionText}>{item.label}</Text>
+              </Pressable>
+            </View>)}
+          </View>
         </View>
       </View>
 
@@ -123,14 +158,19 @@ const styles = StyleSheet.create({
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   legendShape: { fontFamily: fonts.bold, fontSize: 10 },
   legendLabel: { color: colors.forest, fontFamily: fonts.bold, fontSize: 6, letterSpacing: .5 },
-  prototypeLabel: { position: 'absolute', zIndex: 3, right: 14, bottom: 14, backgroundColor: 'rgba(18,60,50,.92)', paddingHorizontal: 9, paddingVertical: 7 },
+  prototypeLabel: { position: 'absolute', zIndex: 3, right: 14, bottom: 34, backgroundColor: 'rgba(18,60,50,.92)', paddingHorizontal: 9, paddingVertical: 7 },
   prototypeText: { color: colors.white, fontFamily: fonts.bold, fontSize: 6, letterSpacing: .8 },
   mapFooter: { minHeight: 70, flexDirection: 'row', alignItems: 'center', gap: 30, paddingHorizontal: 16, paddingVertical: 12 },
   mapFooterMobile: { flexWrap: 'wrap', gap: 15 },
   mapFacts: { flexDirection: 'row', alignItems: 'baseline', gap: 7 },
   factValue: { color: colors.orange, fontFamily: fonts.display, fontSize: 24 },
   factLabel: { color: colors.forest, fontFamily: fonts.bold, fontSize: 7, letterSpacing: .8 },
-  attribution: { color: colors.muted, fontFamily: fonts.body, fontSize: 8, marginLeft: 'auto' },
+  attribution: { marginLeft: 'auto', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center', maxWidth: 540 },
+  attributionItem: { flexDirection: 'row', alignItems: 'center' },
+  attributionSeparator: { color: colors.muted, fontFamily: fonts.body, fontSize: 8, marginHorizontal: 3 },
+  attributionLink: { borderBottomColor: 'transparent', borderBottomWidth: 1 },
+  attributionLinkActive: { borderBottomColor: colors.orange },
+  attributionText: { color: colors.muted, fontFamily: fonts.body, fontSize: 8 },
   selectionRow: { marginTop: 28, backgroundColor: colors.forest, borderColor: colors.deep, borderWidth: 1.5, padding: 24, minHeight: 170, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 30, shadowColor: colors.orange, shadowOpacity: 1, shadowRadius: 0, shadowOffset: { width: 6, height: 7 } },
   selectionRowMobile: { flexDirection: 'column', alignItems: 'stretch' },
   selectedCopy: { flex: 1 },
