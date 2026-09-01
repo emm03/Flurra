@@ -10,7 +10,7 @@ export type HeavenlyMapFeature = {
     coordinates?: unknown;
     geometries?: unknown[];
   };
-  properties: Record<string, string | number | null>;
+  properties: Record<string, string | number | boolean | null>;
 };
 
 export type HeavenlyRuntimeMapData = {

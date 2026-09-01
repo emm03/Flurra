@@ -2,6 +2,15 @@
   "schemaVersion": 1,
   "reviewedAt": "2026-08-28",
   "reviewPolicy": "Manual links require an explicit OSM reference, preserved source names, a review explanation, and official-map provenance. Ambiguous map-version conflicts remain excluded.",
+  "effectiveClassificationPolicy": {
+    "appliesToSubareas": ["killebrew-canyon", "mott-canyon"],
+    "effectiveMapDifficulty": "experts-only",
+    "accessRestriction": "experts-only-gated-terrain",
+    "presentationLabel": "Most difficult · experts only · double black diamond",
+    "difficultySymbol": "◆◆",
+    "sourceMapRef": "heavenly-official-winter-trail-map",
+    "reviewExplanation": "Heavenly's official current winter map marks both Mott and Killebrew Canyons as double-black, experts-only gated terrain. Flurra preserves each run's map-derived source difficulty separately, while the effective classification communicates the controlling area access restriction anywhere the run is presented to users. Shared approach terrain is excluded."
+  },
   "sourceProvenance": {
     "officialMap": {
       "sourceMapRef": "heavenly-official-winter-trail-map",

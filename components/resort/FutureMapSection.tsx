@@ -106,7 +106,7 @@ export function FutureMapSection({ resortName, compact, runs, selectedRunId, onS
       <View style={[styles.selectionRow, compact && styles.selectionRowMobile]} accessibilityLiveRegion="polite">
         {selectedRun ? <>
           <View style={styles.selectedCopy}>
-            <Text style={styles.selectedEyebrow}>SELECTED RUN · {selectedRun.officialDifficulty.toUpperCase()}</Text>
+            <Text style={styles.selectedEyebrow}>SELECTED RUN · {selectedRun.effectiveDifficultySymbol} {selectedRun.officialDifficulty.toUpperCase()}</Text>
             <Text testID="selected-map-run-name" style={styles.selectedName}>{selectedRun.name}</Text>
             <Text style={styles.selectedDescription}>{selectedRun.description}</Text>
             <View style={styles.selectedTags}>{selectedRun.conditionTags.map((tag) => <Text key={tag} style={styles.selectedTag}>{tag.replace('Sample: ', '')}</Text>)}</View>

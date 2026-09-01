@@ -70,6 +70,15 @@ boundaries. Map label anchors are derived reproducibly from the verified OSM run
 geometry assigned to each canyon; no illustrated-map geometry is traced or
 copied.
 
+Canonical `officialDifficulty` remains the individual difficulty transcribed
+from the source map and is never overwritten. A separate
+`effectiveMapDifficulty` plus `accessRestriction` applies to runs assigned inside
+Mott Canyon or Killebrew Canyon because Heavenly's current map classifies both
+areas as double-black, experts-only gated terrain. That controlling restriction
+is what Flurra presents to users. Perimeter, Upper Perimeter, Milky Way, and
+Milky Way Bowl are shared approach terrain and retain their individual source
+classifications.
+
 OSM-only map features remain distinct from Flurra run records. For example,
 `Groove Park` links to the separate Flurra map-feature catalog, and `Mott Canyon
 Trail` is only a review candidate for the parent `Mott Canyon` map feature.

@@ -29,6 +29,10 @@ type HeavenlyMapProps = {
 
 type HeavenlyMapMode = 'resort' | 'topographic';
 
+type TerrainProviderStatus = 'loading' | 'available' | 'unavailable';
+
+type CameraOperation = 'fit' | 'reset' | 'selected-run-focus';
+
 type ProviderFailureMode = 'terrain' | 'vector' | null;
 
 const runLayerIds = [
@@ -120,7 +124,7 @@ const AREA_LABEL_PRIORITIES: Record<string, number> = {
 
 const selectedDifficultyColor = [
   'match',
-  ['get', 'officialDifficulty'],
+  ['get', 'effectiveMapDifficulty'],
   'easier', '#14834f',
   'more-difficult', '#086fa9',
   'most-difficult', '#152b26',
@@ -203,7 +207,7 @@ function createRunSources() {
       properties: {
         ...feature.properties,
         mountainArea: run?.mountainArea ?? null,
-        difficultySymbol: DIFFICULTY_SYMBOLS[String(feature.properties.officialDifficulty)] ?? '',
+        difficultySymbol: DIFFICULTY_SYMBOLS[String(feature.properties.effectiveMapDifficulty)] ?? '',
         labelPriority: LANDMARK_RUN_IDS.has(runId) ? 1 : 2,
       },
     };
@@ -292,10 +296,15 @@ function createRunSources() {
     const minLatitude = Math.min(...latitudes);
     const maxLongitude = Math.max(...longitudes);
     const maxLatitude = Math.max(...latitudes);
-    const labelCoordinate = [
-      (minLongitude + maxLongitude) / 2,
-      (minLatitude + maxLatitude) / 2,
-    ];
+    const longitudeSpan = maxLongitude - minLongitude;
+    const latitudeSpan = maxLatitude - minLatitude;
+    // Anchors are reproducibly derived from each verified run cluster's extent.
+    // The small opposing biases keep both names associated with their own
+    // canyon without claiming or fabricating a boundary polygon.
+    const isKillebrew = subarea === 'killebrew-canyon';
+    const labelCoordinate = isKillebrew
+      ? [minLongitude + longitudeSpan * 0.25, minLatitude + latitudeSpan * 0.38]
+      : [minLongitude + longitudeSpan * 0.75, minLatitude + latitudeSpan * 0.62];
     return {
       type: 'Feature' as const,
       id: `canyon/${subarea}`,
@@ -310,10 +319,11 @@ function createRunSources() {
         minLatitude,
         maxLongitude,
         maxLatitude,
-        labelOffset: subarea === 'killebrew-canyon' ? [-9, -2] : [4, -2],
-        textAnchor: subarea === 'killebrew-canyon' ? 'bottom-right' : 'bottom-left',
+        labelOffsetWhole: isKillebrew ? [0.3, 0.2] : [0.3, -0.2],
+        labelOffsetClose: [0.15, 0],
+        textAnchor: 'left',
         areaRestriction: 'EXPERTS ONLY · GATED TERRAIN',
-        assignmentMethod: 'manual-reviewed official-map labels; anchor derived from the center of verified OSM run extents',
+        assignmentMethod: 'manual-reviewed official-map labels; anchor derived from an interior-biased point within verified OSM run extents',
       },
     };
   });
@@ -437,24 +447,34 @@ function expandedCameraBounds(bounds: LngLatBounds) {
 function wholeMountainPadding(map: MapLibreMap, resortView: boolean, basePadding: number) {
   const canvas = map.getCanvas();
   const compact = canvas.clientWidth < 600;
-  if (!resortView) return compact ? 30 : basePadding;
+  if (compact) {
+    const safePadding = 48;
+    return { top: safePadding, right: safePadding, bottom: safePadding, left: safePadding };
+  }
+  // Pitched, elevated terrain projects beyond its flat geographic bounds, so
+  // Resort View gets a modest vertical safety allowance beyond the 10% casing
+  // and label margin used for the north-up view.
+  const horizontalSafeZone = Math.round(Math.max(basePadding, canvas.clientWidth * (resortView ? 0.1 : 0.09)));
+  const verticalSafeZone = Math.round(Math.max(basePadding, canvas.clientHeight * (resortView ? 0.14 : 0.09)));
   return {
-    top: compact ? 58 : 72,
-    right: compact ? 34 : Math.max(42, basePadding),
-    bottom: compact ? 72 : 88,
-    left: compact ? 34 : Math.max(42, basePadding),
+    top: verticalSafeZone,
+    right: horizontalSafeZone,
+    bottom: verticalSafeZone,
+    left: horizontalSafeZone,
   };
 }
 
 function selectedRunPadding(map: MapLibreMap) {
   const canvas = map.getCanvas();
   const compact = canvas.clientWidth < 600;
-  const height = Math.max(canvas.clientHeight, 320);
+  const safePadding = compact
+    ? 48
+    : Math.round(Math.min(104, Math.max(72, Math.min(canvas.clientWidth, canvas.clientHeight) * 0.11)));
   return {
-    top: compact ? 132 : 150,
-    right: compact ? 38 : 68,
-    bottom: Math.round(Math.min(compact ? 82 : 88, height * (compact ? 0.2 : 0.17))),
-    left: compact ? 38 : 220,
+    top: safePadding,
+    right: safePadding,
+    bottom: safePadding,
+    left: safePadding,
   };
 }
 
@@ -467,22 +487,22 @@ function focusRunBounds(
 ) {
   const resortView = mode === 'resort' && terrainAvailable && Boolean(map.getSource('terrain-dem'));
   const camera = resortCamera();
-  const canvas = map.getCanvas();
   map.stop();
   if (resortView) {
-    // Calculate a safe 2D camera from the actual viewport padding, then add
-    // pitch/bearing explicitly. MapLibre's terrain-aware fitBounds can produce
-    // an invalid close-range camera for small run geometries on pitched terrain.
+    // Calculate against the final bearing and pitch so the selected geometry
+    // stays inside the balanced screen-space safe zone after terrain tilts.
+    // cameraForBounds avoids mutating terrain state while the fit is computed.
     const focusCamera = map.cameraForBounds(bounds, {
       padding: selectedRunPadding(map),
       bearing: camera.bearing,
-      offset: [Math.round(canvas.clientWidth * 0.04), Math.round(canvas.clientHeight * 0.08)],
-      maxZoom: 12.65,
+      pitch: camera.pitch,
+      offset: [0, 0],
+      maxZoom: 12.45,
     });
     if (focusCamera) {
       map.easeTo({
         center: focusCamera.center,
-        zoom: Math.min(focusCamera.zoom ?? map.getZoom(), 12.65),
+        zoom: Math.min(focusCamera.zoom ?? map.getZoom(), 12.45),
         bearing: camera.bearing,
         pitch: camera.pitch,
         duration,
@@ -586,49 +606,89 @@ function applyRunAndLiftTreatment(map: MapLibreMap, mode: HeavenlyMapMode) {
   map.setPaintProperty('selected-run', 'line-color', resortView ? selectedDifficultyColor : colors.lime);
 }
 
-function applyMapMode(
+function terrainIsApplied(map: MapLibreMap) {
+  return map.getTerrain()?.source === 'terrain-dem';
+}
+
+function cameraMatchesMode(map: MapLibreMap, mode: HeavenlyMapMode) {
+  const camera = resortCamera();
+  const expectedBearing = mode === 'resort' ? camera.bearing : 0;
+  const expectedPitch = mode === 'resort' ? camera.pitch : 0;
+  const bearingDelta = Math.abs((((map.getBearing() - expectedBearing) + 540) % 360) - 180);
+  return bearingDelta < 0.25 && Math.abs(map.getPitch() - expectedPitch) < 0.25;
+}
+
+function applyMapPresentation(
   map: MapLibreMap,
   mode: HeavenlyMapMode,
-  bounds: LngLatBounds,
-  basePadding: number,
   terrainAvailable: boolean,
-  animate: boolean,
 ) {
   const resortView = mode === 'resort'
     && terrainAvailable
     && Boolean(map.getSource('terrain-dem'));
-  const camera = resortCamera();
 
+  if (mode === 'resort' && !resortView) return false;
+
+  const camera = resortCamera();
   map.stop();
   map.setTerrain(resortView ? { source: 'terrain-dem', exaggeration: camera.exaggeration } : null);
   applyTerrainTreatment(map, resortView ? 'resort' : 'topographic');
   applyRunAndLiftTreatment(map, resortView ? 'resort' : 'topographic');
+  return resortView ? terrainIsApplied(map) : !map.getTerrain();
+}
+
+function fitWholeMountainCamera(
+  map: MapLibreMap,
+  mode: HeavenlyMapMode,
+  bounds: LngLatBounds,
+  basePadding: number,
+  animate: boolean,
+) {
+  const resortView = mode === 'resort';
+  const camera = resortCamera();
+  const terrain = resortView ? { source: 'terrain-dem', exaggeration: camera.exaggeration } : null;
+
+  map.stop();
+  // Calculate every whole-mountain camera against the same flat transform. The
+  // terrain is restored synchronously before MapLibre can paint another frame,
+  // so Fit remains a camera operation rather than a view-mode operation.
+  if (resortView) map.setTerrain(null);
   const overrideLongitude = optionalNumericSearchParam('longitude');
   const overrideLatitude = optionalNumericSearchParam('latitude');
   const overrideZoom = optionalNumericSearchParam('zoom');
   if (resortView && overrideLongitude !== null && overrideLatitude !== null && overrideZoom !== null) {
+    map.setTerrain(terrain);
     map.jumpTo({
       center: [overrideLongitude, overrideLatitude],
       zoom: overrideZoom,
       bearing: camera.bearing,
       pitch: camera.pitch,
     });
-    return;
+    return true;
   }
-  map.fitBounds(bounds, {
+  // Normalize the transform before calculating the whole-mountain fit.
+  // MapLibre's bounds camera can otherwise produce a different result when Fit
+  // is invoked from an already pitched terrain camera than it does at startup.
+  map.jumpTo({ bearing: 0, pitch: 0 });
+  const targetCamera = map.cameraForBounds(bounds, {
     padding: wholeMountainPadding(map, resortView, basePadding),
-    duration: 0,
     maxZoom: resortView ? 13.1 : 13.3,
     bearing: resortView ? camera.bearing : 0,
     pitch: resortView ? camera.pitch : 0,
     offset: [0, 0],
   });
-  if (resortView) {
-    const canvas = map.getCanvas();
-    const verticalShift = Math.round(Math.min(canvas.clientHeight * 0.2, canvas.clientWidth * 0.1));
-    map.setZoom(Math.min(map.getZoom() + 0.6, 13.54));
-    map.panBy([0, -verticalShift], { duration: animate ? 420 : 0 });
-  }
+  if (resortView) map.setTerrain(terrain);
+  if (!targetCamera) return false;
+  const cameraOptions = {
+    center: targetCamera.center,
+    zoom: Math.min(targetCamera.zoom ?? map.getZoom(), resortView ? 13.1 : 13.3),
+    bearing: resortView ? camera.bearing : 0,
+    pitch: resortView ? camera.pitch : 0,
+    duration: animate ? 480 : 0,
+  };
+  if (animate) map.easeTo(cameraOptions);
+  else map.jumpTo(cameraOptions);
+  return true;
 }
 
 function addMajorContours(map: MapLibreMap, demSource: ReturnType<typeof getDemSource>) {
@@ -702,13 +762,21 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
   const terrainAvailabilityCallbackRef = useRef(onTerrainAvailabilityChange);
   const initialBoundsRef = useRef<LngLatBounds | null>(null);
   const initialPaddingRef = useRef(48);
-  const terrainAvailableRef = useRef(false);
-  const mapModeRef = useRef<HeavenlyMapMode>('resort');
+  const initialRequestedMapModeRef = useRef<HeavenlyMapMode>(initialMapMode());
+  const requestedMapModeRef = useRef<HeavenlyMapMode>(initialRequestedMapModeRef.current);
+  const effectiveMapModeRef = useRef<HeavenlyMapMode | null>(null);
+  const terrainProviderStatusRef = useRef<TerrainProviderStatus>('loading');
+  const cameraOperationRef = useRef<CameraOperation | null>(null);
+  const cameraSequenceRef = useRef(0);
+  const pendingCameraFrameRef = useRef<number | null>(null);
   const selectedRunIdRef = useRef(selectedRunId);
-  const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [terrainLimited, setTerrainLimited] = useState(false);
-  const [mapMode, setMapMode] = useState<HeavenlyMapMode>(initialMapMode);
+  const [layersReady, setLayersReady] = useState(false);
+  const [requestedMapMode, setRequestedMapMode] = useState<HeavenlyMapMode>(initialRequestedMapModeRef.current);
+  const [effectiveMapMode, setEffectiveMapMode] = useState<HeavenlyMapMode | null>(null);
+  const [terrainProviderStatus, setTerrainProviderStatus] = useState<TerrainProviderStatus>('loading');
+  const ready = layersReady && effectiveMapMode !== null;
+  const terrainLimited = terrainProviderStatus === 'unavailable';
 
   selectedRunIdRef.current = selectedRunId;
 
@@ -721,8 +789,16 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
   }, [onTerrainAvailabilityChange]);
 
   useEffect(() => {
-    mapModeRef.current = mapMode;
-  }, [mapMode]);
+    requestedMapModeRef.current = requestedMapMode;
+  }, [requestedMapMode]);
+
+  useEffect(() => {
+    effectiveMapModeRef.current = effectiveMapMode;
+  }, [effectiveMapMode]);
+
+  useEffect(() => {
+    terrainProviderStatusRef.current = terrainProviderStatus;
+  }, [terrainProviderStatus]);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -740,9 +816,9 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
     initialPaddingRef.current = initialPadding;
     const demSource = forceTerrainFallback ? null : getDemSource();
     let fallbackActivated = forceTerrainFallback;
-    let contextTimer: ReturnType<typeof setTimeout> | undefined;
     let startupTimer: ReturnType<typeof setTimeout> | undefined;
     let providerFailureTimer: ReturnType<typeof setTimeout> | undefined;
+    let fallbackLayerTimer: ReturnType<typeof setInterval> | undefined;
     let resizeTimer: ReturnType<typeof setTimeout> | undefined;
     let interactionsBound = false;
     let destroyed = false;
@@ -756,11 +832,12 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
         bounds: initialBounds,
         fitBoundsOptions: { padding: initialPadding, maxZoom: 13.3 },
         maxBounds: expandedCameraBounds(initialBounds),
-        minZoom: 11,
+        minZoom: 9.6,
         maxZoom: 17,
         attributionControl: false,
         dragRotate: false,
         pitchWithRotate: false,
+        cooperativeGestures: true,
         renderWorldCopies: false,
       });
     } catch {
@@ -769,9 +846,10 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
     }
 
     mapRef.current = map;
-    terrainAvailableRef.current = Boolean(demSource);
-    setTerrainLimited(forceTerrainFallback);
-    terrainAvailabilityCallbackRef.current?.(Boolean(demSource));
+    const initialProviderStatus: TerrainProviderStatus = forceTerrainFallback ? 'unavailable' : 'loading';
+    terrainProviderStatusRef.current = initialProviderStatus;
+    setTerrainProviderStatus(initialProviderStatus);
+    terrainAvailabilityCallbackRef.current?.(false);
     map.addControl(new NavigationControl({ showCompass: false }), 'top-right');
     map.addControl(new AttributionControl({ compact: true }), 'bottom-right');
 
@@ -785,15 +863,23 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
         // The style may already be transitioning; the fallback style below
         // removes every provider-backed terrain reference atomically.
       }
-      terrainAvailableRef.current = false;
-      mapModeRef.current = 'topographic';
-      setMapMode('topographic');
-      setTerrainLimited(true);
-      setReady(false);
+      cameraSequenceRef.current += 1;
+      if (pendingCameraFrameRef.current !== null) {
+        cancelAnimationFrame(pendingCameraFrameRef.current);
+        pendingCameraFrameRef.current = null;
+      }
+      cameraOperationRef.current = null;
+      terrainProviderStatusRef.current = 'unavailable';
+      requestedMapModeRef.current = 'topographic';
+      effectiveMapModeRef.current = null;
+      setTerrainProviderStatus('unavailable');
+      setRequestedMapMode('topographic');
+      setEffectiveMapMode(null);
+      setLayersReady(false);
       terrainAvailabilityCallbackRef.current?.(false);
-      if (contextTimer) clearTimeout(contextTimer);
       if (startupTimer) clearTimeout(startupTimer);
       map.setStyle(heavenlyLocalFallbackStyle);
+      scheduleLocalLayerBootstrap();
     };
     if (!forceTerrainFallback) startupTimer = setTimeout(activateLocalFallback, 8000);
 
@@ -809,7 +895,13 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
     const hidePointer = () => { map.getCanvas().style.cursor = ''; };
 
     const addLocalLayers = () => {
-      if (map.getSource('verified-runs')) return;
+      if (map.getSource('verified-runs')) {
+        if (map.getLayer('verified-run-hitbox')) {
+          map.resize();
+          setLayersReady(true);
+        }
+        return;
+      }
       const hasVectorContext = Boolean(map.getSource('openmaptiles'));
       const hasTerrainContext = Boolean(map.getSource('terrain-dem'));
       if (demSource && !fallbackActivated && hasTerrainContext) addMajorContours(map, demSource);
@@ -860,7 +952,7 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
         id: 'verified-green',
         type: 'line',
         source: 'verified-runs',
-        filter: ['==', ['get', 'officialDifficulty'], 'easier'],
+        filter: ['==', ['get', 'effectiveMapDifficulty'], 'easier'],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: { 'line-color': '#14834f', 'line-width': 3.5, 'line-opacity': 0.97 },
       });
@@ -868,7 +960,7 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
         id: 'verified-blue',
         type: 'line',
         source: 'verified-runs',
-        filter: ['==', ['get', 'officialDifficulty'], 'more-difficult'],
+        filter: ['==', ['get', 'effectiveMapDifficulty'], 'more-difficult'],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: { 'line-color': '#086fa9', 'line-width': 3.5, 'line-opacity': 0.97 },
       });
@@ -876,7 +968,7 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
         id: 'verified-black',
         type: 'line',
         source: 'verified-runs',
-        filter: ['==', ['get', 'officialDifficulty'], 'most-difficult'],
+        filter: ['==', ['get', 'effectiveMapDifficulty'], 'most-difficult'],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: { 'line-color': '#152b26', 'line-width': 3.7, 'line-opacity': 0.96 },
       });
@@ -884,7 +976,7 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
         id: 'verified-expert',
         type: 'line',
         source: 'verified-runs',
-        filter: ['==', ['get', 'officialDifficulty'], 'experts-only'],
+        filter: ['==', ['get', 'effectiveMapDifficulty'], 'experts-only'],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: { 'line-color': '#050a08', 'line-width': 4.1, 'line-opacity': 0.96 },
       });
@@ -892,7 +984,7 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
         id: 'verified-expert-markers',
         type: 'line',
         source: 'verified-runs',
-        filter: ['==', ['get', 'officialDifficulty'], 'experts-only'],
+        filter: ['==', ['get', 'effectiveMapDifficulty'], 'experts-only'],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
           'line-color': colors.orange,
@@ -1045,7 +1137,11 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
           'text-font': ['Noto Sans Bold'],
           'text-size': ['interpolate', ['linear'], ['zoom'], 11.15, 8.5, 13.2, 12, 15, 13.5],
           'text-letter-spacing': 0.08,
-          'text-offset': ['get', 'labelOffset'],
+          'text-offset': [
+            'interpolate', ['linear'], ['zoom'],
+            11.15, ['get', 'labelOffsetWhole'],
+            13.5, ['get', 'labelOffsetClose'],
+          ],
           'text-anchor': ['get', 'textAnchor'],
           'symbol-sort-key': 1,
           'text-allow-overlap': true,
@@ -1230,7 +1326,7 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
         type: 'symbol',
         source: 'run-labels',
         minzoom: 13.55,
-        filter: ['==', ['get', 'officialDifficulty'], 'most-difficult'],
+        filter: ['==', ['get', 'effectiveMapDifficulty'], 'most-difficult'],
         layout: {
           'symbol-placement': 'line',
           'symbol-spacing': 520,
@@ -1247,7 +1343,7 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
         type: 'symbol',
         source: 'run-labels',
         minzoom: 13.1,
-        filter: ['==', ['get', 'officialDifficulty'], 'experts-only'],
+        filter: ['==', ['get', 'effectiveMapDifficulty'], 'experts-only'],
         layout: {
           'symbol-placement': 'line',
           'symbol-spacing': 420,
@@ -1302,20 +1398,32 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
         interactionsBound = true;
       }
 
-      if (startupTimer) clearTimeout(startupTimer);
       map.resize();
-      setReady(true);
+      setLayersReady(true);
 
       if (!fallbackActivated) {
-        contextTimer = setTimeout(() => {
-          const vectorReady = map.getSource('openmaptiles') && map.isSourceLoaded('openmaptiles');
-          const terrainReady = map.getSource('terrain-dem') && map.isSourceLoaded('terrain-dem');
-          if (!vectorReady || !terrainReady) activateLocalFallback();
-        }, 8000);
         if (simulatedProviderFailure && !providerFailureTimer) {
           providerFailureTimer = setTimeout(activateLocalFallback, 450);
         }
       }
+    };
+
+    const scheduleLocalLayerBootstrap = () => {
+      if (fallbackLayerTimer) clearInterval(fallbackLayerTimer);
+      fallbackLayerTimer = setInterval(() => {
+        if (destroyed) return;
+        try {
+          addLocalLayers();
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          if (!/style.*not.*load/i.test(message)) throw error;
+          return;
+        }
+        if (map.getLayer('verified-run-hitbox') && fallbackLayerTimer) {
+          clearInterval(fallbackLayerTimer);
+          fallbackLayerTimer = undefined;
+        }
+      }, 100);
     };
 
     const handleIdle = () => {
@@ -1324,9 +1432,9 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
         && map.getSource('terrain-dem')
         && map.isSourceLoaded('openmaptiles')
         && map.isSourceLoaded('terrain-dem')) {
-        if (contextTimer) clearTimeout(contextTimer);
-        terrainAvailableRef.current = true;
-        setTerrainLimited(false);
+        if (startupTimer) clearTimeout(startupTimer);
+        terrainProviderStatusRef.current = 'available';
+        setTerrainProviderStatus('available');
         terrainAvailabilityCallbackRef.current?.(true);
       }
     };
@@ -1339,9 +1447,15 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
       if (providerSourceFailed) activateLocalFallback();
     };
 
+    map.on('load', addLocalLayers);
     map.on('style.load', addLocalLayers);
     map.on('idle', handleIdle);
     map.on('error', handleProviderError as any);
+    // The fully local fallback style can finish synchronously during Map
+    // construction, before listeners are attached. Bootstrap its local layers
+    // explicitly when that has already happened.
+    if (map.isStyleLoaded()) addLocalLayers();
+    scheduleLocalLayerBootstrap();
 
     const resizeObserver = typeof ResizeObserver === 'undefined'
       ? null
@@ -1356,7 +1470,16 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
             const adjacentRunIds = [...(runAdjacencyIndex.get(currentRunId) ?? [])];
             const bounds = geometryBoundsForRunIds([currentRunId, ...adjacentRunIds]);
             if (bounds && !bounds.isEmpty()) {
-              focusRunBounds(map, bounds, mapModeRef.current, terrainAvailableRef.current, 0);
+              const renderedMode = effectiveMapModeRef.current;
+              if (renderedMode) {
+                focusRunBounds(
+                  map,
+                  bounds,
+                  renderedMode,
+                  terrainProviderStatusRef.current === 'available',
+                  0,
+                );
+              }
             }
           }
         }, 100);
@@ -1374,11 +1497,13 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
         }
         map.off('click', handleMapClick);
       }
-      if (contextTimer) clearTimeout(contextTimer);
       if (startupTimer) clearTimeout(startupTimer);
       if (providerFailureTimer) clearTimeout(providerFailureTimer);
+      if (fallbackLayerTimer) clearInterval(fallbackLayerTimer);
       if (resizeTimer) clearTimeout(resizeTimer);
+      if (pendingCameraFrameRef.current !== null) cancelAnimationFrame(pendingCameraFrameRef.current);
       resizeObserver?.disconnect();
+      map.off('load', addLocalLayers);
       map.off('style.load', addLocalLayers);
       map.off('idle', handleIdle);
       map.off('error', handleProviderError as any);
@@ -1417,8 +1542,8 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
       ['!=', ['get', 'canyonSubarea'], 'killebrew-canyon'],
       excludeSelectedFilter,
     ]);
-    map.setFilter('black-difficulty-markers', ['all', ['==', ['get', 'officialDifficulty'], 'most-difficult'], excludeSelectedFilter]);
-    map.setFilter('expert-difficulty-markers', ['all', ['==', ['get', 'officialDifficulty'], 'experts-only'], excludeSelectedFilter]);
+    map.setFilter('black-difficulty-markers', ['all', ['==', ['get', 'effectiveMapDifficulty'], 'most-difficult'], excludeSelectedFilter]);
+    map.setFilter('expert-difficulty-markers', ['all', ['==', ['get', 'effectiveMapDifficulty'], 'experts-only'], excludeSelectedFilter]);
     const selectedCanyonSubarea = selectedRunId
       ? String(runSources.runs.features.find((feature) => (
         feature.properties.flurraRunId === selectedRunId
@@ -1428,8 +1553,8 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
       ? ['==', ['get', 'subarea'], '__selected-canyon-shown-in-overlay__']
       : ['in', ['get', 'subarea'], ['literal', ['mott-canyon', 'killebrew-canyon']]]);
 
-    const resortView = mapMode === 'resort'
-      && terrainAvailableRef.current
+    const resortView = effectiveMapMode === 'resort'
+      && terrainProviderStatus === 'available'
       && Boolean(map.getSource('terrain-dem'));
     setLayerVisibility(map, 'mountain-area-labels', resortView && !selectedRunId);
     const adjacentRunIds = selectedRunId ? [...(runAdjacencyIndex.get(selectedRunId) ?? [])] : [];
@@ -1453,92 +1578,169 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
     for (const layerId of ['heavenly-lift-casing', 'heavenly-lifts', 'heavenly-gondola-casing', 'heavenly-gondola']) {
       map.setPaintProperty(layerId, 'line-opacity', selectedRunId ? 0.52 : (layerId.includes('gondola') ? 0.84 : 0.86));
     }
-  }, [mapMode, ready, selectedRunId]);
+  }, [effectiveMapMode, ready, selectedRunId, terrainProviderStatus]);
 
   useEffect(() => {
     const map = mapRef.current;
     const wholeMountainBounds = initialBoundsRef.current;
     if (!map
       || !wholeMountainBounds
-      || !ready
-      || !map.isStyleLoaded()
+      || !layersReady
       || !map.getLayer('verified-run-casing')) return;
+
+    if (requestedMapMode === 'resort' && terrainProviderStatus !== 'available') return;
+
+    const nextEffectiveMode: HeavenlyMapMode = requestedMapMode === 'resort' ? 'resort' : 'topographic';
+    const sequence = ++cameraSequenceRef.current;
+    if (pendingCameraFrameRef.current !== null) {
+      cancelAnimationFrame(pendingCameraFrameRef.current);
+      pendingCameraFrameRef.current = null;
+    }
+    cameraOperationRef.current = 'fit';
 
     map.stop();
     map.resize();
-    applyMapMode(
+    const presentationApplied = applyMapPresentation(
       map,
-      mapMode,
+      nextEffectiveMode,
+      terrainProviderStatus === 'available',
+    );
+    const cameraApplied = presentationApplied && fitWholeMountainCamera(
+      map,
+      nextEffectiveMode,
       wholeMountainBounds,
       initialPaddingRef.current,
-      terrainAvailableRef.current,
       false,
     );
+    const renderedCorrectly = cameraApplied
+      && (nextEffectiveMode === 'resort' ? terrainIsApplied(map) : !map.getTerrain())
+      && cameraMatchesMode(map, nextEffectiveMode);
 
-    let focusFrame: number | null = null;
-    if (selectedRunId) {
-      const adjacentRunIds = [...(runAdjacencyIndex.get(selectedRunId) ?? [])];
-      const selectedBounds = geometryBoundsForRunIds([selectedRunId, ...adjacentRunIds]);
-      if (selectedBounds && !selectedBounds.isEmpty()) {
-        // Establish a safe whole-mountain camera after changing terrain state, then
-        // focus on the selection on the next frame. The frame is cancelled whenever
-        // selection or view mode changes so obsolete camera work cannot accumulate.
-        focusFrame = requestAnimationFrame(() => {
-          if (mapRef.current !== map || !map.isStyleLoaded()) return;
-          focusRunBounds(map, selectedBounds, mapMode, terrainAvailableRef.current, 500);
-        });
-      }
+    if (sequence === cameraSequenceRef.current && renderedCorrectly) {
+      effectiveMapModeRef.current = nextEffectiveMode;
+      setEffectiveMapMode(nextEffectiveMode);
     }
+    cameraOperationRef.current = null;
 
     return () => {
-      if (focusFrame !== null) cancelAnimationFrame(focusFrame);
+      cameraSequenceRef.current += 1;
       map.stop();
     };
-  }, [mapMode, ready, selectedRunId]);
+  }, [layersReady, requestedMapMode, terrainProviderStatus]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    const wholeMountainBounds = initialBoundsRef.current;
+    if (!map || !wholeMountainBounds || !ready || !effectiveMapMode) return;
+
+    const sequence = ++cameraSequenceRef.current;
+    if (pendingCameraFrameRef.current !== null) cancelAnimationFrame(pendingCameraFrameRef.current);
+    map.stop();
+    cameraOperationRef.current = selectedRunId ? 'selected-run-focus' : 'fit';
+    pendingCameraFrameRef.current = requestAnimationFrame(() => {
+      pendingCameraFrameRef.current = null;
+      if (sequence !== cameraSequenceRef.current || mapRef.current !== map || !map.isStyleLoaded()) return;
+      if (selectedRunId) {
+        const adjacentRunIds = [...(runAdjacencyIndex.get(selectedRunId) ?? [])];
+        const selectedBounds = geometryBoundsForRunIds([selectedRunId, ...adjacentRunIds]);
+        if (selectedBounds && !selectedBounds.isEmpty()) {
+          focusRunBounds(
+            map,
+            selectedBounds,
+            effectiveMapMode,
+            terrainProviderStatus === 'available',
+            500,
+          );
+        }
+      } else {
+        fitWholeMountainCamera(map, effectiveMapMode, wholeMountainBounds, initialPaddingRef.current, true);
+      }
+      if (sequence === cameraSequenceRef.current) cameraOperationRef.current = null;
+    });
+
+    return () => {
+      cameraSequenceRef.current += 1;
+      if (pendingCameraFrameRef.current !== null) {
+        cancelAnimationFrame(pendingCameraFrameRef.current);
+        pendingCameraFrameRef.current = null;
+      }
+      cameraOperationRef.current = null;
+      map.stop();
+    };
+  }, [effectiveMapMode, ready, selectedRunId, terrainProviderStatus]);
 
   const fitWholeMountain = () => {
     const map = mapRef.current;
     const bounds = initialBoundsRef.current;
-    if (!map || !bounds || !ready) return;
+    const renderedMode = effectiveMapModeRef.current;
+    if (!map || !bounds || !ready || !renderedMode) return;
+    const sequence = ++cameraSequenceRef.current;
+    if (pendingCameraFrameRef.current !== null) {
+      cancelAnimationFrame(pendingCameraFrameRef.current);
+      pendingCameraFrameRef.current = null;
+    }
+    cameraOperationRef.current = 'fit';
     map.stop();
-    applyMapMode(
+    fitWholeMountainCamera(
       map,
-      mapMode,
+      renderedMode,
       bounds,
       initialPaddingRef.current,
-      terrainAvailableRef.current,
       true,
     );
+    if (sequence === cameraSequenceRef.current) cameraOperationRef.current = null;
   };
 
   const resetCamera = () => {
     const map = mapRef.current;
     const initialBounds = initialBoundsRef.current;
-    if (!map || !initialBounds || !ready) return;
+    const renderedMode = effectiveMapModeRef.current;
+    if (!map || !initialBounds || !ready || !renderedMode) return;
+    const sequence = ++cameraSequenceRef.current;
+    if (pendingCameraFrameRef.current !== null) {
+      cancelAnimationFrame(pendingCameraFrameRef.current);
+      pendingCameraFrameRef.current = null;
+    }
+    cameraOperationRef.current = 'reset';
     map.stop();
     if (selectedRunId) {
       const adjacentRunIds = [...(runAdjacencyIndex.get(selectedRunId) ?? [])];
       const bounds = geometryBoundsForRunIds([selectedRunId, ...adjacentRunIds]);
       if (bounds && !bounds.isEmpty()) {
-        focusRunBounds(map, bounds, mapMode, terrainAvailableRef.current, 500);
+        focusRunBounds(
+          map,
+          bounds,
+          renderedMode,
+          terrainProviderStatusRef.current === 'available',
+          500,
+        );
+        if (sequence === cameraSequenceRef.current) cameraOperationRef.current = null;
         return;
       }
     }
-    applyMapMode(
+    fitWholeMountainCamera(
       map,
-      mapMode,
+      renderedMode,
       initialBounds,
       initialPaddingRef.current,
-      terrainAvailableRef.current,
       true,
     );
+    if (sequence === cameraSequenceRef.current) cameraOperationRef.current = null;
   };
 
   const changeMapMode = (nextMode: HeavenlyMapMode) => {
+    if (nextMode === 'resort' && terrainProviderStatusRef.current === 'unavailable') return;
+    if (nextMode === requestedMapModeRef.current && nextMode === effectiveMapModeRef.current) return;
     const map = mapRef.current;
+    cameraSequenceRef.current += 1;
+    if (pendingCameraFrameRef.current !== null) {
+      cancelAnimationFrame(pendingCameraFrameRef.current);
+      pendingCameraFrameRef.current = null;
+    }
+    cameraOperationRef.current = null;
     map?.stop();
-    mapModeRef.current = nextMode;
-    setMapMode(nextMode);
+    requestedMapModeRef.current = nextMode;
+    setRequestedMapMode(nextMode);
   };
 
   const selectedCanyonSubarea = selectedRunId
@@ -1562,9 +1764,11 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
       ref={containerRef}
       aria-label="Interactive Heavenly prototype trail map"
       role="region"
+      tabIndex={0}
       data-testid="heavenly-map-canvas"
-      data-map-mode={mapMode}
-      data-provider-state={terrainLimited ? 'fallback' : 'available'}
+      data-map-mode={effectiveMapMode ?? 'loading'}
+      data-requested-map-mode={requestedMapMode}
+      data-provider-state={terrainProviderStatus}
       style={{ width: '100%', height: '100%', minHeight: 520 }}
     />
     {ready ? <View style={styles.cameraControls}>
@@ -1600,21 +1804,23 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
       <Pressable
         testID="resort-view-toggle"
         accessibilityRole="tab"
-        accessibilityState={{ selected: mapMode === 'resort', disabled: terrainLimited }}
+        aria-selected={effectiveMapMode === 'resort'}
+        accessibilityState={{ selected: effectiveMapMode === 'resort', disabled: terrainLimited }}
         disabled={terrainLimited}
         onPress={() => changeMapMode('resort')}
-        style={[styles.viewToggleButton, mapMode === 'resort' && styles.viewToggleButtonActive, terrainLimited && styles.viewToggleButtonDisabled]}
+        style={[styles.viewToggleButton, effectiveMapMode === 'resort' && styles.viewToggleButtonActive, terrainLimited && styles.viewToggleButtonDisabled]}
       >
-        <Text style={[styles.viewToggleText, mapMode === 'resort' && styles.viewToggleTextActive]}>RESORT 3D</Text>
+        <Text style={[styles.viewToggleText, effectiveMapMode === 'resort' && styles.viewToggleTextActive]}>RESORT 3D</Text>
       </Pressable>
       <Pressable
         testID="topographic-view-toggle"
         accessibilityRole="tab"
-        accessibilityState={{ selected: mapMode === 'topographic' }}
+        aria-selected={effectiveMapMode === 'topographic'}
+        accessibilityState={{ selected: effectiveMapMode === 'topographic' }}
         onPress={() => changeMapMode('topographic')}
-        style={[styles.viewToggleButton, mapMode === 'topographic' && styles.viewToggleButtonActive]}
+        style={[styles.viewToggleButton, effectiveMapMode === 'topographic' && styles.viewToggleButtonActive]}
       >
-        <Text style={[styles.viewToggleText, mapMode === 'topographic' && styles.viewToggleTextActive]}>TOPO 2D</Text>
+        <Text style={[styles.viewToggleText, effectiveMapMode === 'topographic' && styles.viewToggleTextActive]}>TOPO 2D</Text>
       </Pressable>
     </View> : null}
     {terrainLimited ? <View style={styles.terrainNotice} accessibilityRole="alert">

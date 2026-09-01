@@ -7,6 +7,11 @@ import {
   OfficialRunDifficulty,
 } from './heavenlyOfficialRuns';
 import { getHeavenlyRunMetadata, HeavenlyTerrainTag } from './heavenlyRunMetadata';
+import {
+  getHeavenlyEffectiveClassification,
+  type HeavenlyAccessRestriction,
+  type HeavenlyCanyonSubarea,
+} from './heavenlyCanyonAccess';
 
 export type DifficultyKey = 'Green' | 'Blue' | 'Black';
 export type RunFeature = 'confidence-friendly' | 'scenic' | 'groomed' | 'recent-reports';
@@ -19,6 +24,12 @@ export type ResortRun = {
   difficulty: DifficultyKey;
   officialDifficulty: string;
   officialDifficultyCode: OfficialRunDifficulty;
+  sourceOfficialDifficulty: string;
+  sourceOfficialDifficultyCode: OfficialRunDifficulty;
+  effectiveDifficultySymbol: string;
+  canyonSubarea: HeavenlyCanyonSubarea | null;
+  accessRestriction: HeavenlyAccessRestriction;
+  difficultyPresentationBasis: 'official-gated-area-restriction' | 'source-run-difficulty';
   mountainArea: HeavenlyMountainArea;
   geometryRef: string | null;
   sourceMapRef: HeavenlySourceMapRef;
@@ -89,6 +100,13 @@ const difficultyLabel: Record<OfficialRunDifficulty, string> = {
   'experts-only': 'Most difficult · experts only · double black diamond',
 };
 
+const difficultySymbol: Record<OfficialRunDifficulty, string> = {
+  easier: '●',
+  'more-difficult': '■',
+  'most-difficult': '◆',
+  'experts-only': '◆◆',
+};
+
 const bestFor: Record<OfficialRunDifficulty, string> = {
   easier: 'Learning laps, warm-ups, and lower-pressure skiing.',
   'more-difficult': 'Intermediate skiers comfortable following posted mountain routes.',
@@ -104,6 +122,8 @@ const runsWithSampleReports = new Set(['maggies', 'powderbowl-woods', 'ridge-run
  */
 export const heavenlyRuns: ResortRun[] = heavenlyOfficialRuns.map((official) => {
   const metadata = getHeavenlyRunMetadata(official);
+  const classification = getHeavenlyEffectiveClassification(official.id, official.officialDifficulty);
+  const effectiveDifficulty = classification.effectiveDifficulty;
   const features: RunFeature[] = [];
 
   if (metadata.confidenceFriendly) features.push('confidence-friendly');
@@ -116,9 +136,15 @@ export const heavenlyRuns: ResortRun[] = heavenlyOfficialRuns.map((official) => 
     slug: official.slug,
     name: official.officialName,
     officialName: official.officialName,
-    difficulty: difficultyKey[official.officialDifficulty],
-    officialDifficulty: difficultyLabel[official.officialDifficulty],
-    officialDifficultyCode: official.officialDifficulty,
+    difficulty: difficultyKey[effectiveDifficulty],
+    officialDifficulty: difficultyLabel[effectiveDifficulty],
+    officialDifficultyCode: effectiveDifficulty,
+    sourceOfficialDifficulty: difficultyLabel[official.officialDifficulty],
+    sourceOfficialDifficultyCode: official.officialDifficulty,
+    effectiveDifficultySymbol: difficultySymbol[effectiveDifficulty],
+    canyonSubarea: classification.canyonSubarea,
+    accessRestriction: classification.accessRestriction,
+    difficultyPresentationBasis: classification.presentationBasis,
     mountainArea: official.mountainArea,
     geometryRef: official.geometryRef,
     sourceMapRef: official.sourceMapRef,
@@ -132,8 +158,10 @@ export const heavenlyRuns: ResortRun[] = heavenlyOfficialRuns.map((official) => 
     terrainTags: metadata.terrainTags,
     description: metadata.shortDescription,
     detail: `${metadata.shortDescription} Flurra's terrain profile is prototype editorial data, not an official condition report.`,
-    access: `${official.mountainArea} · follow current on-mountain signs and closures.`,
-    bestFor: bestFor[official.officialDifficulty],
+    access: classification.accessRestriction
+      ? `${official.mountainArea} · experts-only gated terrain. Enter through open gates only and follow current on-mountain signs and closures.`
+      : `${official.mountainArea} · follow current on-mountain signs and closures.`,
+    bestFor: bestFor[effectiveDifficulty],
     conditionTags: metadata.terrainTags.map((tag) => `Sample: ${tag}`),
     features,
   };

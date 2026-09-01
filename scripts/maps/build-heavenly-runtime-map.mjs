@@ -21,6 +21,8 @@ const runsById = new Map(heavenlyOfficialRuns.map((run) => [run.id, run]));
 const canyonAssignmentByRunId = new Map(
   manualReview.canyonAssignments.map((assignment) => [assignment.flurraRunId, assignment]),
 );
+const effectiveClassificationPolicy = manualReview.effectiveClassificationPolicy;
+const restrictedCanyonSubareas = new Set(effectiveClassificationPolicy.appliesToSubareas);
 const verifiedRunFeatures = [];
 const runGeometryIndex = {};
 
@@ -37,6 +39,10 @@ function addVerifiedMatch({
   if (!sourceFeature) throw new Error(`Missing OSM feature ${osmMatch.osmRef}`);
 
   const canyonAssignment = canyonAssignmentByRunId.get(run.id);
+  const isRestrictedCanyon = restrictedCanyonSubareas.has(canyonAssignment?.subarea);
+  const effectiveMapDifficulty = isRestrictedCanyon
+    ? effectiveClassificationPolicy.effectiveMapDifficulty
+    : run.officialDifficulty;
   runGeometryIndex[run.id] ??= [];
   if (runGeometryIndex[run.id].includes(osmMatch.osmRef)) {
     throw new Error(`Duplicate runtime match ${run.id} -> ${osmMatch.osmRef}`);
@@ -55,6 +61,16 @@ function addVerifiedMatch({
       flurraRunId: run.id,
       flurraRunName: run.officialName,
       officialDifficulty: run.officialDifficulty,
+      effectiveMapDifficulty,
+      accessRestriction: isRestrictedCanyon
+        ? effectiveClassificationPolicy.accessRestriction
+        : null,
+      difficultyPresentationBasis: isRestrictedCanyon
+        ? 'official-gated-area-restriction'
+        : 'source-run-difficulty',
+      classificationSourceMapRef: isRestrictedCanyon
+        ? effectiveClassificationPolicy.sourceMapRef
+        : null,
       canyonSubarea: canyonAssignment?.subarea ?? null,
       canyonAssignmentStatus: canyonAssignment?.status ?? null,
       verifiedMatchType,

@@ -141,6 +141,34 @@ for (const assignment of manualReview.canyonAssignments) {
   ].includes(assignment.status));
   assert.ok(assignment.evidence.length > 20);
 }
+const effectivePolicy = manualReview.effectiveClassificationPolicy;
+const expectedKillebrewRunIds = [
+  'boundary-chutes', 'outer-limits', 'pipeline', 'ramarrahs', 'the-fingers',
+  'stateline-chute', 'bobs-boulevard', 'sweetwater', 'promised-land',
+  'north-40', 'hemlock', 'ernies', 'rim-trail',
+];
+const expectedMottRunIds = [
+  'the-y', 'bills', 'snake-eyes', 'lone-wolf', 'hully-gully', 'pinenuts',
+  'southern-comfort', 'on-hold',
+];
+const expectedSharedAccessRunIds = [
+  'perimeter', 'upper-perimeter', 'milky-way-bowl', 'milky-way',
+];
+const assignmentIdsFor = (subarea) => manualReview.canyonAssignments
+  .filter((assignment) => assignment.subarea === subarea)
+  .map((assignment) => assignment.flurraRunId);
+assert.deepEqual(new Set(assignmentIdsFor('killebrew-canyon')), new Set(expectedKillebrewRunIds));
+assert.deepEqual(new Set(assignmentIdsFor('mott-canyon')), new Set(expectedMottRunIds));
+assert.deepEqual(new Set(assignmentIdsFor('shared-access')), new Set(expectedSharedAccessRunIds));
+assert.deepEqual(
+  new Set(effectivePolicy.appliesToSubareas),
+  new Set(['mott-canyon', 'killebrew-canyon']),
+);
+assert.equal(effectivePolicy.effectiveMapDifficulty, 'experts-only');
+assert.equal(effectivePolicy.accessRestriction, 'experts-only-gated-terrain');
+assert.equal(effectivePolicy.difficultySymbol, '◆◆');
+assert.equal(effectivePolicy.sourceMapRef, 'heavenly-official-winter-trail-map');
+assert.ok(effectivePolicy.reviewExplanation.length > 80);
 
 const exactMatchedOsmRefs = new Set(
   matchReport.exactNormalizedMatches.flatMap((match) => (
@@ -171,6 +199,28 @@ assert.ok(runtimeMapData.verifiedRuns.features.every((feature) => (
     .includes(feature.properties.verifiedMatchType)
 )));
 assert.ok(runtimeRunIds.every((runId) => knownRunIds.has(runId)));
+for (const feature of runtimeMapData.verifiedRuns.features) {
+  const assignment = manualReview.canyonAssignments.find((candidate) => (
+    candidate.flurraRunId === feature.properties.flurraRunId
+  ));
+  const restricted = effectivePolicy.appliesToSubareas.includes(assignment?.subarea);
+  assert.equal(
+    feature.properties.effectiveMapDifficulty,
+    restricted ? 'experts-only' : feature.properties.officialDifficulty,
+  );
+  assert.equal(
+    feature.properties.accessRestriction,
+    restricted ? 'experts-only-gated-terrain' : null,
+  );
+  assert.equal(
+    feature.properties.difficultyPresentationBasis,
+    restricted ? 'official-gated-area-restriction' : 'source-run-difficulty',
+  );
+  assert.equal(
+    feature.properties.classificationSourceMapRef,
+    restricted ? 'heavenly-official-winter-trail-map' : null,
+  );
+}
 for (const match of manualReview.approvedMatches) {
   const runtimeFeature = runtimeMapData.verifiedRuns.features
     .find((feature) => feature.id === match.osmRef);
