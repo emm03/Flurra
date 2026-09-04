@@ -3,7 +3,7 @@ import { Fraunces_900Black } from '@expo-google-fonts/fraunces';
 import { Feather } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { type Href, useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { ResortRun } from '@/data/heavenlyResort';
 import { heavenlyVerifiedRunIds } from '@/data/heavenlyMap';
@@ -12,15 +12,21 @@ import { TopographicLines } from '../TopographicLines';
 
 export function RunDetailPage({ run }: { run?: ResortRun }) {
   const router = useRouter();
+  const scrollRef = useRef<ScrollView>(null);
   const [saved, setSaved] = useState(false);
   const [skied, setSkied] = useState(false);
   const [loaded] = useFonts({ DMSans_400Regular, DMSans_500Medium, DMSans_700Bold, Fraunces_900Black });
+
+  useEffect(() => {
+    if (!loaded) return;
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+  }, [loaded, run?.id]);
 
   if (!loaded) return <View style={styles.loading}><ActivityIndicator color={colors.lime} /></View>;
 
   if (!run) return <View style={styles.notFound}><Text style={styles.notFoundMark}>〰</Text><Text style={styles.notFoundTitle}>That run is not in this field guide yet.</Text><Pressable accessibilityRole="link" onPress={() => router.replace('/resorts/heavenly')} style={styles.backButton}><Text style={styles.backButtonText}>BACK TO HEAVENLY</Text></Pressable></View>;
 
-  return <ScrollView style={styles.page} contentContainerStyle={styles.content}>
+  return <ScrollView ref={scrollRef} style={styles.page} contentContainerStyle={styles.content}>
     <View style={styles.hero}>
       <TopographicLines light />
       <View style={styles.header}>
