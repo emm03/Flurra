@@ -1,7 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { colors, fonts } from '@/theme';
 
-export function HeavenlyMap(_: { selectedRunId: string | null; onSelectRun: (runId: string) => void }) {
+export function HeavenlyMap(_: {
+  selectedRunId: string | null;
+  onSelectRun: (runId: string | null) => void;
+  onTerrainAvailabilityChange?: (available: boolean) => void;
+}) {
   return <View style={styles.fallback} accessibilityRole="alert">
     <Text style={styles.kicker}>WEB MAP PROTOTYPE</Text>
     <Text style={styles.title}>The interactive mountain map is currently available on web.</Text>

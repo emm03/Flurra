@@ -108,7 +108,7 @@ export function RunDirectory({ runs, compact, savedIds, skiedIds, mapRunIds, onT
           return <View key={run.id} style={[styles.card, compact && styles.cardMobile]}>
             <View style={styles.cardTop}>
               <View style={[styles.difficultyBadge, run.difficulty === 'Green' && styles.green, run.difficulty === 'Blue' && styles.blue, run.difficulty === 'Black' && styles.black]}>
-                <Text style={styles.difficultyText}>{run.officialDifficulty.toUpperCase()}</Text>
+                <Text style={styles.difficultyText}>{run.effectiveDifficultySymbol} {run.officialDifficulty.toUpperCase()}</Text>
               </View>
               <View style={styles.confidence}><Text style={styles.confidenceValue}>{run.confidence}%</Text><Text style={styles.confidenceLabel}>FLURRA CONFIDENCE</Text></View>
             </View>

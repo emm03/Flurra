@@ -29,7 +29,7 @@ export function RunDetailPage({ run }: { run?: ResortRun }) {
       </View>
       <View style={styles.heroInner}>
         <View style={styles.ticket}><Text style={styles.ticketText}>RUN FILE · SAMPLE CONDITIONS</Text></View>
-        <Text style={styles.eyebrow}>HEAVENLY · {run.officialDifficulty.toUpperCase()}</Text>
+        <Text style={styles.eyebrow}>HEAVENLY · {run.effectiveDifficultySymbol} {run.officialDifficulty.toUpperCase()}</Text>
         <Text style={styles.title}>{run.name}</Text>
         <Text style={styles.description}>{run.description}</Text>
         <View style={styles.confidence}><Text style={styles.confidenceValue}>{run.confidence}%</Text><View><Text style={styles.confidenceLabel}>FLURRA CONFIDENCE</Text><Text style={styles.confidenceNote}>Prototype score · not live guidance</Text></View></View>
@@ -43,7 +43,8 @@ export function RunDetailPage({ run }: { run?: ResortRun }) {
           <Text style={styles.detailTitle}>Why this run belongs in your day.</Text>
           <Text style={styles.detailCopy}>{run.detail}</Text>
           <View style={styles.detailRows}>
-            <View style={styles.detailRow}><Text style={styles.detailLabel}>OFFICIAL DIFFICULTY</Text><Text style={styles.detailValue}>{run.officialDifficulty}</Text></View>
+            <View style={styles.detailRow}><Text style={styles.detailLabel}>{run.accessRestriction ? 'EFFECTIVE MAP CLASSIFICATION' : 'OFFICIAL DIFFICULTY'}</Text><Text style={styles.detailValue}>{run.effectiveDifficultySymbol} {run.officialDifficulty}</Text></View>
+            {run.accessRestriction && run.sourceOfficialDifficultyCode !== run.officialDifficultyCode ? <View style={styles.detailRow}><Text style={styles.detailLabel}>SOURCE RUN DIFFICULTY</Text><Text style={styles.detailValue}>{run.sourceOfficialDifficulty} · retained separately from the gated-area restriction</Text></View> : null}
             <View style={styles.detailRow}><Text style={styles.detailLabel}>ACCESS</Text><Text style={styles.detailValue}>{run.access}</Text></View>
             <View style={styles.detailRow}><Text style={styles.detailLabel}>BEST FOR</Text><Text style={styles.detailValue}>{run.bestFor}</Text></View>
           </View>

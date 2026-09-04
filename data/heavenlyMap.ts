@@ -10,7 +10,7 @@ export type HeavenlyMapFeature = {
     coordinates?: unknown;
     geometries?: unknown[];
   };
-  properties: Record<string, string | number | null>;
+  properties: Record<string, string | number | boolean | null>;
 };
 
 export type HeavenlyRuntimeMapData = {
@@ -18,6 +18,7 @@ export type HeavenlyRuntimeMapData = {
   generatedFrom: {
     osmSnapshotTimestamp: string;
     matchReportGeneratedAt: string;
+    manualReviewDate: string;
     policy: string;
   };
   attribution: {
