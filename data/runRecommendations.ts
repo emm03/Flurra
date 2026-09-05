@@ -3,7 +3,7 @@ export type VibeLabel = 'Fast & steep' | 'Trees, please' | 'Cruisy laps' | 'Fres
 export type HeavenlyRun = {
   id: string;
   name: string;
-  difficulty: 'Green circle' | 'Blue square' | 'Black diamond';
+  difficulty: 'Green circle' | 'Blue square' | 'Black diamond' | 'Double black diamond';
   baseConfidence: number;
   priority: number;
   vibes: VibeLabel[];
@@ -35,9 +35,9 @@ export const heavenlyRuns: HeavenlyRun[] = [
     details: 'Start from Sky Express and follow the ridge toward California Lodge. The upper section is broad and scenic before the final steeper pitch.',
   },
   {
-    id: 'mott-canyon',
-    name: 'Mott Canyon',
-    difficulty: 'Black diamond',
+    id: 'boundary-chutes',
+    name: 'Boundary Chutes',
+    difficulty: 'Double black diamond',
     baseConfidence: 85,
     priority: 2,
     vibes: ['Fast & steep', 'Fresh tracks'],
@@ -45,9 +45,9 @@ export const heavenlyRuns: HeavenlyRun[] = [
       'Fast & steep': 'Sustained fall-line terrain makes this the strongest match when you want a real challenge.',
       'Fresh tracks': 'Protected canyon lines are a good bet for finding softer snow after a storm.',
     },
-    fallbackReason: 'A serious, memorable lap for confident skiers ready for expert terrain.',
-    conditionTags: ['Soft pockets', 'Expert terrain', 'Low traffic'],
-    details: 'Access through Mott Canyon Gate 1. Expect ungroomed terrain, variable snow, and sustained advanced pitches.',
+    fallbackReason: 'A serious, memorable line for expert skiers when the gated terrain is officially open.',
+    conditionTags: ['Sample: steep terrain', 'Experts only', 'Gated access'],
+    details: 'Experts-only gated terrain. Enter through open gates only and follow current resort signage, closures, and patrol guidance.',
   },
   {
     id: 'powderbowl-woods',
@@ -65,8 +65,8 @@ export const heavenlyRuns: HeavenlyRun[] = [
     details: 'Enter below Powderbowl Express and keep an eye on marked boundaries. Choose your line carefully as the trees tighten lower down.',
   },
   {
-    id: 'orions',
-    name: "Orion's",
+    id: 'orion',
+    name: 'Orion',
     difficulty: 'Blue square',
     baseConfidence: 82,
     priority: 4,
@@ -95,7 +95,7 @@ export const heavenlyRuns: HeavenlyRun[] = [
     details: 'This California-side advanced zone has natural terrain and changing coverage. Check patrol signage before entering.',
   },
   {
-    id: 'maggi',
+    id: 'maggies',
     name: "Maggie's",
     difficulty: 'Green circle',
     baseConfidence: 79,
