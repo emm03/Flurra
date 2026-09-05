@@ -87,7 +87,7 @@ export function ResortPlaceholder({ name, location, vertical, trails, image, com
     </> : <View style={styles.comingSoon}>
       <Text style={styles.comingIcon}>✳</Text>
       <Text style={styles.comingTitle}>Your {name} guide is next in line.</Text>
-      <Text style={styles.comingCopy}>This route is ready for resort data, trail details, live reports, and community features.</Text>
+      <Text style={styles.comingCopy}>This route is ready for verified resort data, trail details, sample reports, and future community features.</Text>
       <Pressable accessibilityRole="link" onPress={() => router.replace('/')} style={styles.homeButton}><Text style={styles.homeButtonText}>KEEP EXPLORING FLURRA</Text><Feather name="arrow-right" size={15} color={colors.deep} /></Pressable>
     </View>}
   </ScrollView>;
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
   mark: { backgroundColor: colors.lime, width: 31, height: 31, borderRadius: 16, alignItems: 'center', justifyContent: 'center', transform: [{ rotate: '-12deg' }] },
   markText: { color: colors.deep, fontSize: 20, fontWeight: '900' },
   logo: { color: colors.white, fontFamily: fonts.display, fontSize: 30, letterSpacing: -1.5 },
-  back: { backgroundColor: colors.lime, borderRadius: 4, paddingHorizontal: 16, paddingVertical: 11, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  back: { backgroundColor: colors.lime, borderRadius: 4, minHeight: 44, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 8 },
   backHover: { transform: [{ rotate: '-1deg' }] },
   backText: { color: colors.deep, fontFamily: fonts.bold, fontSize: 10, letterSpacing: 1 },
   heroInner: { alignSelf: 'center', maxWidth: 1180, width: '100%', paddingHorizontal: 28, paddingTop: 70, paddingBottom: 90, flexDirection: 'row', alignItems: 'center', gap: 75 },
@@ -150,6 +150,6 @@ const styles = StyleSheet.create({
   comingIcon: { color: colors.orange, fontSize: 36 },
   comingTitle: { color: colors.forest, fontFamily: fonts.display, fontSize: 38, lineHeight: 43, textAlign: 'center', marginTop: 16 },
   comingCopy: { color: colors.muted, fontFamily: fonts.body, fontSize: 15, lineHeight: 24, textAlign: 'center', maxWidth: 560, marginTop: 14 },
-  homeButton: { backgroundColor: colors.lime, paddingHorizontal: 20, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', gap: 9, marginTop: 30 },
+  homeButton: { backgroundColor: colors.lime, minHeight: 48, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', gap: 9, marginTop: 30 },
   homeButtonText: { color: colors.deep, fontFamily: fonts.bold, fontSize: 10, letterSpacing: 1 },
 });

@@ -1,7 +1,6 @@
 import mlcontour from 'maplibre-contour';
 import * as maplibregl from 'maplibre-gl';
 import {
-  AttributionControl,
   type FilterSpecification,
   LngLatBounds,
   Map as MapLibreMap,
@@ -22,6 +21,7 @@ import {
 } from './map/heavenlyMapStyle';
 
 type HeavenlyMapProps = {
+  compact: boolean;
   selectedRunId: string | null;
   onSelectRun: (runId: string | null) => void;
   onTerrainAvailabilityChange?: (available: boolean) => void;
@@ -755,7 +755,7 @@ function geometryBoundsForRunIds(runIds: Iterable<string>) {
   );
 }
 
-export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityChange }: HeavenlyMapProps) {
+export function HeavenlyMap({ compact, selectedRunId, onSelectRun, onTerrainAvailabilityChange }: HeavenlyMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const selectRunRef = useRef(onSelectRun);
@@ -851,7 +851,6 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
     setTerrainProviderStatus(initialProviderStatus);
     terrainAvailabilityCallbackRef.current?.(false);
     map.addControl(new NavigationControl({ showCompass: false }), 'top-right');
-    map.addControl(new AttributionControl({ compact: true }), 'bottom-right');
 
     const activateLocalFallback = () => {
       if (fallbackActivated || destroyed) return;
@@ -1759,9 +1758,23 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
   }
 
   return <View style={styles.container}>
+    <style>{`
+      .heavenly-map-mobile .maplibregl-ctrl-top-right .maplibregl-ctrl-group button {
+        width: 44px;
+        height: 44px;
+      }
+      .heavenly-map-mobile .maplibregl-ctrl-attrib-button {
+        width: 36px;
+        height: 36px;
+      }
+      .heavenly-map-mobile .maplibregl-ctrl-bottom-right {
+        max-width: calc(100% - 8px);
+      }
+    `}</style>
     {!ready ? <View style={styles.loading}><ActivityIndicator color={colors.orange} /><Text style={styles.loadingText}>LOADING WINTER TERRAIN</Text></View> : null}
     <div
       ref={containerRef}
+      className={compact ? 'heavenly-map-mobile' : undefined}
       aria-label="Interactive Heavenly prototype trail map"
       role="region"
       tabIndex={0}
@@ -1769,9 +1782,9 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
       data-map-mode={effectiveMapMode ?? 'loading'}
       data-requested-map-mode={requestedMapMode}
       data-provider-state={terrainProviderStatus}
-      style={{ width: '100%', height: '100%', minHeight: 520 }}
+      style={{ width: '100%', height: '100%', minHeight: compact ? 500 : 520 }}
     />
-    {ready ? <View style={styles.cameraControls}>
+    {ready ? <View style={[styles.cameraControls, compact && styles.cameraControlsMobile]}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Fit the whole Heavenly ski mountain"
@@ -1793,14 +1806,14 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
     </View> : null}
     {ready && selectedCanyonName ? <View
       pointerEvents="none"
-      style={[styles.selectedCanyonNotice, terrainLimited && styles.selectedCanyonNoticeFallback]}
+      style={[styles.selectedCanyonNotice, compact && styles.selectedCanyonNoticeMobile, terrainLimited && styles.selectedCanyonNoticeFallback, compact && terrainLimited && styles.selectedCanyonNoticeFallbackMobile]}
       accessibilityRole="text"
       accessibilityLabel={`${selectedCanyonName}. Experts only. Gated terrain.`}
     >
       <Text style={styles.selectedCanyonName}>◆◆ {selectedCanyonName}</Text>
       <Text style={styles.selectedCanyonRestriction}>EXPERTS ONLY · GATED TERRAIN</Text>
     </View> : null}
-    {ready ? <View style={styles.viewToggle} accessibilityRole="tablist">
+    {ready ? <View style={[styles.viewToggle, compact && styles.viewToggleMobile]} accessibilityRole="tablist">
       <Pressable
         testID="resort-view-toggle"
         accessibilityRole="tab"
@@ -1808,7 +1821,7 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
         accessibilityState={{ selected: effectiveMapMode === 'resort', disabled: terrainLimited }}
         disabled={terrainLimited}
         onPress={() => changeMapMode('resort')}
-        style={[styles.viewToggleButton, effectiveMapMode === 'resort' && styles.viewToggleButtonActive, terrainLimited && styles.viewToggleButtonDisabled]}
+        style={[styles.viewToggleButton, compact && styles.viewToggleButtonMobile, effectiveMapMode === 'resort' && styles.viewToggleButtonActive, terrainLimited && styles.viewToggleButtonDisabled]}
       >
         <Text style={[styles.viewToggleText, effectiveMapMode === 'resort' && styles.viewToggleTextActive]}>RESORT 3D</Text>
       </Pressable>
@@ -1818,12 +1831,12 @@ export function HeavenlyMap({ selectedRunId, onSelectRun, onTerrainAvailabilityC
         aria-selected={effectiveMapMode === 'topographic'}
         accessibilityState={{ selected: effectiveMapMode === 'topographic' }}
         onPress={() => changeMapMode('topographic')}
-        style={[styles.viewToggleButton, effectiveMapMode === 'topographic' && styles.viewToggleButtonActive]}
+        style={[styles.viewToggleButton, compact && styles.viewToggleButtonMobile, effectiveMapMode === 'topographic' && styles.viewToggleButtonActive]}
       >
         <Text style={[styles.viewToggleText, effectiveMapMode === 'topographic' && styles.viewToggleTextActive]}>TOPO 2D</Text>
       </Pressable>
     </View> : null}
-    {terrainLimited ? <View style={styles.terrainNotice} accessibilityRole="alert">
+    {terrainLimited ? <View style={[styles.terrainNotice, compact && styles.terrainNoticeMobile]} accessibilityRole="alert">
       <Text style={styles.terrainNoticeText}>Terrain context unavailable · switched to Topo 2D · local runs and lifts remain active</Text>
     </View> : null}
   </View>;
@@ -1834,20 +1847,26 @@ const styles = StyleSheet.create({
   loading: { ...StyleSheet.absoluteFillObject, zIndex: 2, backgroundColor: '#eaf0e7', alignItems: 'center', justifyContent: 'center', gap: 10 },
   loadingText: { color: colors.forest, fontFamily: fonts.bold, fontSize: 8, letterSpacing: 1.3 },
   cameraControls: { position: 'absolute', zIndex: 5, top: 72, right: 10, gap: 6 },
-  cameraButton: { minWidth: 46, minHeight: 42, backgroundColor: 'rgba(252,248,238,.95)', borderColor: colors.forest, borderWidth: 1, alignItems: 'center', justifyContent: 'center', gap: 2, shadowColor: colors.forest, shadowOpacity: .18, shadowRadius: 0, shadowOffset: { width: 2, height: 2 } },
+  cameraControlsMobile: { top: 106, right: 8 },
+  cameraButton: { minWidth: 46, minHeight: 46, backgroundColor: 'rgba(252,248,238,.95)', borderColor: colors.forest, borderWidth: 1, alignItems: 'center', justifyContent: 'center', gap: 2, shadowColor: colors.forest, shadowOpacity: .18, shadowRadius: 0, shadowOffset: { width: 2, height: 2 } },
   cameraButtonHover: { backgroundColor: colors.lime },
   cameraButtonText: { color: colors.forest, fontFamily: fonts.bold, fontSize: 6, letterSpacing: .65 },
   selectedCanyonNotice: { position: 'absolute', zIndex: 5, top: 70, left: 12, maxWidth: 245, backgroundColor: 'rgba(252,248,238,.95)', borderColor: '#8a332d', borderWidth: 1, paddingHorizontal: 10, paddingVertical: 7 },
+  selectedCanyonNoticeMobile: { top: 210, left: 8, right: 62, maxWidth: 220 },
   selectedCanyonNoticeFallback: { top: 106 },
+  selectedCanyonNoticeFallbackMobile: { top: 244 },
   selectedCanyonName: { color: '#8a332d', fontFamily: fonts.bold, fontSize: 9, letterSpacing: .75 },
   selectedCanyonRestriction: { color: '#8a332d', fontFamily: fonts.bold, fontSize: 6, letterSpacing: .7, marginTop: 2 },
   viewToggle: { position: 'absolute', zIndex: 5, left: 12, bottom: 12, flexDirection: 'row', backgroundColor: 'rgba(246,240,228,.94)', borderColor: colors.forest, borderWidth: 1, padding: 3, gap: 3 },
+  viewToggleMobile: { left: 8, bottom: 8 },
   viewToggleButton: { minHeight: 32, paddingHorizontal: 10, alignItems: 'center', justifyContent: 'center' },
+  viewToggleButtonMobile: { minHeight: 44, paddingHorizontal: 9 },
   viewToggleButtonActive: { backgroundColor: colors.forest },
   viewToggleButtonDisabled: { opacity: 0.45 },
   viewToggleText: { color: colors.forest, fontFamily: fonts.bold, fontSize: 7, letterSpacing: 0.8 },
   viewToggleTextActive: { color: colors.lime },
   terrainNotice: { position: 'absolute', zIndex: 4, left: 12, right: 12, top: 58, backgroundColor: 'rgba(246,240,228,.94)', borderColor: colors.orange, borderWidth: 1, paddingHorizontal: 10, paddingVertical: 8 },
+  terrainNoticeMobile: { left: 8, right: 62, top: 160 },
   terrainNoticeText: { color: colors.forest, fontFamily: fonts.bold, fontSize: 7, lineHeight: 11, letterSpacing: .65, textTransform: 'uppercase' },
   fallback: { minHeight: 420, backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center', padding: 35 },
   fallbackKicker: { color: colors.orange, fontFamily: fonts.bold, fontSize: 9, letterSpacing: 1.8 },
