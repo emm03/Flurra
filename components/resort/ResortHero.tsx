@@ -27,7 +27,7 @@ export function ResortHero({ name, location, image, vertical, trails, peak, comp
       <Pressable accessibilityRole="link" onPress={() => router.replace('/')} style={styles.brand}>
         <View style={styles.mark}><Text style={styles.markText}>✳</Text></View><Text style={styles.logo}>flurra</Text>
       </Pressable>
-      <View style={styles.sampleFlag}><View style={styles.sampleDot} /><Text style={styles.sampleText}>SAMPLE MOUNTAIN DATA</Text></View>
+      {!compact ? <View style={styles.sampleFlag}><View style={styles.sampleDot} /><Text style={styles.sampleText}>SAMPLE MOUNTAIN DATA</Text></View> : null}
       <Pressable accessibilityRole="link" onPress={() => router.replace('/')} style={({ hovered }: any) => [styles.back, hovered && styles.backHover]}>
         <Feather name="arrow-left" size={15} color={colors.deep} /><Text style={styles.backText}>BACK TO HOME</Text>
       </Pressable>
