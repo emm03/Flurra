@@ -22,6 +22,8 @@ import {
 
 type HeavenlyMapProps = {
   compact: boolean;
+  workspace?: boolean;
+  bottomInset?: number;
   selectedRunId: string | null;
   onSelectRun: (runId: string | null) => void;
   onTerrainAvailabilityChange?: (available: boolean) => void;
@@ -448,14 +450,14 @@ function wholeMountainPadding(map: MapLibreMap, resortView: boolean, basePadding
   const canvas = map.getCanvas();
   const compact = canvas.clientWidth < 600;
   if (compact) {
-    const safePadding = 48;
+    const safePadding = Math.round(Math.min(40, Math.max(32, canvas.clientWidth * 0.09)));
     return { top: safePadding, right: safePadding, bottom: safePadding, left: safePadding };
   }
-  // Pitched, elevated terrain projects beyond its flat geographic bounds, so
-  // Resort View gets a modest vertical safety allowance beyond the 10% casing
-  // and label margin used for the north-up view.
-  const horizontalSafeZone = Math.round(Math.max(basePadding, canvas.clientWidth * (resortView ? 0.1 : 0.09)));
-  const verticalSafeZone = Math.round(Math.max(basePadding, canvas.clientHeight * (resortView ? 0.14 : 0.09)));
+  // The explorer sidebar sits outside the map canvas. Keep a true safety zone
+  // for pitched terrain and labels without shrinking the ski network to make
+  // room for UI that is no longer over the map.
+  const horizontalSafeZone = Math.round(Math.max(basePadding, canvas.clientWidth * 0.06));
+  const verticalSafeZone = Math.round(Math.max(basePadding, canvas.clientHeight * (resortView ? 0.08 : 0.06)));
   return {
     top: verticalSafeZone,
     right: horizontalSafeZone,
@@ -679,9 +681,19 @@ function fitWholeMountainCamera(
   });
   if (resortView) map.setTerrain(terrain);
   if (!targetCamera) return false;
+  const canvas = map.getCanvas();
+  // A pitched camera compresses the run network vertically after a flat
+  // geographic bounds fit. Compensate only in landscape workspaces, where the
+  // height-constrained fit otherwise leaves the mountain floating in a wide
+  // field. Portrait/mobile fits are already width-constrained and need no
+  // adjustment. Lift geometry (including the Gondola) is intentionally absent
+  // from `bounds`, so access corridors never determine the whole-mountain view.
+  const pitchCompensation = resortView && canvas.clientWidth / canvas.clientHeight > 1.05
+    ? Math.log2(1 / Math.cos((camera.pitch * Math.PI) / 180)) * 0.9
+    : 0;
   const cameraOptions = {
     center: targetCamera.center,
-    zoom: Math.min(targetCamera.zoom ?? map.getZoom(), resortView ? 13.1 : 13.3),
+    zoom: Math.min((targetCamera.zoom ?? map.getZoom()) + pitchCompensation, resortView ? 13.1 : 13.3),
     bearing: resortView ? camera.bearing : 0,
     pitch: resortView ? camera.pitch : 0,
     duration: animate ? 480 : 0,
@@ -755,7 +767,7 @@ function geometryBoundsForRunIds(runIds: Iterable<string>) {
   );
 }
 
-export function HeavenlyMap({ compact, selectedRunId, onSelectRun, onTerrainAvailabilityChange }: HeavenlyMapProps) {
+export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selectedRunId, onSelectRun, onTerrainAvailabilityChange }: HeavenlyMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const selectRunRef = useRef(onSelectRun);
@@ -811,7 +823,7 @@ export function HeavenlyMap({ compact, selectedRunId, onSelectRun, onTerrainAvai
         : null
     ) as ProviderFailureMode;
     const initialBounds = allRunGeometryBounds();
-    const initialPadding = containerRef.current.clientWidth < 600 ? 34 : 48;
+    const initialPadding = containerRef.current.clientWidth < 600 ? 32 : 40;
     initialBoundsRef.current = initialBounds;
     initialPaddingRef.current = initialPadding;
     const demSource = forceTerrainFallback ? null : getDemSource();
@@ -1757,7 +1769,7 @@ export function HeavenlyMap({ compact, selectedRunId, onSelectRun, onTerrainAvai
     </View>;
   }
 
-  return <View style={styles.container}>
+  return <View style={[styles.container, workspace && styles.containerWorkspace]}>
     <style>{`
       .heavenly-map-mobile .maplibregl-ctrl-top-right .maplibregl-ctrl-group button {
         width: 44px;
@@ -1782,7 +1794,7 @@ export function HeavenlyMap({ compact, selectedRunId, onSelectRun, onTerrainAvai
       data-map-mode={effectiveMapMode ?? 'loading'}
       data-requested-map-mode={requestedMapMode}
       data-provider-state={terrainProviderStatus}
-      style={{ width: '100%', height: '100%', minHeight: compact ? 500 : 520 }}
+      style={{ width: '100%', height: '100%', minHeight: workspace ? 0 : compact ? 500 : 520 }}
     />
     {ready ? <View style={[styles.cameraControls, compact && styles.cameraControlsMobile]}>
       <Pressable
@@ -1813,7 +1825,7 @@ export function HeavenlyMap({ compact, selectedRunId, onSelectRun, onTerrainAvai
       <Text style={styles.selectedCanyonName}>◆◆ {selectedCanyonName}</Text>
       <Text style={styles.selectedCanyonRestriction}>EXPERTS ONLY · GATED TERRAIN</Text>
     </View> : null}
-    {ready ? <View style={[styles.viewToggle, compact && styles.viewToggleMobile]} accessibilityRole="tablist">
+    {ready ? <View style={[styles.viewToggle, compact && styles.viewToggleMobile, bottomInset > 0 && { bottom: bottomInset }]} accessibilityRole="tablist">
       <Pressable
         testID="resort-view-toggle"
         accessibilityRole="tab"
@@ -1844,6 +1856,7 @@ export function HeavenlyMap({ compact, selectedRunId, onSelectRun, onTerrainAvai
 
 const styles = StyleSheet.create({
   container: { minHeight: 520, width: '100%', backgroundColor: '#eaf0e7', position: 'relative', overflow: 'hidden' },
+  containerWorkspace: { height: '100%', minHeight: 0 },
   loading: { ...StyleSheet.absoluteFillObject, zIndex: 2, backgroundColor: '#eaf0e7', alignItems: 'center', justifyContent: 'center', gap: 10 },
   loadingText: { color: colors.forest, fontFamily: fonts.bold, fontSize: 8, letterSpacing: 1.3 },
   cameraControls: { position: 'absolute', zIndex: 5, top: 72, right: 10, gap: 6 },
