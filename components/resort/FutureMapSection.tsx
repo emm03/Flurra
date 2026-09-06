@@ -118,7 +118,7 @@ export function FutureMapSection({ resortName, compact, runs, selectedRunId, onS
             <Pressable
               accessibilityRole="link"
               accessibilityLabel={`View ${selectedRun.name} run details`}
-              onPress={() => router.push(`/resorts/heavenly/runs/${selectedRun.id}` as Href)}
+              onPress={() => router.push(`/resorts/heavenly/runs/${selectedRun.id}?from=heavenly` as Href)}
               style={({ hovered }: any) => [styles.viewRun, hovered && styles.viewRunHover]}
             >
               <Text style={styles.viewRunText}>VIEW RUN DETAILS</Text><Feather name="arrow-up-right" size={14} color={colors.white} />

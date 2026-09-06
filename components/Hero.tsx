@@ -3,6 +3,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ImageBackground, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { resolveResortSearch } from '@/data/resortSearch';
 import { colors, fonts } from '@/theme';
 import { Header } from './Header';
 import { TopographicLines } from './TopographicLines';
@@ -21,14 +22,6 @@ const popularResorts = [
   { label: 'Mammoth', route: '/resorts/mammoth-mountain' },
 ] as const;
 
-const resortSearchRoutes = [
-  { aliases: ['heavenly', 'heavenly mountain', 'heavenly mountain resort'], route: '/resorts/heavenly' },
-  { aliases: ['palisades', 'palisades tahoe', 'squaw valley'], route: '/resorts/palisades-tahoe' },
-  { aliases: ['mammoth', 'mammoth mountain'], route: '/resorts/mammoth-mountain' },
-] as const;
-
-const normalizeResortName = (value: string) => value.trim().toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
-
 export function Hero({ compact, onExplore, onVibe, onMountainReport, onPlanSkiDay }: HeroProps) {
   const router = useRouter();
   const [query, setQuery] = useState('');
@@ -41,8 +34,7 @@ export function Hero({ compact, onExplore, onVibe, onMountainReport, onPlanSkiDa
       return;
     }
 
-    const normalizedResort = normalizeResortName(resort);
-    const match = resortSearchRoutes.find((item) => item.aliases.some((alias) => alias === normalizedResort));
+    const match = resolveResortSearch(resort);
     if (match) {
       setSearchMessage('');
       router.push(match.route);

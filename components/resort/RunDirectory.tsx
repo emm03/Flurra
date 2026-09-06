@@ -129,7 +129,7 @@ export function RunDirectory({ runs, compact, savedIds, skiedIds, mapRunIds, onT
               {hasVerifiedMapGeometry ? <Pressable accessibilityRole="button" accessibilityLabel={`Show ${run.name} on map`} onPress={() => onShowOnMap(run.id)} style={({ hovered }: any) => [styles.mapAction, hovered && styles.mapActionHover]}>
                 <Feather name="map-pin" size={13} color={colors.forest} /><Text style={styles.mapActionText}>SHOW ON MAP</Text>
               </Pressable> : null}
-              <Pressable accessibilityRole="link" accessibilityLabel={`View ${run.name}`} onPress={() => router.push(`/resorts/heavenly/runs/${run.id}` as Href)} style={({ hovered }: any) => [styles.viewAction, hovered && styles.viewHover]}>
+              <Pressable accessibilityRole="link" accessibilityLabel={`View ${run.name}`} onPress={() => router.push(`/resorts/heavenly/runs/${run.id}?from=heavenly` as Href)} style={({ hovered }: any) => [styles.viewAction, hovered && styles.viewHover]}>
                 <Text style={styles.viewText}>VIEW RUN</Text><Feather name="arrow-up-right" size={14} color={colors.white} />
               </Pressable>
             </View>

@@ -8,18 +8,15 @@ import {
   useState,
 } from 'react';
 import { heavenlyOfficialRuns } from '@/data/heavenlyOfficialRuns';
+import {
+  createEmptyRunProgress,
+  loadPersistedRunProgress,
+  type PersistedRunProgress,
+  RUN_PROGRESS_STORAGE_KEY,
+  toggleRunProgressId,
+} from './runProgressPersistence';
 
-const STORAGE_KEY = 'flurra:run-progress:v1';
-
-const initialSavedRunIds = ['powderbowl-woods'];
-const initialCompletedRunIds = ['maggies', 'orion', 'ridge-run'];
 const knownHeavenlyRunIds = new Set(heavenlyOfficialRuns.map((run) => run.id));
-
-type PersistedRunProgress = {
-  version: 1;
-  savedRunIds: string[];
-  completedRunIds: string[];
-};
 
 type PersistenceStatus = 'loading' | 'ready' | 'unavailable';
 
@@ -35,86 +32,47 @@ type RunProgressStore = {
 
 const RunProgressContext = createContext<RunProgressStore | null>(null);
 
-function uniqueRunIds(value: unknown, fallback: string[]) {
-  if (!Array.isArray(value)) return fallback;
-  return [...new Set(value.filter((item): item is string => typeof item === 'string' && knownHeavenlyRunIds.has(item)))];
-}
-
-function readStoredProgress(): PersistedRunProgress | null {
-  if (typeof window === 'undefined') return null;
-  const rawValue = window.localStorage.getItem(STORAGE_KEY);
-  if (!rawValue) return null;
-
-  const parsed = JSON.parse(rawValue) as Partial<PersistedRunProgress>;
-  if (parsed.version !== 1) return null;
-
-  return {
-    version: 1,
-    savedRunIds: uniqueRunIds(parsed.savedRunIds, initialSavedRunIds),
-    completedRunIds: uniqueRunIds(parsed.completedRunIds, initialCompletedRunIds),
-  };
-}
-
-function toggleId(current: string[], runId: string) {
-  return current.includes(runId)
-    ? current.filter((id) => id !== runId)
-    : [...current, runId];
-}
-
 export function RunProgressProvider({ children }: PropsWithChildren) {
-  const [savedRunIds, setSavedRunIds] = useState(initialSavedRunIds);
-  const [completedRunIds, setCompletedRunIds] = useState(initialCompletedRunIds);
+  const [progress, setProgress] = useState<PersistedRunProgress>(createEmptyRunProgress);
   const [persistenceStatus, setPersistenceStatus] = useState<PersistenceStatus>('loading');
+  const { savedRunIds, completedRunIds } = progress;
 
   useEffect(() => {
-    try {
-      const stored = readStoredProgress();
-      if (stored) {
-        setSavedRunIds(stored.savedRunIds);
-        setCompletedRunIds(stored.completedRunIds);
-      }
-      setPersistenceStatus('ready');
-    } catch {
-      setPersistenceStatus('unavailable');
-    }
+    if (typeof window === 'undefined') return;
+    const stored = loadPersistedRunProgress(window.localStorage, knownHeavenlyRunIds);
+    setProgress(stored.progress);
+    setPersistenceStatus(stored.status);
   }, []);
 
   useEffect(() => {
     if (persistenceStatus !== 'ready' || typeof window === 'undefined') return;
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        version: 1,
-        savedRunIds,
-        completedRunIds,
-      } satisfies PersistedRunProgress));
+      window.localStorage.setItem(RUN_PROGRESS_STORAGE_KEY, JSON.stringify(progress));
     } catch {
       setPersistenceStatus('unavailable');
     }
-  }, [completedRunIds, persistenceStatus, savedRunIds]);
+  }, [persistenceStatus, progress]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const syncProgress = (event: StorageEvent) => {
-      if (event.key !== STORAGE_KEY) return;
-      try {
-        const stored = readStoredProgress();
-        if (!stored) return;
-        setSavedRunIds(stored.savedRunIds);
-        setCompletedRunIds(stored.completedRunIds);
-      } catch {
-        setPersistenceStatus('unavailable');
-      }
+      if (event.key !== RUN_PROGRESS_STORAGE_KEY) return;
+      const stored = loadPersistedRunProgress(window.localStorage, knownHeavenlyRunIds);
+      setProgress(stored.progress);
+      setPersistenceStatus(stored.status);
     };
     window.addEventListener('storage', syncProgress);
     return () => window.removeEventListener('storage', syncProgress);
   }, []);
 
   const toggleSaved = useCallback((runId: string) => {
-    setSavedRunIds((current) => toggleId(current, runId));
+    if (!knownHeavenlyRunIds.has(runId)) return;
+    setProgress((current) => toggleRunProgressId(current, 'savedRunIds', runId));
   }, []);
 
   const toggleCompleted = useCallback((runId: string) => {
-    setCompletedRunIds((current) => toggleId(current, runId));
+    if (!knownHeavenlyRunIds.has(runId)) return;
+    setProgress((current) => toggleRunProgressId(current, 'completedRunIds', runId));
   }, []);
 
   const savedSet = useMemo(() => new Set(savedRunIds), [savedRunIds]);

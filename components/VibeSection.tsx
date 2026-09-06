@@ -155,7 +155,7 @@ export function VibeSection({ compact }: { compact: boolean }) {
                     <Pressable
                       accessibilityRole="link"
                       accessibilityLabel={`View ${run.name} run details`}
-                      onPress={() => router.push(`/resorts/heavenly/runs/${run.id}` as Href)}
+                      onPress={() => router.push(`/resorts/heavenly/runs/${run.id}?from=home` as Href)}
                       style={({ hovered }: any) => [styles.actionSecondary, hovered && styles.actionHover]}
                     >
                       <Text style={styles.actionSecondaryText}>View run</Text>

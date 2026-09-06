@@ -7,11 +7,12 @@ import { useEffect, useRef } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import type { ResortRun } from '@/data/heavenlyResort';
 import { heavenlyVerifiedRunIds } from '@/data/heavenlyMap';
+import { getRunDetailReturn, type RunDetailOrigin } from '@/navigation/runDetailReturn';
 import { useRunProgress } from '@/state/RunProgressStore';
 import { colors, fonts } from '@/theme';
 import { TopographicLines } from '../TopographicLines';
 
-export function RunDetailPage({ run }: { run?: ResortRun }) {
+export function RunDetailPage({ run, origin }: { run?: ResortRun; origin?: RunDetailOrigin }) {
   const router = useRouter();
   const scrollRef = useRef<ScrollView>(null);
   const { width } = useWindowDimensions();
@@ -30,9 +31,10 @@ export function RunDetailPage({ run }: { run?: ResortRun }) {
 
   const saved = isSaved(run.id);
   const skied = isCompleted(run.id);
-  const goBackToHeavenly = () => {
-    if (router.canGoBack()) router.back();
-    else router.replace('/resorts/heavenly');
+  const returnTarget = getRunDetailReturn(origin, router.canGoBack());
+  const returnFromRun = () => {
+    if (returnTarget.useHistory) router.back();
+    else router.replace(returnTarget.destination);
   };
 
   return <ScrollView ref={scrollRef} style={styles.page} contentContainerStyle={styles.content}>
@@ -40,7 +42,7 @@ export function RunDetailPage({ run }: { run?: ResortRun }) {
       <TopographicLines light />
       <View style={[styles.header, compact && styles.headerMobile]}>
         <View style={styles.brand}><View style={styles.mark}><Text style={styles.markText}>✳</Text></View><Text style={styles.logo}>flurra</Text></View>
-        <Pressable accessibilityRole="link" accessibilityLabel="Back to Heavenly" onPress={goBackToHeavenly} style={[styles.back, compact && styles.backMobile]}><Feather name="arrow-left" size={14} color={colors.deep} /><Text style={styles.backText}>BACK TO HEAVENLY</Text></Pressable>
+        <Pressable accessibilityRole="link" accessibilityLabel={returnTarget.label} onPress={returnFromRun} style={[styles.back, compact && styles.backMobile]}><Feather name="arrow-left" size={14} color={colors.deep} /><Text style={styles.backText}>{returnTarget.label.toUpperCase()}</Text></Pressable>
       </View>
       <View style={[styles.heroInner, compact && styles.heroInnerMobile]}>
         <View style={styles.ticket}><Text style={styles.ticketText}>RUN FILE · SAMPLE CONDITIONS</Text></View>
