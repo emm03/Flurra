@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { colors, fonts } from '@/theme';
 
 export function HeavenlyMap(_: {
+  compact: boolean;
   selectedRunId: string | null;
   onSelectRun: (runId: string | null) => void;
   onTerrainAvailabilityChange?: (available: boolean) => void;

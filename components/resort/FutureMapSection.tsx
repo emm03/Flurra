@@ -42,8 +42,8 @@ export function FutureMapSection({ resortName, compact, runs, selectedRunId, onS
     ? [...baseAttributionLinks, ...terrainAttributionLinks]
     : baseAttributionLinks;
 
-  return <View style={styles.section}>
-    <View style={styles.inner}>
+  return <View style={[styles.section, compact && styles.sectionMobile]}>
+    <View style={[styles.inner, compact && styles.innerMobile]}>
       <View style={[styles.heading, compact && styles.headingMobile]}>
         <View>
           <Text style={styles.eyebrow}>REAL MOUNTAIN / PROTOTYPE</Text>
@@ -53,24 +53,25 @@ export function FutureMapSection({ resortName, compact, runs, selectedRunId, onS
         <View style={styles.ticket}><Text style={styles.ticketTop}>LOCAL OSM SNAPSHOT</Text><Text style={styles.ticketMain}>MAP / 002</Text></View>
       </View>
 
-      <View style={styles.mapFrame}>
+      <View style={[styles.mapFrame, compact && styles.mapFrameMobile]}>
         <View style={styles.tape} />
         <View style={styles.mapShell}>
           <HeavenlyMap
+            compact={compact}
             selectedRunId={selectedRunId}
             onSelectRun={onSelectRun}
             onTerrainAvailabilityChange={setTerrainAvailable}
           />
           <View style={[styles.legend, compact && styles.legendMobile]} pointerEvents="none">
             <Text style={styles.legendTitle}>TRAIL KEY</Text>
-            <View style={styles.legendItems}>
+            <View style={[styles.legendItems, compact && styles.legendItemsMobile]}>
               {legendItems.map((item) => <View key={item.label} style={styles.legendItem}>
                 <Text style={[styles.legendShape, { color: item.color }]}>{item.shape}</Text>
-                <Text style={styles.legendLabel}>{item.label}</Text>
+                <Text style={[styles.legendLabel, compact && styles.legendLabelMobile]}>{item.label}</Text>
               </View>)}
             </View>
           </View>
-          <View style={styles.prototypeLabel} pointerEvents="none">
+          <View style={[styles.prototypeLabel, compact && styles.prototypeLabelMobile]} pointerEvents="none">
             <Text style={styles.prototypeText}>PROTOTYPE MAP — TRAIL GEOMETRY FROM OPENSTREETMAP</Text>
           </View>
         </View>
@@ -84,7 +85,7 @@ export function FutureMapSection({ resortName, compact, runs, selectedRunId, onS
             <Text style={styles.factValue}>{heavenlyMapData.liftFeatureCount}</Text>
             <Text style={styles.factLabel}>OSM LIFT GEOMETRIES</Text>
           </View>
-          <View style={styles.attribution} accessibilityLabel="Map data attribution">
+          <View style={[styles.attribution, compact && styles.attributionMobile]} accessibilityLabel="Map data attribution">
             {attributionLinks.map((item, index) => <View key={item.label} style={styles.attributionItem}>
               {index > 0 ? <Text style={styles.attributionSeparator}>·</Text> : null}
               <Pressable
@@ -93,6 +94,7 @@ export function FutureMapSection({ resortName, compact, runs, selectedRunId, onS
                 onPress={() => Linking.openURL(item.url)}
                 style={({ hovered, focused }: any) => [
                   styles.attributionLink,
+                  compact && styles.attributionLinkMobile,
                   (hovered || focused) && styles.attributionLinkActive,
                 ]}
               >
@@ -116,15 +118,15 @@ export function FutureMapSection({ resortName, compact, runs, selectedRunId, onS
             <Pressable
               accessibilityRole="link"
               accessibilityLabel={`View ${selectedRun.name} run details`}
-              onPress={() => router.push(`/resorts/heavenly/runs/${selectedRun.id}` as Href)}
+              onPress={() => router.push(`/resorts/heavenly/runs/${selectedRun.id}?from=heavenly` as Href)}
               style={({ hovered }: any) => [styles.viewRun, hovered && styles.viewRunHover]}
             >
               <Text style={styles.viewRunText}>VIEW RUN DETAILS</Text><Feather name="arrow-up-right" size={14} color={colors.white} />
             </Pressable>
           </View>
-        </> : <View style={styles.emptySelection}>
+        </> : <View style={[styles.emptySelection, compact && styles.emptySelectionMobile]}>
           <Text style={styles.emptyMark}>✳</Text>
-          <View><Text style={styles.emptyTitle}>Pick a trail line.</Text><Text style={styles.emptyCopy}>Click any verified colored run on the map, or use “Show on map” in the searchable directory below.</Text></View>
+          <View style={styles.emptySelectionCopy}><Text style={[styles.emptyTitle, compact && styles.emptyTitleMobile]}>Pick a trail line.</Text><Text style={styles.emptyCopy}>Click any verified colored run on the map, or use “Show on map” in the searchable directory below.</Text></View>
         </View>}
       </View>
 
@@ -138,7 +140,9 @@ export function FutureMapSection({ resortName, compact, runs, selectedRunId, onS
 
 const styles = StyleSheet.create({
   section: { backgroundColor: '#e9e1d3', paddingVertical: 100 },
+  sectionMobile: { paddingVertical: 72 },
   inner: { alignSelf: 'center', maxWidth: 1180, width: '100%', paddingHorizontal: 24 },
+  innerMobile: { paddingHorizontal: 12 },
   heading: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: 35, marginBottom: 35 },
   headingMobile: { flexDirection: 'column', alignItems: 'flex-start' },
   eyebrow: { color: colors.orange, fontFamily: fonts.bold, fontSize: 10, letterSpacing: 2 },
@@ -149,16 +153,20 @@ const styles = StyleSheet.create({
   ticketTop: { color: colors.deep, fontFamily: fonts.bold, fontSize: 7, letterSpacing: 1.1 },
   ticketMain: { color: colors.deep, fontFamily: fonts.display, fontSize: 18, marginTop: 3 },
   mapFrame: { backgroundColor: colors.paper, padding: 12, paddingBottom: 0, transform: [{ rotate: '-.25deg' }], shadowColor: colors.forest, shadowOpacity: 1, shadowRadius: 0, shadowOffset: { width: 8, height: 9 } },
+  mapFrameMobile: { padding: 6, paddingBottom: 0, transform: [{ rotate: '0deg' }], shadowOffset: { width: 4, height: 5 } },
   tape: { position: 'absolute', zIndex: 5, top: -13, left: '45%', width: 110, height: 29, backgroundColor: '#e9d89f', opacity: .88, transform: [{ rotate: '-4deg' }] },
   mapShell: { minHeight: 520, borderColor: colors.forest, borderWidth: 1.5, overflow: 'hidden', position: 'relative' },
   legend: { position: 'absolute', zIndex: 3, top: 14, left: 14, backgroundColor: 'rgba(255,250,240,.94)', borderColor: colors.forest, borderWidth: 1, paddingHorizontal: 11, paddingVertical: 9, shadowColor: colors.forest, shadowOpacity: .25, shadowRadius: 0, shadowOffset: { width: 3, height: 3 } },
-  legendMobile: { top: 10, left: 10, right: 54 },
+  legendMobile: { top: 8, left: 8, right: 58, paddingHorizontal: 8, paddingVertical: 7 },
   legendTitle: { color: colors.orange, fontFamily: fonts.bold, fontSize: 7, letterSpacing: 1.1 },
   legendItems: { flexDirection: 'row', flexWrap: 'wrap', gap: 9, marginTop: 5 },
+  legendItemsMobile: { columnGap: 8, rowGap: 5 },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   legendShape: { fontFamily: fonts.bold, fontSize: 10 },
   legendLabel: { color: colors.forest, fontFamily: fonts.bold, fontSize: 6, letterSpacing: .5 },
+  legendLabelMobile: { fontSize: 7 },
   prototypeLabel: { position: 'absolute', zIndex: 3, right: 14, bottom: 34, backgroundColor: 'rgba(18,60,50,.92)', paddingHorizontal: 9, paddingVertical: 7 },
+  prototypeLabelMobile: { left: 8, right: 'auto', bottom: 58, maxWidth: 178 },
   prototypeText: { color: colors.white, fontFamily: fonts.bold, fontSize: 6, letterSpacing: .8 },
   mapFooter: { minHeight: 70, flexDirection: 'row', alignItems: 'center', gap: 30, paddingHorizontal: 16, paddingVertical: 12 },
   mapFooterMobile: { flexWrap: 'wrap', gap: 15 },
@@ -166,13 +174,15 @@ const styles = StyleSheet.create({
   factValue: { color: colors.orange, fontFamily: fonts.display, fontSize: 24 },
   factLabel: { color: colors.forest, fontFamily: fonts.bold, fontSize: 7, letterSpacing: .8 },
   attribution: { marginLeft: 'auto', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center', maxWidth: 540 },
+  attributionMobile: { width: '100%', maxWidth: '100%', marginLeft: 0, justifyContent: 'flex-start' },
   attributionItem: { flexDirection: 'row', alignItems: 'center' },
   attributionSeparator: { color: colors.muted, fontFamily: fonts.body, fontSize: 8, marginHorizontal: 3 },
   attributionLink: { borderBottomColor: 'transparent', borderBottomWidth: 1 },
+  attributionLinkMobile: { minHeight: 44, justifyContent: 'center' },
   attributionLinkActive: { borderBottomColor: colors.orange },
   attributionText: { color: colors.muted, fontFamily: fonts.body, fontSize: 8 },
   selectionRow: { marginTop: 28, backgroundColor: colors.forest, borderColor: colors.deep, borderWidth: 1.5, padding: 24, minHeight: 170, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 30, shadowColor: colors.orange, shadowOpacity: 1, shadowRadius: 0, shadowOffset: { width: 6, height: 7 } },
-  selectionRowMobile: { flexDirection: 'column', alignItems: 'stretch' },
+  selectionRowMobile: { flexDirection: 'column', alignItems: 'stretch', padding: 17, gap: 20 },
   selectedCopy: { flex: 1 },
   selectedEyebrow: { color: colors.lime, fontFamily: fonts.bold, fontSize: 8, letterSpacing: 1.2 },
   selectedName: { color: colors.white, fontFamily: fonts.display, fontSize: 34, lineHeight: 39, marginTop: 5 },
@@ -183,12 +193,15 @@ const styles = StyleSheet.create({
   confidence: { alignItems: 'center' },
   confidenceValue: { color: colors.orange, fontFamily: fonts.display, fontSize: 29 },
   confidenceLabel: { color: '#a9bbb5', fontFamily: fonts.bold, fontSize: 6, letterSpacing: .8 },
-  viewRun: { minHeight: 42, backgroundColor: colors.orange, paddingHorizontal: 15, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
+  viewRun: { minHeight: 44, backgroundColor: colors.orange, paddingHorizontal: 15, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
   viewRunHover: { backgroundColor: '#dd6537' },
   viewRunText: { color: colors.white, fontFamily: fonts.bold, fontSize: 8, letterSpacing: .7 },
   emptySelection: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 16 },
+  emptySelectionMobile: { justifyContent: 'flex-start' },
+  emptySelectionCopy: { flex: 1, minWidth: 0 },
   emptyMark: { color: colors.lime, fontSize: 31 },
   emptyTitle: { color: colors.white, fontFamily: fonts.display, fontSize: 25 },
+  emptyTitleMobile: { fontSize: 22, lineHeight: 26 },
   emptyCopy: { color: '#b9cbc5', fontFamily: fonts.body, fontSize: 11, lineHeight: 17, marginTop: 3 },
   safetyRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 9, marginTop: 24, paddingHorizontal: 5 },
   safety: { flex: 1, color: colors.muted, fontFamily: fonts.body, fontSize: 10, lineHeight: 16 },

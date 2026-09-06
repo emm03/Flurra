@@ -59,12 +59,12 @@ export function RunDirectory({ runs, compact, savedIds, skiedIds, mapRunIds, onT
   };
 
   return <View style={styles.section}>
-    <View style={styles.inner}>
+    <View style={[styles.inner, compact && styles.innerMobile]}>
       <View style={[styles.headingRow, compact && styles.headingMobile]}>
         <View style={styles.headingCopy}>
           <Text style={styles.eyebrow}>● HEAVENLY RUN DIRECTORY</Text>
           <Text style={[styles.title, compact && styles.titleMobile]}>Find your line.</Text>
-          <Text style={styles.copy}>Search the prototype directory or layer filters to match the kind of Heavenly lap you want right now.</Text>
+          <Text style={styles.copy}>Search the prototype directory or layer filters to match the kind of Heavenly lap you want for this sample day.</Text>
         </View>
         <View style={styles.directoryTicket}><Text style={styles.directoryTicketTop}>FIELD GUIDE / 001</Text><Text style={styles.directoryTicketMain}>{runs.length} SAMPLE RUNS</Text></View>
       </View>
@@ -74,19 +74,22 @@ export function RunDirectory({ runs, compact, savedIds, skiedIds, mapRunIds, onT
           <Feather name="search" size={18} color={colors.forest} />
           <TextInput
             accessibilityLabel="Search Heavenly runs"
+            accessibilityHint="Results update while you type"
             value={query}
             onChangeText={setQuery}
+            returnKeyType="search"
             placeholder="Search run name, condition, or difficulty..."
             placeholderTextColor="#7a837b"
             style={styles.input}
           />
-          {query ? <Pressable accessibilityRole="button" accessibilityLabel="Clear run search" onPress={() => setQuery('')}><Feather name="x" size={17} color={colors.forest} /></Pressable> : null}
+          {query ? <Pressable accessibilityRole="button" accessibilityLabel="Clear run search" onPress={() => setQuery('')} style={styles.clearSearch}><Feather name="x" size={17} color={colors.forest} /></Pressable> : null}
         </View>
         <View style={styles.filters}>
           {filters.map((filter) => {
             const active = activeFilters.includes(filter.id);
             return <Pressable
               accessibilityRole="button"
+              accessibilityLabel={`${active ? 'Remove' : 'Add'} ${filter.label} filter`}
               accessibilityState={{ selected: active }}
               key={filter.id}
               onPress={() => toggleFilter(filter.id)}
@@ -96,7 +99,7 @@ export function RunDirectory({ runs, compact, savedIds, skiedIds, mapRunIds, onT
         </View>
         <View style={styles.resultRow}>
           <Text style={styles.resultCount}>{filteredRuns.length} {filteredRuns.length === 1 ? 'RUN' : 'RUNS'} MATCH</Text>
-          {(query || activeFilters.length) ? <Pressable accessibilityRole="button" onPress={resetFilters} style={styles.clear}><Text style={styles.clearText}>RESET DIRECTORY</Text><Feather name="rotate-ccw" size={12} color={colors.orange} /></Pressable> : null}
+          {(query || activeFilters.length) ? <Pressable accessibilityRole="button" accessibilityLabel="Reset run directory search and filters" onPress={resetFilters} style={styles.clear}><Text style={styles.clearText}>RESET DIRECTORY</Text><Feather name="rotate-ccw" size={12} color={colors.orange} /></Pressable> : null}
         </View>
       </View>
 
@@ -106,7 +109,7 @@ export function RunDirectory({ runs, compact, savedIds, skiedIds, mapRunIds, onT
           const skied = skiedIds.includes(run.id);
           const hasVerifiedMapGeometry = mapRunIds.has(run.id);
           return <View key={run.id} style={[styles.card, compact && styles.cardMobile]}>
-            <View style={styles.cardTop}>
+            <View style={[styles.cardTop, compact && styles.cardTopMobile]}>
               <View style={[styles.difficultyBadge, run.difficulty === 'Green' && styles.green, run.difficulty === 'Blue' && styles.blue, run.difficulty === 'Black' && styles.black]}>
                 <Text style={styles.difficultyText}>{run.effectiveDifficultySymbol} {run.officialDifficulty.toUpperCase()}</Text>
               </View>
@@ -117,16 +120,16 @@ export function RunDirectory({ runs, compact, savedIds, skiedIds, mapRunIds, onT
             <Text style={styles.conditionLabel}>SAMPLE CONDITIONS · NOT LIVE</Text>
             <View style={styles.tags}>{run.conditionTags.map((tag) => <Text key={tag} style={styles.tag}>{tag.replace('Sample: ', '')}</Text>)}</View>
             <View style={styles.actions}>
-              <Pressable accessibilityRole="button" accessibilityLabel={`${saved ? 'Unsave' : 'Save'} ${run.name}`} onPress={() => onToggleSaved(run.id)} style={[styles.actionSecondary, saved && styles.actionSelected]}>
+              <Pressable accessibilityRole="button" accessibilityLabel={`${saved ? 'Unsave' : 'Save'} ${run.name}`} accessibilityState={{ selected: saved }} onPress={() => onToggleSaved(run.id)} style={[styles.actionSecondary, saved && styles.actionSelected]}>
                 <Feather name={saved ? 'check' : 'bookmark'} size={13} color={colors.forest} /><Text style={styles.actionSecondaryText}>{saved ? 'SAVED' : 'SAVE'}</Text>
               </Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel={`${skied ? 'Remove skied' : 'I skied'} ${run.name}`} onPress={() => onToggleSkied(run.id)} style={[styles.actionSecondary, skied && styles.actionSelected]}>
+              <Pressable accessibilityRole="button" accessibilityLabel={`${skied ? 'Remove skied' : 'I skied'} ${run.name}`} accessibilityState={{ selected: skied }} onPress={() => onToggleSkied(run.id)} style={[styles.actionSecondary, skied && styles.actionSelected]}>
                 <Feather name={skied ? 'check' : 'check-circle'} size={13} color={colors.forest} /><Text style={styles.actionSecondaryText}>{skied ? 'SKIED' : 'I SKIED THIS'}</Text>
               </Pressable>
               {hasVerifiedMapGeometry ? <Pressable accessibilityRole="button" accessibilityLabel={`Show ${run.name} on map`} onPress={() => onShowOnMap(run.id)} style={({ hovered }: any) => [styles.mapAction, hovered && styles.mapActionHover]}>
                 <Feather name="map-pin" size={13} color={colors.forest} /><Text style={styles.mapActionText}>SHOW ON MAP</Text>
               </Pressable> : null}
-              <Pressable accessibilityRole="link" accessibilityLabel={`View ${run.name}`} onPress={() => router.push(`/resorts/heavenly/runs/${run.id}` as Href)} style={({ hovered }: any) => [styles.viewAction, hovered && styles.viewHover]}>
+              <Pressable accessibilityRole="link" accessibilityLabel={`View ${run.name}`} onPress={() => router.push(`/resorts/heavenly/runs/${run.id}?from=heavenly` as Href)} style={({ hovered }: any) => [styles.viewAction, hovered && styles.viewHover]}>
                 <Text style={styles.viewText}>VIEW RUN</Text><Feather name="arrow-up-right" size={14} color={colors.white} />
               </Pressable>
             </View>
@@ -134,7 +137,7 @@ export function RunDirectory({ runs, compact, savedIds, skiedIds, mapRunIds, onT
         })}
       </View> : <View style={styles.empty}>
         <Text style={styles.emptyMark}>〰</Text><Text style={styles.emptyTitle}>No run matches that exact day.</Text><Text style={styles.emptyCopy}>Try removing a filter or searching with a broader condition.</Text>
-        <Pressable accessibilityRole="button" onPress={resetFilters} style={styles.emptyButton}><Text style={styles.emptyButtonText}>RESET DIRECTORY</Text></Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel="Reset run directory search and filters" onPress={resetFilters} style={styles.emptyButton}><Text style={styles.emptyButtonText}>RESET DIRECTORY</Text></Pressable>
       </View>}
     </View>
   </View>;
@@ -143,6 +146,7 @@ export function RunDirectory({ runs, compact, savedIds, skiedIds, mapRunIds, onT
 const styles = StyleSheet.create({
   section: { backgroundColor: colors.cream, paddingVertical: 100 },
   inner: { alignSelf: 'center', maxWidth: 1180, width: '100%', paddingHorizontal: 24 },
+  innerMobile: { paddingHorizontal: 16 },
   headingRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: 35, borderBottomColor: colors.forest, borderBottomWidth: 2, paddingBottom: 28 },
   headingMobile: { flexDirection: 'column', alignItems: 'flex-start' },
   headingCopy: { maxWidth: 700 },
@@ -156,21 +160,23 @@ const styles = StyleSheet.create({
   controls: { paddingVertical: 28 },
   search: { backgroundColor: colors.paper, borderColor: colors.forest, borderWidth: 1.5, height: 56, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 8 },
   input: { flex: 1, height: '100%', color: colors.ink, fontFamily: fonts.body, fontSize: 14, outlineStyle: 'none' } as any,
+  clearSearch: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   filters: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 15 },
-  filter: { borderColor: '#9ba49b', borderWidth: 1, backgroundColor: colors.paper, paddingHorizontal: 11, paddingVertical: 8 },
+  filter: { borderColor: '#9ba49b', borderWidth: 1, backgroundColor: colors.paper, minHeight: 44, paddingHorizontal: 11, alignItems: 'center', justifyContent: 'center' },
   filterActive: { borderColor: colors.forest, backgroundColor: colors.forest },
   filterHover: { borderColor: colors.orange },
   filterText: { color: colors.forest, fontFamily: fonts.bold, fontSize: 9, letterSpacing: .4 },
   filterTextActive: { color: colors.lime },
   resultRow: { minHeight: 36, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 15 },
   resultCount: { color: colors.muted, fontFamily: fonts.bold, fontSize: 9, letterSpacing: 1.2 },
-  clear: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6 },
+  clear: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 44, paddingHorizontal: 5 },
   clearText: { color: colors.orange, fontFamily: fonts.bold, fontSize: 8, letterSpacing: 1 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 18 },
   gridMobile: { flexDirection: 'column' },
   card: { flexGrow: 1, flexBasis: 440, maxWidth: '100%', minWidth: 320, backgroundColor: colors.paper, borderColor: colors.forest, borderWidth: 1.5, padding: 22, shadowColor: colors.forest, shadowOpacity: 1, shadowRadius: 0, shadowOffset: { width: 5, height: 6 } },
   cardMobile: { minWidth: 0, width: '100%' },
   cardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 15 },
+  cardTopMobile: { flexWrap: 'wrap', gap: 10 },
   difficultyBadge: { paddingHorizontal: 8, paddingVertical: 6 },
   green: { backgroundColor: '#7fbf69' },
   blue: { backgroundColor: '#64a4c2' },
@@ -185,19 +191,19 @@ const styles = StyleSheet.create({
   tags: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 },
   tag: { color: colors.forest, borderColor: '#c0c6bd', borderWidth: 1, fontFamily: fonts.bold, fontSize: 7, textTransform: 'uppercase', paddingHorizontal: 6, paddingVertical: 4 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 7, marginTop: 20 },
-  actionSecondary: { minHeight: 36, borderColor: colors.forest, borderWidth: 1, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 },
+  actionSecondary: { minHeight: 44, borderColor: colors.forest, borderWidth: 1, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 },
   actionSelected: { backgroundColor: colors.lime },
   actionSecondaryText: { color: colors.forest, fontFamily: fonts.bold, fontSize: 8, letterSpacing: .5 },
-  mapAction: { minHeight: 36, backgroundColor: colors.lime, borderColor: colors.forest, borderWidth: 1, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 },
+  mapAction: { minHeight: 44, backgroundColor: colors.lime, borderColor: colors.forest, borderWidth: 1, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 },
   mapActionHover: { backgroundColor: colors.blue },
   mapActionText: { color: colors.forest, fontFamily: fonts.bold, fontSize: 8, letterSpacing: .5 },
-  viewAction: { minHeight: 36, backgroundColor: colors.orange, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, marginLeft: 'auto' },
+  viewAction: { minHeight: 44, backgroundColor: colors.orange, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, marginLeft: 'auto' },
   viewHover: { backgroundColor: colors.forest },
   viewText: { color: colors.white, fontFamily: fonts.bold, fontSize: 8, letterSpacing: .6 },
   empty: { backgroundColor: colors.paper, borderColor: colors.forest, borderWidth: 1.5, alignItems: 'center', paddingHorizontal: 25, paddingVertical: 65, shadowColor: colors.forest, shadowOpacity: 1, shadowRadius: 0, shadowOffset: { width: 6, height: 7 } },
   emptyMark: { color: colors.orange, fontSize: 35 },
   emptyTitle: { color: colors.forest, fontFamily: fonts.display, fontSize: 28, textAlign: 'center', marginTop: 8 },
   emptyCopy: { color: colors.muted, fontFamily: fonts.body, fontSize: 13, textAlign: 'center', marginTop: 8 },
-  emptyButton: { backgroundColor: colors.lime, paddingHorizontal: 16, paddingVertical: 11, marginTop: 20 },
+  emptyButton: { backgroundColor: colors.lime, minHeight: 44, paddingHorizontal: 16, alignItems: 'center', justifyContent: 'center', marginTop: 20 },
   emptyButtonText: { color: colors.deep, fontFamily: fonts.bold, fontSize: 8, letterSpacing: 1 },
 });

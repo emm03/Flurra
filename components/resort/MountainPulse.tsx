@@ -31,7 +31,7 @@ export function MountainPulse({ reports, skiers, groups, photos, compact }: Moun
     <View style={styles.inner}>
       <View style={[styles.headingRow, compact && styles.headingMobile]}>
         <View>
-          <Text style={styles.eyebrow}>● LIVE FROM THE MOUNTAIN</Text>
+          <Text style={styles.eyebrow}>● SAMPLE FROM THE MOUNTAIN</Text>
           <Text style={[styles.title, compact && styles.titleMobile]}>Heavenly mountain pulse.</Text>
           <Text style={styles.copy}>Reports, photos, people, and plans from a sample ski day. Nothing in this section is live yet.</Text>
         </View>
@@ -51,10 +51,10 @@ export function MountainPulse({ reports, skiers, groups, photos, compact }: Moun
             <Text style={styles.reportText}>“{report.text}”</Text>
             <View style={styles.reportTags}>{report.tags.map((tag) => <Text key={tag} style={styles.reportTag}>{tag}</Text>)}</View>
             <View style={styles.reportActions}>
-              <Pressable accessibilityRole="button" accessibilityLabel={`${liked ? 'Unlike' : 'Like'} ${report.author}'s report`} onPress={() => toggle(report.id, likedReports, setLikedReports)} style={[styles.reportButton, liked && styles.reportButtonActive]}>
+              <Pressable accessibilityRole="button" accessibilityLabel={`${liked ? 'Unlike' : 'Like'} ${report.author}'s report`} accessibilityState={{ selected: liked }} onPress={() => toggle(report.id, likedReports, setLikedReports)} style={[styles.reportButton, liked && styles.reportButtonActive]}>
                 <Feather name="heart" size={13} color={colors.forest} /><Text style={styles.reportButtonText}>{report.likes + (liked ? 1 : 0)}</Text>
               </Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel={`${saved ? 'Unsave' : 'Save'} ${report.author}'s report`} onPress={() => toggle(report.id, savedReports, setSavedReports)} style={[styles.reportButton, saved && styles.reportButtonActive]}>
+              <Pressable accessibilityRole="button" accessibilityLabel={`${saved ? 'Unsave' : 'Save'} ${report.author}'s report`} accessibilityState={{ selected: saved }} onPress={() => toggle(report.id, savedReports, setSavedReports)} style={[styles.reportButton, saved && styles.reportButtonActive]}>
                 <Feather name={saved ? 'check' : 'bookmark'} size={13} color={colors.forest} /><Text style={styles.reportButtonText}>{saved ? 'SAVED' : 'SAVE'}</Text>
               </Pressable>
             </View>
@@ -63,7 +63,7 @@ export function MountainPulse({ reports, skiers, groups, photos, compact }: Moun
       </View>
 
       <View style={styles.subsection}>
-        <View style={styles.subsectionTop}><View><Text style={styles.subEyebrow}>COMMUNITY ROLL / SAMPLE</Text><Text style={styles.subTitle}>The mountain through their goggles.</Text></View><Text style={styles.handNote}>snow day evidence ↘</Text></View>
+        <View style={[styles.subsectionTop, compact && styles.subsectionTopMobile]}><View><Text style={styles.subEyebrow}>COMMUNITY ROLL / SAMPLE</Text><Text style={styles.subTitle}>The mountain through their goggles.</Text></View><Text style={styles.handNote}>snow day evidence ↘</Text></View>
         <View style={[styles.photoGrid, compact && styles.stack]}>
           {photos.map((photo, index) => {
             const selected = selectedPhoto === photo.id;
@@ -83,7 +83,7 @@ export function MountainPulse({ reports, skiers, groups, photos, compact }: Moun
             return <View key={skier.id} style={styles.personRow}>
               <View style={[styles.smallAvatar, { backgroundColor: skier.accent }]}><Text style={styles.smallInitials}>{skier.initials}</Text></View>
               <View style={styles.personCopy}><Text style={styles.personName}>{skier.name}</Text><Text style={styles.personStatus}>{skier.status}</Text></View>
-              <Pressable accessibilityRole="button" accessibilityLabel={`${followed ? 'Unfollow' : 'Follow'} ${skier.name}`} onPress={() => toggle(skier.id, followedSkiers, setFollowedSkiers)} style={[styles.follow, followed && styles.followActive]}><Text style={styles.followText}>{followed ? 'FOLLOWING' : 'FOLLOW'}</Text></Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel={`${followed ? 'Unfollow' : 'Follow'} ${skier.name}`} accessibilityState={{ selected: followed }} onPress={() => toggle(skier.id, followedSkiers, setFollowedSkiers)} style={[styles.follow, followed && styles.followActive]}><Text style={styles.followText}>{followed ? 'FOLLOWING' : 'FOLLOW'}</Text></Pressable>
             </View>;
           })}
         </View>
@@ -95,7 +95,7 @@ export function MountainPulse({ reports, skiers, groups, photos, compact }: Moun
             return <View key={group.id} style={styles.groupCard}>
               <View style={styles.groupTop}><Text style={styles.groupName}>{group.name}</Text><Text style={styles.groupCount}>{group.members + (joined ? 1 : 0)} GOING</Text></View>
               <Text style={styles.groupWhen}>{group.when}</Text><Text style={styles.groupPace}>{group.pace}</Text>
-              <Pressable accessibilityRole="button" accessibilityLabel={`${joined ? 'Leave' : 'Join'} ${group.name}`} onPress={() => toggle(group.id, joinedGroups, setJoinedGroups)} style={[styles.join, joined && styles.joined]}><Text style={[styles.joinText, joined && styles.joinedText]}>{joined ? '✓ JOINED' : 'JOIN THIS GROUP'}</Text></Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel={`${joined ? 'Leave' : 'Join'} ${group.name}`} accessibilityState={{ selected: joined }} onPress={() => toggle(group.id, joinedGroups, setJoinedGroups)} style={[styles.join, joined && styles.joined]}><Text style={[styles.joinText, joined && styles.joinedText]}>{joined ? '✓ JOINED' : 'JOIN THIS GROUP'}</Text></Pressable>
             </View>;
           })}
         </View>
@@ -131,11 +131,12 @@ const styles = StyleSheet.create({
   reportTags: { flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginTop: 14 },
   reportTag: { color: colors.forest, borderColor: '#c4c7bd', borderWidth: 1, fontFamily: fonts.bold, fontSize: 6, textTransform: 'uppercase', paddingHorizontal: 5, paddingVertical: 4 },
   reportActions: { borderTopColor: '#ddd7cb', borderTopWidth: 1, flexDirection: 'row', gap: 7, marginTop: 15, paddingTop: 12 },
-  reportButton: { borderColor: colors.forest, borderWidth: 1, minHeight: 32, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', gap: 5 },
+  reportButton: { borderColor: colors.forest, borderWidth: 1, minHeight: 44, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', gap: 5 },
   reportButtonActive: { backgroundColor: colors.lime },
   reportButtonText: { color: colors.forest, fontFamily: fonts.bold, fontSize: 8 },
   subsection: { marginTop: 90 },
   subsectionTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 24 },
+  subsectionTopMobile: { flexDirection: 'column', alignItems: 'flex-start', gap: 12 },
   subEyebrow: { color: colors.orange, fontFamily: fonts.bold, fontSize: 8, letterSpacing: 1.5 },
   subTitle: { color: colors.white, fontFamily: fonts.display, fontSize: 31, lineHeight: 35, marginTop: 6 },
   handNote: { color: colors.lime, fontFamily: fonts.body, fontStyle: 'italic', fontSize: 11, transform: [{ rotate: '-4deg' }] },
@@ -162,7 +163,7 @@ const styles = StyleSheet.create({
   personCopy: { flex: 1, marginLeft: 10 },
   personName: { color: colors.forest, fontFamily: fonts.bold, fontSize: 10 },
   personStatus: { color: colors.muted, fontFamily: fonts.body, fontSize: 8, marginTop: 2 },
-  follow: { borderColor: colors.forest, borderWidth: 1, paddingHorizontal: 9, paddingVertical: 7 },
+  follow: { borderColor: colors.forest, borderWidth: 1, minHeight: 44, paddingHorizontal: 9, alignItems: 'center', justifyContent: 'center' },
   followActive: { backgroundColor: colors.lime },
   followText: { color: colors.forest, fontFamily: fonts.bold, fontSize: 7, letterSpacing: .6 },
   groupCard: { borderTopColor: '#9eb5b4', borderTopWidth: 1, paddingVertical: 15 },
@@ -171,7 +172,7 @@ const styles = StyleSheet.create({
   groupCount: { color: colors.orange, fontFamily: fonts.bold, fontSize: 7, letterSpacing: .7 },
   groupWhen: { color: colors.forest, fontFamily: fonts.bold, fontSize: 9, marginTop: 7 },
   groupPace: { color: colors.muted, fontFamily: fonts.body, fontSize: 9, marginTop: 3 },
-  join: { alignSelf: 'flex-start', backgroundColor: colors.forest, paddingHorizontal: 12, paddingVertical: 9, marginTop: 10 },
+  join: { alignSelf: 'flex-start', backgroundColor: colors.forest, minHeight: 44, paddingHorizontal: 12, alignItems: 'center', justifyContent: 'center', marginTop: 10 },
   joined: { backgroundColor: colors.lime },
   joinText: { color: colors.white, fontFamily: fonts.bold, fontSize: 7, letterSpacing: .8 },
   joinedText: { color: colors.deep },

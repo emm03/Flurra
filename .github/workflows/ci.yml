@@ -45,6 +45,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Test
+        run: npm test
+
       - name: Build Heavenly runtime map
         run: node --no-warnings --experimental-strip-types scripts/maps/build-heavenly-runtime-map.mjs
 
