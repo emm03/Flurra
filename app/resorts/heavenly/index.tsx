@@ -5,10 +5,9 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Footer } from '@/components/Footer';
-import { FutureMapSection } from '@/components/resort/FutureMapSection';
+import { HeavenlyMapWorkspace } from '@/components/resort/HeavenlyMapWorkspace';
 import { MountainPulse } from '@/components/resort/MountainPulse';
 import { ResortHero } from '@/components/resort/ResortHero';
-import { RunDirectory } from '@/components/resort/RunDirectory';
 import {
   communityPhotos,
   heavenlyResort,
@@ -28,7 +27,6 @@ export default function HeavenlyPage() {
   const requestedRunId = Array.isArray(requestedRunParam) ? requestedRunParam[0] : requestedRunParam;
   const { width } = useWindowDimensions();
   const compact = width > 0 && width < 760;
-  const directoryY = useRef(0);
   const mapSectionRef = useRef<View>(null);
   const [selectedMapRunId, setSelectedMapRunId] = useState<string | null>(null);
   const [loaded] = useFonts({ DMSans_400Regular, DMSans_500Medium, DMSans_700Bold, Fraunces_900Black });
@@ -80,24 +78,18 @@ export default function HeavenlyPage() {
       completedCount={completedRunIds.length}
       savedCount={savedRunIds.length}
       explorationProgress={progress}
-      onFindRun={() => scrollRef.current?.scrollTo({ y: directoryY.current || 760, animated: true })}
+      onFindRun={scrollToMap}
     />
     <View ref={mapSectionRef}>
-      <FutureMapSection
+      <HeavenlyMapWorkspace
         resortName={heavenlyResort.name}
         compact={compact}
         runs={heavenlyRuns}
         selectedRunId={selectedMapRunId}
-        onSelectRun={selectMapRun}
-      />
-    </View>
-    <View onLayout={(event) => { directoryY.current = event.nativeEvent.layout.y; }}>
-      <RunDirectory
-        runs={heavenlyRuns}
-        compact={compact}
         savedIds={savedRunIds}
         skiedIds={completedRunIds}
         mapRunIds={heavenlyVerifiedRunIds}
+        onSelectRun={selectMapRun}
         onToggleSaved={toggleSaved}
         onToggleSkied={toggleCompleted}
         onShowOnMap={showRunOnMap}
