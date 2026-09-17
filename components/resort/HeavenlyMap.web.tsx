@@ -12,6 +12,12 @@ import { Feather } from '@expo/vector-icons';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { heavenlyMapData } from '@/data/heavenlyMap';
+import {
+  getResortPitchCompensation,
+  getSelectedRunPadding,
+  getSelectedRunOffset,
+  getWholeMountainPadding,
+} from '@/data/heavenlyMapCamera';
 import { heavenlyOfficialRuns } from '@/data/heavenlyOfficialRuns';
 import { colors, fonts } from '@/theme';
 import {
@@ -446,38 +452,22 @@ function expandedCameraBounds(bounds: LngLatBounds) {
   );
 }
 
-function wholeMountainPadding(map: MapLibreMap, resortView: boolean, basePadding: number) {
+function wholeMountainPadding(map: MapLibreMap, resortView: boolean, basePadding: number, bottomInset: number) {
   const canvas = map.getCanvas();
-  const compact = canvas.clientWidth < 600;
-  if (compact) {
-    const safePadding = Math.round(Math.min(40, Math.max(32, canvas.clientWidth * 0.09)));
-    return { top: safePadding, right: safePadding, bottom: safePadding, left: safePadding };
-  }
-  // The explorer sidebar sits outside the map canvas. Keep a true safety zone
-  // for pitched terrain and labels without shrinking the ski network to make
-  // room for UI that is no longer over the map.
-  const horizontalSafeZone = Math.round(Math.max(basePadding, canvas.clientWidth * 0.06));
-  const verticalSafeZone = Math.round(Math.max(basePadding, canvas.clientHeight * (resortView ? 0.08 : 0.06)));
-  return {
-    top: verticalSafeZone,
-    right: horizontalSafeZone,
-    bottom: verticalSafeZone,
-    left: horizontalSafeZone,
-  };
+  return getWholeMountainPadding(
+    { width: canvas.clientWidth, height: canvas.clientHeight },
+    resortView,
+    basePadding,
+    bottomInset,
+  );
 }
 
-function selectedRunPadding(map: MapLibreMap) {
+function selectedRunPadding(map: MapLibreMap, bottomInset: number) {
   const canvas = map.getCanvas();
-  const compact = canvas.clientWidth < 600;
-  const safePadding = compact
-    ? 48
-    : Math.round(Math.min(104, Math.max(72, Math.min(canvas.clientWidth, canvas.clientHeight) * 0.11)));
-  return {
-    top: safePadding,
-    right: safePadding,
-    bottom: safePadding,
-    left: safePadding,
-  };
+  return getSelectedRunPadding(
+    { width: canvas.clientWidth, height: canvas.clientHeight },
+    bottomInset,
+  );
 }
 
 function focusRunBounds(
@@ -486,19 +476,24 @@ function focusRunBounds(
   mode: HeavenlyMapMode,
   terrainAvailable: boolean,
   duration: number,
+  bottomInset: number,
 ) {
   const resortView = mode === 'resort' && terrainAvailable && Boolean(map.getSource('terrain-dem'));
   const camera = resortCamera();
+  const mapCanvas = map.getCanvas();
   map.stop();
   if (resortView) {
     // Calculate against the final bearing and pitch so the selected geometry
     // stays inside the balanced screen-space safe zone after terrain tilts.
     // cameraForBounds avoids mutating terrain state while the fit is computed.
     const focusCamera = map.cameraForBounds(bounds, {
-      padding: selectedRunPadding(map),
+      padding: selectedRunPadding(map, bottomInset),
       bearing: camera.bearing,
       pitch: camera.pitch,
-      offset: [0, 0],
+      offset: getSelectedRunOffset(
+        { width: mapCanvas.clientWidth, height: mapCanvas.clientHeight },
+        resortView,
+      ),
       maxZoom: 12.45,
     });
     if (focusCamera) {
@@ -513,7 +508,7 @@ function focusRunBounds(
     }
   }
   map.fitBounds(bounds, {
-    padding: selectedRunPadding(map),
+    padding: selectedRunPadding(map, bottomInset),
     duration,
     maxZoom: 14.45,
     bearing: 0,
@@ -645,6 +640,7 @@ function fitWholeMountainCamera(
   bounds: LngLatBounds,
   basePadding: number,
   animate: boolean,
+  bottomInset: number,
 ) {
   const resortView = mode === 'resort';
   const camera = resortCamera();
@@ -673,7 +669,7 @@ function fitWholeMountainCamera(
   // is invoked from an already pitched terrain camera than it does at startup.
   map.jumpTo({ bearing: 0, pitch: 0 });
   const targetCamera = map.cameraForBounds(bounds, {
-    padding: wholeMountainPadding(map, resortView, basePadding),
+    padding: wholeMountainPadding(map, resortView, basePadding, bottomInset),
     maxZoom: resortView ? 13.1 : 13.3,
     bearing: resortView ? camera.bearing : 0,
     pitch: resortView ? camera.pitch : 0,
@@ -681,15 +677,15 @@ function fitWholeMountainCamera(
   });
   if (resortView) map.setTerrain(terrain);
   if (!targetCamera) return false;
-  const canvas = map.getCanvas();
   // A pitched camera compresses the run network vertically after a flat
   // geographic bounds fit. Compensate only in landscape workspaces, where the
   // height-constrained fit otherwise leaves the mountain floating in a wide
   // field. Portrait/mobile fits are already width-constrained and need no
   // adjustment. Lift geometry (including the Gondola) is intentionally absent
   // from `bounds`, so access corridors never determine the whole-mountain view.
-  const pitchCompensation = resortView && canvas.clientWidth / canvas.clientHeight > 1.05
-    ? Math.log2(1 / Math.cos((camera.pitch * Math.PI) / 180)) * 0.9
+  const mapCanvas = map.getCanvas();
+  const pitchCompensation = resortView
+    ? getResortPitchCompensation({ width: mapCanvas.clientWidth, height: mapCanvas.clientHeight }, camera.pitch)
     : 0;
   const cameraOptions = {
     center: targetCamera.center,
@@ -782,6 +778,7 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
   const cameraSequenceRef = useRef(0);
   const pendingCameraFrameRef = useRef<number | null>(null);
   const selectedRunIdRef = useRef(selectedRunId);
+  const bottomInsetRef = useRef(bottomInset);
   const [failed, setFailed] = useState(false);
   const [layersReady, setLayersReady] = useState(false);
   const [requestedMapMode, setRequestedMapMode] = useState<HeavenlyMapMode>(initialRequestedMapModeRef.current);
@@ -791,6 +788,7 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
   const terrainLimited = terrainProviderStatus === 'unavailable';
 
   selectedRunIdRef.current = selectedRunId;
+  bottomInsetRef.current = bottomInset;
 
   useEffect(() => {
     selectRunRef.current = onSelectRun;
@@ -1478,8 +1476,7 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
           map.resize();
           const currentRunId = selectedRunIdRef.current;
           if (currentRunId) {
-            const adjacentRunIds = [...(runAdjacencyIndex.get(currentRunId) ?? [])];
-            const bounds = geometryBoundsForRunIds([currentRunId, ...adjacentRunIds]);
+            const bounds = geometryBoundsForRunIds([currentRunId]);
             if (bounds && !bounds.isEmpty()) {
               const renderedMode = effectiveMapModeRef.current;
               if (renderedMode) {
@@ -1489,6 +1486,7 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
                   renderedMode,
                   terrainProviderStatusRef.current === 'available',
                   0,
+                  bottomInsetRef.current,
                 );
               }
             }
@@ -1622,6 +1620,7 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
       wholeMountainBounds,
       initialPaddingRef.current,
       false,
+      bottomInsetRef.current,
     );
     const renderedCorrectly = cameraApplied
       && (nextEffectiveMode === 'resort' ? terrainIsApplied(map) : !map.getTerrain())
@@ -1652,8 +1651,7 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
       pendingCameraFrameRef.current = null;
       if (sequence !== cameraSequenceRef.current || mapRef.current !== map || !map.isStyleLoaded()) return;
       if (selectedRunId) {
-        const adjacentRunIds = [...(runAdjacencyIndex.get(selectedRunId) ?? [])];
-        const selectedBounds = geometryBoundsForRunIds([selectedRunId, ...adjacentRunIds]);
+        const selectedBounds = geometryBoundsForRunIds([selectedRunId]);
         if (selectedBounds && !selectedBounds.isEmpty()) {
           focusRunBounds(
             map,
@@ -1661,10 +1659,11 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
             effectiveMapMode,
             terrainProviderStatus === 'available',
             500,
+            bottomInset,
           );
         }
       } else {
-        fitWholeMountainCamera(map, effectiveMapMode, wholeMountainBounds, initialPaddingRef.current, true);
+        fitWholeMountainCamera(map, effectiveMapMode, wholeMountainBounds, initialPaddingRef.current, true, bottomInset);
       }
       if (sequence === cameraSequenceRef.current) cameraOperationRef.current = null;
     });
@@ -1678,7 +1677,7 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
       cameraOperationRef.current = null;
       map.stop();
     };
-  }, [effectiveMapMode, ready, selectedRunId, terrainProviderStatus]);
+  }, [bottomInset, effectiveMapMode, ready, selectedRunId, terrainProviderStatus]);
 
   const fitWholeMountain = () => {
     const map = mapRef.current;
@@ -1698,6 +1697,7 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
       bounds,
       initialPaddingRef.current,
       true,
+      bottomInsetRef.current,
     );
     if (sequence === cameraSequenceRef.current) cameraOperationRef.current = null;
   };
@@ -1715,8 +1715,7 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
     cameraOperationRef.current = 'reset';
     map.stop();
     if (selectedRunId) {
-      const adjacentRunIds = [...(runAdjacencyIndex.get(selectedRunId) ?? [])];
-      const bounds = geometryBoundsForRunIds([selectedRunId, ...adjacentRunIds]);
+      const bounds = geometryBoundsForRunIds([selectedRunId]);
       if (bounds && !bounds.isEmpty()) {
         focusRunBounds(
           map,
@@ -1724,6 +1723,7 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
           renderedMode,
           terrainProviderStatusRef.current === 'available',
           500,
+          bottomInsetRef.current,
         );
         if (sequence === cameraSequenceRef.current) cameraOperationRef.current = null;
         return;
@@ -1735,6 +1735,7 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
       initialBounds,
       initialPaddingRef.current,
       true,
+      bottomInsetRef.current,
     );
     if (sequence === cameraSequenceRef.current) cameraOperationRef.current = null;
   };

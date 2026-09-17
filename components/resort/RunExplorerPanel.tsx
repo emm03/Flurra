@@ -2,10 +2,15 @@ import { Feather } from '@expo/vector-icons';
 import { type Href, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import type { DifficultyKey, ResortRun, RunFeature } from '@/data/heavenlyResort';
+import {
+  filterHeavenlyRuns,
+  heavenlyDifficultyFilters,
+  heavenlyFeatureFilters,
+  type HeavenlyRunFilterId,
+} from '@/data/heavenlyRunExplorer';
+import type { ResortRun } from '@/data/heavenlyResort';
 import { colors, fonts } from '@/theme';
 
-type FilterId = DifficultyKey | RunFeature;
 type ExplorerVariant = 'desktop' | 'mobile-sheet' | 'mobile-list';
 
 type RunExplorerPanelProps = {
@@ -21,18 +26,6 @@ type RunExplorerPanelProps = {
   onOpenList?: () => void;
 };
 
-const filters: { id: FilterId; label: string }[] = [
-  { id: 'Green', label: 'Green' },
-  { id: 'Blue', label: 'Blue' },
-  { id: 'Black', label: 'Black' },
-  { id: 'confidence-friendly', label: 'Confidence' },
-  { id: 'scenic', label: 'Scenic' },
-  { id: 'groomed', label: 'Groomed' },
-  { id: 'recent-reports', label: 'Reports' },
-];
-
-const difficultyFilters: DifficultyKey[] = ['Green', 'Blue', 'Black'];
-
 export function RunExplorerPanel({
   runs,
   variant,
@@ -47,35 +40,17 @@ export function RunExplorerPanel({
 }: RunExplorerPanelProps) {
   const router = useRouter();
   const [query, setQuery] = useState('');
-  const [activeFilters, setActiveFilters] = useState<FilterId[]>([]);
+  const [activeFilters, setActiveFilters] = useState<HeavenlyRunFilterId[]>([]);
   const isSheet = variant === 'mobile-sheet';
   const isMobile = variant !== 'desktop';
   const selectedRun = runs.find((run) => run.id === selectedRunId) ?? null;
 
-  const filteredRuns = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-    const selectedDifficulties = activeFilters.filter((filter): filter is DifficultyKey => (
-      difficultyFilters.includes(filter as DifficultyKey)
-    ));
-    const selectedFeatures = activeFilters.filter((filter): filter is RunFeature => (
-      !difficultyFilters.includes(filter as DifficultyKey)
-    ));
+  const filteredRuns = useMemo(
+    () => filterHeavenlyRuns(runs, query, activeFilters),
+    [activeFilters, query, runs],
+  );
 
-    return runs.filter((run) => {
-      const searchable = [
-        run.name,
-        run.description,
-        run.officialDifficulty,
-        run.mountainArea,
-        ...run.conditionTags,
-      ].join(' ').toLowerCase();
-      return (!normalizedQuery || searchable.includes(normalizedQuery))
-        && (!selectedDifficulties.length || selectedDifficulties.includes(run.difficulty))
-        && selectedFeatures.every((feature) => run.features.includes(feature));
-    });
-  }, [activeFilters, query, runs]);
-
-  const toggleFilter = (filter: FilterId) => {
+  const toggleFilter = (filter: HeavenlyRunFilterId) => {
     setActiveFilters((current) => current.includes(filter)
       ? current.filter((item) => item !== filter)
       : [...current, filter]);
@@ -96,13 +71,13 @@ export function RunExplorerPanel({
             <Text testID="mobile-selected-run-name" numberOfLines={1} style={styles.sheetRunName}>{selectedRun.name}</Text>
             <Text numberOfLines={1} style={styles.sheetDescription}>{selectedRun.description}</Text>
           </View>
-          <Pressable accessibilityRole="link" accessibilityLabel={`View ${selectedRun.name} run details`} onPress={() => router.push(`/resorts/heavenly/runs/${selectedRun.id}?from=heavenly` as Href)} style={styles.sheetDetails}>
-            <Feather name="arrow-up-right" size={18} color={colors.deep} />
-          </Pressable>
         </View>
         <View style={styles.sheetActions}>
-          <ProgressButton active={savedIds.includes(selectedRun.id)} activeLabel="SAVED" inactiveLabel="SAVE" icon="bookmark" accessibilityLabel={`${savedIds.includes(selectedRun.id) ? 'Unsave' : 'Save'} ${selectedRun.name}`} onPress={() => onToggleSaved(selectedRun.id)} />
-          <ProgressButton active={skiedIds.includes(selectedRun.id)} activeLabel="SKIED" inactiveLabel="I SKIED" icon="check-circle" accessibilityLabel={`${skiedIds.includes(selectedRun.id) ? 'Remove skied' : 'I skied'} ${selectedRun.name}`} onPress={() => onToggleSkied(selectedRun.id)} />
+          <ProgressButton active={savedIds.includes(selectedRun.id)} activeLabel="UNSAVE" inactiveLabel="SAVE" icon="bookmark" accessibilityLabel={`${savedIds.includes(selectedRun.id) ? 'Unsave' : 'Save'} ${selectedRun.name}`} onPress={() => onToggleSaved(selectedRun.id)} />
+          <ProgressButton active={skiedIds.includes(selectedRun.id)} activeLabel="UNDO SKIED" inactiveLabel="MARK SKIED" icon="check-circle" accessibilityLabel={`${skiedIds.includes(selectedRun.id) ? 'Remove skied' : 'I skied'} ${selectedRun.name}`} onPress={() => onToggleSkied(selectedRun.id)} />
+          <Pressable accessibilityRole="link" accessibilityLabel={`View ${selectedRun.name} run details`} onPress={() => router.push(`/resorts/heavenly/runs/${selectedRun.id}?from=heavenly` as Href)} style={({ hovered, focused }: any) => [styles.sheetDetails, (hovered || focused) && styles.controlFocus]}>
+            <Text style={styles.sheetDetailsText}>DETAILS</Text><Feather name="arrow-up-right" size={14} color={colors.deep} />
+          </Pressable>
         </View>
       </> : <View style={styles.sheetSelected}>
         <View style={styles.sheetCopy}>
@@ -136,7 +111,7 @@ export function RunExplorerPanel({
       <View style={styles.selectedActions}>
         <ProgressButton
           active={savedIds.includes(selectedRun.id)}
-          activeLabel="SAVED"
+          activeLabel="UNSAVE"
           inactiveLabel="SAVE"
           icon="bookmark"
           accessibilityLabel={`${savedIds.includes(selectedRun.id) ? 'Unsave' : 'Save'} ${selectedRun.name}`}
@@ -144,8 +119,8 @@ export function RunExplorerPanel({
         />
         <ProgressButton
           active={skiedIds.includes(selectedRun.id)}
-          activeLabel="SKIED"
-          inactiveLabel="I SKIED"
+          activeLabel="UNDO SKIED"
+          inactiveLabel="MARK SKIED"
           icon="check-circle"
           accessibilityLabel={`${skiedIds.includes(selectedRun.id) ? 'Remove skied' : 'I skied'} ${selectedRun.name}`}
           onPress={() => onToggleSkied(selectedRun.id)}
@@ -154,7 +129,7 @@ export function RunExplorerPanel({
           accessibilityRole="link"
           accessibilityLabel={`View ${selectedRun.name} run details`}
           onPress={() => router.push(`/resorts/heavenly/runs/${selectedRun.id}?from=heavenly` as Href)}
-          style={styles.selectedDetails}
+          style={({ hovered, focused }: any) => [styles.selectedDetails, (hovered || focused) && styles.controlFocus]}
         >
           <Text style={styles.selectedDetailsText}>DETAILS</Text><Feather name="arrow-up-right" size={13} color={colors.white} />
         </Pressable>
@@ -179,19 +154,10 @@ export function RunExplorerPanel({
     </View>
 
     <View style={styles.filters}>
-      {filters.map((filter) => {
-        const active = activeFilters.includes(filter.id);
-        return <Pressable
-          key={filter.id}
-          accessibilityRole="button"
-          accessibilityLabel={`${active ? 'Remove' : 'Add'} ${filter.label} filter`}
-          accessibilityState={{ selected: active }}
-          onPress={() => toggleFilter(filter.id)}
-          style={[styles.filter, active && styles.filterActive]}
-        >
-          <Text style={[styles.filterText, active && styles.filterTextActive]}>{active ? '✓ ' : '+ '}{filter.label}</Text>
-        </Pressable>;
-      })}
+      <Text style={styles.filterGroupLabel}>DIFFICULTY</Text>
+      <View style={styles.filterRow}>{heavenlyDifficultyFilters.map((filter) => <FilterButton key={filter.id} filter={filter} active={activeFilters.includes(filter.id)} onPress={() => toggleFilter(filter.id)} />)}</View>
+      <Text style={styles.filterGroupLabel}>RUN CHARACTER</Text>
+      <View style={styles.filterRow}>{heavenlyFeatureFilters.map((filter) => <FilterButton key={filter.id} filter={filter} active={activeFilters.includes(filter.id)} onPress={() => toggleFilter(filter.id)} />)}</View>
     </View>
 
     <View style={styles.resultRow}>
@@ -214,14 +180,7 @@ export function RunExplorerPanel({
         const skied = skiedIds.includes(run.id);
         const hasMap = mapRunIds.has(run.id);
         return <View key={run.id} style={[styles.runRow, selected && styles.runRowSelected]}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={`${hasMap ? 'Show' : 'Select'} ${run.name}${hasMap ? ' on map' : ''}`}
-            accessibilityState={{ selected }}
-            onPress={() => hasMap && onShowOnMap(run.id)}
-            disabled={!hasMap}
-            style={styles.runPrimary}
-          >
+          <View style={styles.runPrimary}>
             <View style={[styles.difficultyMark, run.difficulty === 'Green' && styles.green, run.difficulty === 'Blue' && styles.blue, run.difficulty === 'Black' && styles.black]}>
               <Text style={styles.difficultySymbol}>{run.effectiveDifficultySymbol}</Text>
             </View>
@@ -229,17 +188,20 @@ export function RunExplorerPanel({
               <Text numberOfLines={1} style={styles.runName}>{run.name}</Text>
               <Text numberOfLines={1} style={styles.runMeta}>{run.mountainArea} · {run.confidence}% confidence</Text>
             </View>
-            {hasMap ? <View style={styles.showMapMark}><Feather name="map-pin" size={14} color={selected ? colors.orange : colors.forest} /><Text style={[styles.showMapText, selected && styles.showMapTextSelected]}>SHOW</Text></View> : <Text style={styles.noMap}>NO MAP</Text>}
-          </Pressable>
+            <Text style={[styles.mapStatus, selected && styles.mapStatusSelected]}>{hasMap ? (selected ? 'ON MAP' : 'MAP READY') : 'NO MAP'}</Text>
+          </View>
           <View style={styles.rowActions}>
-            <Pressable accessibilityRole="button" accessibilityLabel={`${saved ? 'Unsave' : 'Save'} ${run.name}`} accessibilityState={{ selected: saved }} onPress={() => onToggleSaved(run.id)} style={[styles.iconButton, saved && styles.iconButtonActive]}>
-              <Feather name={saved ? 'check' : 'bookmark'} size={14} color={colors.forest} />
+            <Pressable accessibilityRole="button" accessibilityLabel={`Show ${run.name} on map`} accessibilityState={{ selected }} disabled={!hasMap} onPress={() => hasMap && onShowOnMap(run.id)} style={({ hovered, focused }: any) => [styles.cardAction, styles.showMapButton, !hasMap && styles.cardActionDisabled, (hovered || focused) && styles.controlFocus]}>
+              <Feather name="map-pin" size={13} color={colors.white} /><Text style={styles.showMapButtonText}>{hasMap ? 'SHOW ON MAP' : 'NO MAP'}</Text>
             </Pressable>
-            <Pressable accessibilityRole="button" accessibilityLabel={`${skied ? 'Remove skied' : 'I skied'} ${run.name}`} accessibilityState={{ selected: skied }} onPress={() => onToggleSkied(run.id)} style={[styles.iconButton, skied && styles.iconButtonActive]}>
-              <Feather name={skied ? 'check' : 'check-circle'} size={14} color={colors.forest} />
+            <Pressable accessibilityRole="link" accessibilityLabel={`View ${run.name} run details`} onPress={() => router.push(`/resorts/heavenly/runs/${run.id}?from=heavenly` as Href)} style={({ hovered, focused }: any) => [styles.cardAction, styles.detailsButton, (hovered || focused) && styles.controlFocus]}>
+              <Feather name="arrow-up-right" size={13} color={colors.deep} /><Text style={styles.detailsText}>RUN DETAILS</Text>
             </Pressable>
-            <Pressable accessibilityRole="link" accessibilityLabel={`View ${run.name} run details`} onPress={() => router.push(`/resorts/heavenly/runs/${run.id}?from=heavenly` as Href)} style={styles.detailsButton}>
-              <Text style={styles.detailsText}>DETAILS</Text><Feather name="arrow-right" size={13} color={colors.white} />
+            <Pressable accessibilityRole="button" accessibilityLabel={`${saved ? 'Unsave' : 'Save'} ${run.name}`} accessibilityState={{ selected: saved }} onPress={() => onToggleSaved(run.id)} style={({ hovered, focused }: any) => [styles.cardAction, saved && styles.cardActionActive, (hovered || focused) && styles.controlFocus]}>
+              <Feather name={saved ? 'check' : 'bookmark'} size={13} color={colors.forest} /><Text style={styles.cardActionText}>{saved ? 'UNSAVE' : 'SAVE'}</Text>
+            </Pressable>
+            <Pressable accessibilityRole="button" accessibilityLabel={`${skied ? 'Remove skied' : 'I skied'} ${run.name}`} accessibilityState={{ selected: skied }} onPress={() => onToggleSkied(run.id)} style={({ hovered, focused }: any) => [styles.cardAction, skied && styles.cardActionActive, (hovered || focused) && styles.controlFocus]}>
+              <Feather name={skied ? 'rotate-ccw' : 'check-circle'} size={13} color={colors.forest} /><Text style={styles.cardActionText}>{skied ? 'UNDO SKIED' : 'MARK SKIED'}</Text>
             </Pressable>
           </View>
         </View>;
@@ -263,9 +225,25 @@ function ProgressButton({ active, activeLabel, inactiveLabel, icon, accessibilit
   accessibilityLabel: string;
   onPress: () => void;
 }) {
-  return <Pressable accessibilityRole="button" accessibilityLabel={accessibilityLabel} accessibilityState={{ selected: active }} onPress={onPress} style={[styles.progressButton, active && styles.progressButtonActive]}>
+  return <Pressable accessibilityRole="button" accessibilityLabel={accessibilityLabel} accessibilityState={{ selected: active }} onPress={onPress} style={({ hovered, focused }: any) => [styles.progressButton, active && styles.progressButtonActive, (hovered || focused) && styles.controlFocus]}>
     <Feather name={active ? 'check' : icon} size={13} color={colors.forest} />
     <Text style={styles.progressButtonText}>{active ? activeLabel : inactiveLabel}</Text>
+  </Pressable>;
+}
+
+function FilterButton({ filter, active, onPress }: {
+  filter: { id: HeavenlyRunFilterId; label: string };
+  active: boolean;
+  onPress: () => void;
+}) {
+  return <Pressable
+    accessibilityRole="button"
+    accessibilityLabel={`${active ? 'Remove' : 'Add'} ${filter.label} filter`}
+    accessibilityState={{ selected: active }}
+    onPress={onPress}
+    style={({ hovered, focused }: any) => [styles.filter, active && styles.filterActive, (hovered || focused) && styles.controlFocus]}
+  >
+    <Text numberOfLines={1} style={[styles.filterText, active && styles.filterTextActive]}>{active ? '✓ ' : '+ '}{filter.label}</Text>
   </Pressable>;
 }
 
@@ -285,8 +263,8 @@ const styles = StyleSheet.create({
   selectedConfidence: { color: colors.orange, fontFamily: fonts.display, fontSize: 17 },
   selectedName: { color: colors.white, fontFamily: fonts.display, fontSize: 24, lineHeight: 27, marginTop: 3 },
   selectedDescription: { color: '#d4e0dc', fontFamily: fonts.body, fontSize: 10, lineHeight: 15, marginTop: 4 },
-  selectedActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 },
-  progressButton: { minHeight: 44, borderColor: '#a7b9b3', borderWidth: 1, paddingHorizontal: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4, backgroundColor: colors.paper },
+  selectedActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginTop: 9 },
+  progressButton: { flex: 1, minWidth: 0, minHeight: 44, borderColor: '#a7b9b3', borderWidth: 1, paddingHorizontal: 4, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 3, backgroundColor: colors.paper },
   progressButtonActive: { backgroundColor: colors.lime, borderColor: colors.lime },
   progressButtonText: { color: colors.forest, fontFamily: fonts.bold, fontSize: 7, letterSpacing: 0.45 },
   selectedDetails: { minHeight: 44, marginLeft: 'auto', backgroundColor: colors.orange, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', gap: 5 },
@@ -294,8 +272,10 @@ const styles = StyleSheet.create({
   search: { minHeight: 48, backgroundColor: colors.paper, borderColor: colors.forest, borderWidth: 1.25, paddingLeft: 12, flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 13 },
   input: { flex: 1, minWidth: 0, height: 46, color: colors.ink, fontFamily: fonts.body, fontSize: 12, outlineStyle: 'none' } as any,
   clearSearch: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  filters: { flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginTop: 9 },
-  filter: { minHeight: 44, borderColor: '#9ba49b', borderWidth: 1, backgroundColor: colors.paper, paddingHorizontal: 8, alignItems: 'center', justifyContent: 'center' },
+  filters: { gap: 4, marginTop: 8 },
+  filterGroupLabel: { color: colors.muted, fontFamily: fonts.bold, fontSize: 6, letterSpacing: 0.8, marginTop: 2 },
+  filterRow: { flexDirection: 'row', gap: 4 },
+  filter: { flex: 1, minWidth: 0, minHeight: 44, borderColor: '#9ba49b', borderWidth: 1, backgroundColor: colors.paper, paddingHorizontal: 3, alignItems: 'center', justifyContent: 'center' },
   filterActive: { borderColor: colors.forest, backgroundColor: colors.forest },
   filterText: { color: colors.forest, fontFamily: fonts.bold, fontSize: 7, letterSpacing: 0.25 },
   filterTextActive: { color: colors.lime },
@@ -316,29 +296,33 @@ const styles = StyleSheet.create({
   runCopy: { flex: 1, minWidth: 0 },
   runName: { color: colors.forest, fontFamily: fonts.display, fontSize: 17, lineHeight: 20 },
   runMeta: { color: colors.muted, fontFamily: fonts.body, fontSize: 8, marginTop: 2 },
-  noMap: { color: colors.muted, fontFamily: fonts.bold, fontSize: 6, letterSpacing: 0.5 },
-  showMapMark: { minWidth: 38, alignItems: 'center', gap: 1 },
-  showMapText: { color: colors.forest, fontFamily: fonts.bold, fontSize: 5, letterSpacing: 0.35 },
-  showMapTextSelected: { color: colors.orange },
-  rowActions: { minHeight: 44, borderTopColor: '#d1d3cb', borderTopWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' },
-  iconButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRightColor: '#d1d3cb', borderRightWidth: 1 },
-  iconButtonActive: { backgroundColor: colors.lime },
-  detailsButton: { minHeight: 44, paddingHorizontal: 9, backgroundColor: colors.orange, flexDirection: 'row', alignItems: 'center', gap: 5 },
-  detailsText: { color: colors.white, fontFamily: fonts.bold, fontSize: 7, letterSpacing: 0.5 },
-  sampleNote: { color: colors.muted, fontFamily: fonts.bold, fontSize: 6, lineHeight: 10, letterSpacing: 0.65, marginTop: 8 },
+  mapStatus: { color: colors.muted, fontFamily: fonts.bold, fontSize: 6, letterSpacing: 0.45 },
+  mapStatusSelected: { color: colors.orange },
+  rowActions: { borderTopColor: '#d1d3cb', borderTopWidth: 1, flexDirection: 'row', flexWrap: 'wrap' },
+  cardAction: { width: '50%', minHeight: 44, paddingHorizontal: 5, borderColor: '#d1d3cb', borderWidth: .5, backgroundColor: colors.paper, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 },
+  cardActionActive: { backgroundColor: colors.lime },
+  cardActionDisabled: { opacity: .48 },
+  cardActionText: { color: colors.forest, fontFamily: fonts.bold, fontSize: 6.5, letterSpacing: 0.38 },
+  showMapButton: { backgroundColor: colors.forest },
+  showMapButtonText: { color: colors.white, fontFamily: fonts.bold, fontSize: 6.5, letterSpacing: 0.38 },
+  detailsButton: { backgroundColor: colors.orange },
+  detailsText: { color: colors.deep, fontFamily: fonts.bold, fontSize: 6.5, letterSpacing: 0.38 },
+  sampleNote: { color: colors.muted, fontFamily: fonts.bold, fontSize: 7, lineHeight: 11, letterSpacing: 0.55, marginTop: 7 },
   empty: { alignItems: 'center', paddingHorizontal: 20, paddingVertical: 34 },
   emptyTitle: { color: colors.forest, fontFamily: fonts.display, fontSize: 22 },
   emptyCopy: { color: colors.muted, fontFamily: fonts.body, fontSize: 11, textAlign: 'center', marginTop: 5 },
   emptyButton: { minHeight: 44, backgroundColor: colors.lime, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center', marginTop: 14 },
   emptyButtonText: { color: colors.deep, fontFamily: fonts.bold, fontSize: 7, letterSpacing: 0.7 },
-  sheet: { position: 'absolute', left: 10, right: 10, bottom: 10, zIndex: 9, minHeight: 116, backgroundColor: colors.paper, borderColor: colors.forest, borderWidth: 1.5, padding: 12, paddingTop: 10, shadowColor: colors.deep, shadowOpacity: 0.34, shadowRadius: 10, shadowOffset: { width: 0, height: 5 } },
+  sheet: { position: 'absolute', left: 8, right: 8, bottom: 8, zIndex: 9, minHeight: 108, backgroundColor: colors.paper, borderColor: colors.forest, borderWidth: 1.5, padding: 10, paddingTop: 8, shadowColor: colors.deep, shadowOpacity: 0.34, shadowRadius: 10, shadowOffset: { width: 0, height: 5 } },
   sheetHandle: { alignSelf: 'center', width: 42, height: 4, borderRadius: 2, backgroundColor: '#a2aaa3', marginBottom: 8 },
   sheetSelected: { flexDirection: 'row', alignItems: 'center', gap: 9 },
   sheetCopy: { flex: 1, minWidth: 0 },
   sheetRunName: { color: colors.forest, fontFamily: fonts.display, fontSize: 21, lineHeight: 24, marginTop: 2 },
   sheetDescription: { color: colors.muted, fontFamily: fonts.body, fontSize: 9, marginTop: 2 },
-  sheetDetails: { width: 44, height: 44, backgroundColor: colors.lime, alignItems: 'center', justifyContent: 'center' },
+  sheetDetails: { flex: 1, minWidth: 72, height: 44, backgroundColor: colors.orange, flexDirection: 'row', gap: 4, alignItems: 'center', justifyContent: 'center' },
+  sheetDetailsText: { color: colors.deep, fontFamily: fonts.bold, fontSize: 7, letterSpacing: .45 },
   sheetActions: { flexDirection: 'row', gap: 6, marginTop: 8 },
-  openListButton: { minHeight: 44, backgroundColor: colors.lime, marginTop: 9, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
+  openListButton: { minHeight: 44, backgroundColor: colors.lime, marginTop: 7, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
   openListText: { color: colors.deep, fontFamily: fonts.bold, fontSize: 8, letterSpacing: 0.8 },
+  controlFocus: { outlineColor: colors.lime, outlineOffset: -3, outlineStyle: 'solid', outlineWidth: 3 } as any,
 });
