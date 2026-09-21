@@ -22,6 +22,7 @@ import { heavenlyOfficialRuns } from '@/data/heavenlyOfficialRuns';
 import { colors, fonts } from '@/theme';
 import {
   createHeavenlyWinterStyle,
+  HEAVENLY_WINTER_PALETTE,
   heavenlyLocalFallbackStyle,
   OSM_GEOMETRY_ATTRIBUTION,
 } from './map/heavenlyMapStyle';
@@ -55,7 +56,7 @@ const runLayerIds = [
 const RESORT_VIEW_CAMERA = {
   bearing: 155,
   pitch: 48,
-  exaggeration: 1.15,
+  exaggeration: 1.04,
 };
 
 const LANDMARK_RUN_IDS = new Set([
@@ -523,35 +524,77 @@ function setLayerVisibility(map: MapLibreMap, layerId: string, visible: boolean)
 function applyTerrainTreatment(map: MapLibreMap, mode: HeavenlyMapMode) {
   const resortView = mode === 'resort';
 
+  // The pitched DEM already supplies most of Resort View's shape, so its
+  // vector context, hillshade, and contours remain quieter than Topo 2D.
+  // This keeps both modes legible without treating the 2D view as a degraded
+  // version of the same style.
+
+  if (map.getLayer('winter-paper')) {
+    map.setPaintProperty(
+      'winter-paper',
+      'background-color',
+      resortView ? HEAVENLY_WINTER_PALETTE.snow : '#f7f4ec',
+    );
+  }
   if (map.getLayer('winter-open-land')) {
-    map.setPaintProperty('winter-open-land', 'fill-color', resortView ? '#edf4f0' : '#dbe3d7');
-    map.setPaintProperty('winter-open-land', 'fill-outline-color', resortView ? '#edf4f0' : '#dbe3d7');
-    map.setPaintProperty('winter-open-land', 'fill-opacity', resortView ? 0.08 : 0.2);
+    map.setPaintProperty(
+      'winter-open-land',
+      'fill-color',
+      resortView ? HEAVENLY_WINTER_PALETTE.openLand : HEAVENLY_WINTER_PALETTE.snowShadow,
+    );
+    map.setPaintProperty('winter-open-land', 'fill-opacity', resortView
+      ? ['interpolate', ['linear'], ['zoom'], 10, 0.05, 12, 0.09, 14, 0.15, 16, 0.22]
+      : ['interpolate', ['linear'], ['zoom'], 10, 0.08, 12, 0.12, 14, 0.2, 16, 0.28]);
   }
   if (map.getLayer('winter-forest')) {
-    map.setPaintProperty('winter-forest', 'fill-color', resortView ? '#315f4f' : '#bfd0c6');
-    map.setPaintProperty('winter-forest', 'fill-outline-color', resortView ? '#315f4f' : '#bfd0c6');
+    map.setPaintProperty('winter-forest', 'fill-color', HEAVENLY_WINTER_PALETTE.forest);
     map.setPaintProperty('winter-forest', 'fill-opacity', resortView
-      ? ['interpolate', ['linear'], ['zoom'], 10, 0.07, 12, 0.11, 14, 0.18, 16, 0.3]
-      : ['interpolate', ['linear'], ['zoom'], 10, 0.42, 14, 0.5]);
+      ? ['interpolate', ['linear'], ['zoom'], 10, 0.04, 12, 0.07, 14, 0.16, 16, 0.3]
+      : ['interpolate', ['linear'], ['zoom'], 10, 0.05, 12, 0.09, 14, 0.2, 16, 0.34]);
   }
   if (map.getLayer('winter-water')) {
-    map.setPaintProperty('winter-water', 'fill-color', resortView ? '#7ba7b7' : '#a9cfda');
-    map.setPaintProperty('winter-water', 'fill-opacity', resortView ? 0.56 : 0.82);
+    map.setPaintProperty('winter-water', 'fill-color', HEAVENLY_WINTER_PALETTE.water);
+    map.setPaintProperty('winter-water', 'fill-opacity', resortView ? 0.48 : 0.62);
+  }
+  if (map.getLayer('winter-developed-land')) {
+    map.setPaintProperty('winter-developed-land', 'fill-opacity', resortView
+      ? ['interpolate', ['linear'], ['zoom'], 12, 0.02, 16, 0.1]
+      : ['interpolate', ['linear'], ['zoom'], 12, 0.05, 16, 0.15]);
   }
   if (map.getLayer('terrain-hillshade')) {
-    map.setPaintProperty('terrain-hillshade', 'hillshade-shadow-color', resortView ? '#294f5d' : '#42645f');
-    map.setPaintProperty('terrain-hillshade', 'hillshade-highlight-color', resortView ? '#fffff8' : '#fffdf5');
-    map.setPaintProperty('terrain-hillshade', 'hillshade-accent-color', resortView ? '#67828b' : '#6f8d87');
-    map.setPaintProperty('terrain-hillshade', 'hillshade-exaggeration', resortView ? 0.68 : 0.44);
+    map.setPaintProperty('terrain-hillshade', 'hillshade-shadow-color', resortView ? '#87999b' : '#829396');
+    map.setPaintProperty('terrain-hillshade', 'hillshade-highlight-color', HEAVENLY_WINTER_PALETTE.hillshadeHighlight);
+    map.setPaintProperty('terrain-hillshade', 'hillshade-accent-color', resortView ? '#b4c0bd' : '#aab8b6');
+    map.setPaintProperty('terrain-hillshade', 'hillshade-exaggeration', resortView ? 0.22 : 0.32);
   }
   if (map.getLayer('major-contours')) {
+    map.setPaintProperty('major-contours', 'line-color', HEAVENLY_WINTER_PALETTE.contour);
+    map.setPaintProperty('major-contours', 'line-width', resortView
+      ? ['interpolate', ['linear'], ['zoom'], 11, 0.38, 15, 0.82]
+      : ['interpolate', ['linear'], ['zoom'], 11, 0.46, 15, 0.98]);
     map.setPaintProperty('major-contours', 'line-opacity', resortView
-      ? ['interpolate', ['linear'], ['zoom'], 11, 0.025, 14, 0.09, 16, 0.16]
-      : 0.34);
+      ? ['interpolate', ['linear'], ['zoom'], 11, 0.01, 13, 0.025, 15, 0.08, 16, 0.13]
+      : ['interpolate', ['linear'], ['zoom'], 11, 0.045, 13, 0.1, 15, 0.22, 16, 0.29]);
   }
   if (map.getLayer('winter-waterways')) {
-    map.setPaintProperty('winter-waterways', 'line-opacity', resortView ? 0.2 : 0.48);
+    map.setPaintProperty('winter-waterways', 'line-opacity', resortView
+      ? ['interpolate', ['linear'], ['zoom'], 12, 0.08, 16, 0.22]
+      : ['interpolate', ['linear'], ['zoom'], 12, 0.16, 16, 0.36]);
+  }
+  if (map.getLayer('winter-road-casing')) {
+    map.setPaintProperty('winter-road-casing', 'line-opacity', resortView
+      ? ['interpolate', ['linear'], ['zoom'], 11.5, 0.05, 15, 0.25]
+      : ['interpolate', ['linear'], ['zoom'], 11.5, 0.12, 15, 0.42]);
+  }
+  if (map.getLayer('winter-roads')) {
+    map.setPaintProperty('winter-roads', 'line-opacity', resortView
+      ? ['interpolate', ['linear'], ['zoom'], 11.5, 0.03, 15, 0.17]
+      : ['interpolate', ['linear'], ['zoom'], 11.5, 0.07, 15, 0.3]);
+  }
+  if (map.getLayer('winter-buildings')) {
+    map.setPaintProperty('winter-buildings', 'fill-opacity', resortView
+      ? ['interpolate', ['linear'], ['zoom'], 14, 0.025, 17, 0.15]
+      : ['interpolate', ['linear'], ['zoom'], 14, 0.07, 17, 0.28]);
   }
 }
 
@@ -584,9 +627,12 @@ function applyRunAndLiftTreatment(map: MapLibreMap, mode: HeavenlyMapMode) {
     'canyon-run-labels',
     'major-lift-labels',
     'all-lift-labels',
-    'verified-peak-labels',
-    'verified-base-labels',
   ]) setLayerVisibility(map, layerId, resortView);
+
+  // Peaks and named resort bases are provider-backed geographic context, not
+  // trail labels, and remain useful in both presentation modes.
+  setLayerVisibility(map, 'verified-peak-labels', true);
+  setLayerVisibility(map, 'verified-base-labels', true);
 
   setLayerVisibility(map, 'heavenly-lifts-topographic', !resortView);
   for (const layerId of ['heavenly-lift-casing', 'heavenly-lifts', 'heavenly-gondola-casing', 'heavenly-gondola']) {
@@ -725,9 +771,9 @@ function addMajorContours(map: MapLibreMap, demSource: ReturnType<typeof getDemS
     'source-layer': 'contours',
     filter: ['>', ['get', 'level'], 0],
     paint: {
-      'line-color': '#5f7b75',
-      'line-width': ['interpolate', ['linear'], ['zoom'], 11, 0.55, 15, 1.05],
-      'line-opacity': 0.34,
+      'line-color': HEAVENLY_WINTER_PALETTE.contour,
+      'line-width': ['interpolate', ['linear'], ['zoom'], 11, 0.38, 15, 0.82],
+      'line-opacity': ['interpolate', ['linear'], ['zoom'], 11, 0.01, 13, 0.025, 15, 0.08, 16, 0.13],
     },
   });
 }
