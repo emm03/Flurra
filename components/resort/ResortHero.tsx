@@ -35,7 +35,7 @@ export function ResortHero({ name, location, image, vertical, trails, peak, comp
 
     <View style={[styles.inner, compact && styles.innerMobile]}>
       <View style={styles.copy}>
-        <View style={styles.ticket}><Text style={styles.ticketText}>MOUNTAIN FILE · HEAVENLY / 8,560 FT</Text></View>
+        {!compact ? <View style={styles.ticket}><Text style={styles.ticketText}>MOUNTAIN FILE · HEAVENLY / 8,560 FT</Text></View> : null}
         <Text style={styles.eyebrow}>● YOUR HEAVENLY DAY</Text>
         <Text style={[styles.title, compact && styles.titleMobile]}>{name}</Text>
         <Text style={styles.location}>{location}</Text>
@@ -50,23 +50,27 @@ export function ResortHero({ name, location, image, vertical, trails, peak, comp
       </View>
 
       <View style={[styles.visual, compact && styles.visualMobile]}>
-        <View style={styles.tape} />
-        <View style={styles.photoFrame}>
-          <ImageBackground source={{ uri: image }} style={styles.photo} imageStyle={styles.photoImage}>
-            <View style={styles.photoShade} />
-            <View style={styles.photoLabel}><Text style={styles.photoLabelTop}>LAKE TAHOE · SAMPLE CONDITIONS</Text><Text style={styles.photoLabelMain}>Bluebird energy ↗</Text></View>
-          </ImageBackground>
-        </View>
-        <View style={styles.progressCard}>
+        {!compact ? <>
+          <View style={styles.tape} />
+          <View style={styles.photoFrame}>
+            <ImageBackground source={{ uri: image }} style={styles.photo} imageStyle={styles.photoImage}>
+              <View style={styles.photoShade} />
+              <View style={styles.photoLabel}><Text style={styles.photoLabelTop}>SAMPLE EDITORIAL IMAGE · NOT LIVE</Text><Text style={styles.photoLabelMain}>Mountain-day energy ↗</Text></View>
+            </ImageBackground>
+          </View>
+        </> : null}
+        <View style={[styles.progressCard, compact && styles.progressCardMobile]}>
           <View style={styles.progressTop}><Text style={styles.progressEyebrow}>YOUR EXPLORATION</Text><Text accessibilityLabel={`${explorationProgress}% explored`} style={styles.progressValue}>{explorationProgress}%</Text></View>
           <View style={styles.progressTrack}><View style={[styles.progressFill, { width: `${explorationProgress}%` }]} /></View>
-          <View style={styles.progressCounts}>
-            <View><Text accessibilityLabel={`${completedCount} runs completed`} style={styles.countValue}>{completedCount}</Text><Text style={styles.countLabel}>RUNS COMPLETED</Text></View>
-            <View><Text accessibilityLabel={`${savedCount} runs saved`} style={styles.countValue}>{savedCount}</Text><Text style={styles.countLabel}>RUNS SAVED</Text></View>
+          <View style={[styles.progressBottom, compact && styles.progressBottomMobile]}>
+            <View style={[styles.progressCounts, compact && styles.progressCountsMobile]}>
+              <View><Text accessibilityLabel={`${completedCount} runs completed`} style={styles.countValue}>{completedCount}</Text><Text style={styles.countLabel}>{compact ? 'SKIED' : 'RUNS COMPLETED'}</Text></View>
+              <View><Text accessibilityLabel={`${savedCount} runs saved`} style={styles.countValue}>{savedCount}</Text><Text style={styles.countLabel}>{compact ? 'SAVED' : 'RUNS SAVED'}</Text></View>
+            </View>
+            <Pressable accessibilityRole="button" accessibilityLabel="Go to the Heavenly run explorer" onPress={onFindRun} style={({ hovered, focused }: any) => [styles.findButton, compact && styles.findButtonMobile, (hovered || focused) && styles.findHover]}>
+              <Text style={styles.findText}>{compact ? 'FIND MY NEXT RUN' : 'WHAT SHOULD I SKI NEXT?'}</Text><Feather name="arrow-down-right" size={16} color={colors.deep} />
+            </Pressable>
           </View>
-          <Pressable accessibilityRole="button" accessibilityLabel="Go to the Heavenly run directory" onPress={onFindRun} style={({ hovered }: any) => [styles.findButton, hovered && styles.findHover]}>
-            <Text style={styles.findText}>WHAT SHOULD I SKI NEXT?</Text><Feather name="arrow-down-right" size={16} color={colors.deep} />
-          </Pressable>
         </View>
       </View>
     </View>
@@ -74,58 +78,63 @@ export function ResortHero({ name, location, image, vertical, trails, peak, comp
 }
 
 const styles = StyleSheet.create({
-  hero: { backgroundColor: colors.forest, minHeight: 760, overflow: 'hidden' },
-  header: { alignSelf: 'center', width: '100%', maxWidth: 1240, paddingHorizontal: 24, paddingVertical: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 18 },
-  headerMobile: { paddingHorizontal: 16, paddingVertical: 14, gap: 10 },
+  hero: { backgroundColor: colors.forest, overflow: 'hidden' },
+  header: { alignSelf: 'center', width: 'calc(100% - 48px)' as any, maxWidth: 1370, minHeight: 52, paddingVertical: 9, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 18 },
+  headerMobile: { width: 'calc(100% - 20px)' as any, minHeight: 56, paddingVertical: 7, gap: 7 },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 9 },
   mark: { backgroundColor: colors.lime, width: 31, height: 31, borderRadius: 16, alignItems: 'center', justifyContent: 'center', transform: [{ rotate: '-12deg' }] },
   markText: { color: colors.deep, fontSize: 20, fontWeight: '900' },
-  logo: { color: colors.white, fontFamily: fonts.display, fontSize: 30, letterSpacing: -1.5 },
+  logo: { color: colors.white, fontFamily: fonts.display, fontSize: 27, letterSpacing: -1.3 },
   sampleFlag: { borderColor: '#55756c', borderWidth: 1, paddingHorizontal: 12, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', gap: 7 },
   sampleDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.orange },
   sampleText: { color: '#bfd0ca', fontFamily: fonts.bold, fontSize: 8, letterSpacing: 1.3 },
   back: { backgroundColor: colors.lime, paddingHorizontal: 16, paddingVertical: 11, flexDirection: 'row', alignItems: 'center', gap: 8 },
-  backMobile: { minHeight: 44, paddingHorizontal: 11, gap: 6 },
+  backMobile: { minHeight: 44, paddingHorizontal: 9, gap: 5 },
   backHover: { transform: [{ rotate: '-1deg' }] },
-  backText: { color: colors.deep, fontFamily: fonts.bold, fontSize: 9, letterSpacing: 1 },
-  inner: { alignSelf: 'center', maxWidth: 1200, width: '100%', paddingHorizontal: 28, paddingTop: 62, paddingBottom: 95, flexDirection: 'row', alignItems: 'center', gap: 74 },
-  innerMobile: { flexDirection: 'column', alignItems: 'stretch', paddingHorizontal: 20, paddingTop: 42, gap: 55 },
+  backText: { color: colors.deep, fontFamily: fonts.bold, fontSize: 8, letterSpacing: .75 },
+  inner: { alignSelf: 'center', maxWidth: 1340, width: 'calc(100% - 56px)' as any, paddingTop: 8, paddingBottom: 20, flexDirection: 'row', alignItems: 'center', gap: 38 },
+  innerMobile: { width: 'calc(100% - 24px)' as any, flexDirection: 'column', alignItems: 'stretch', paddingTop: 10, paddingBottom: 18, gap: 12 },
   copy: { flex: 1, zIndex: 3 },
-  ticket: { alignSelf: 'flex-start', backgroundColor: colors.orange, paddingHorizontal: 13, paddingVertical: 7, marginBottom: 25, transform: [{ rotate: '-2deg' }] },
+  ticket: { alignSelf: 'flex-start', backgroundColor: colors.orange, paddingHorizontal: 10, paddingVertical: 5, marginBottom: 7, transform: [{ rotate: '-2deg' }] },
   ticketText: { color: colors.deep, fontFamily: fonts.bold, fontSize: 9, letterSpacing: 1.4 },
   eyebrow: { color: colors.lime, fontFamily: fonts.bold, fontSize: 10, letterSpacing: 2 },
-  title: { color: colors.white, fontFamily: fonts.display, fontSize: 82, lineHeight: 84, letterSpacing: -4, marginTop: 10 },
-  titleMobile: { fontSize: 53, lineHeight: 56, letterSpacing: -2 },
-  location: { color: colors.orange, fontFamily: fonts.bold, fontSize: 12, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 10 },
-  intro: { color: '#d6e0dc', fontFamily: fonts.body, fontSize: 16, lineHeight: 25, maxWidth: 510, marginTop: 20 },
-  stats: { flexDirection: 'row', alignItems: 'center', gap: 20, marginTop: 34 },
+  title: { color: colors.white, fontFamily: fonts.display, fontSize: 51, lineHeight: 53, letterSpacing: -2.5, marginTop: 3 },
+  titleMobile: { fontSize: 37, lineHeight: 39, letterSpacing: -1.4 },
+  location: { color: colors.orange, fontFamily: fonts.bold, fontSize: 10, textTransform: 'uppercase', letterSpacing: 1.35, marginTop: 4 },
+  intro: { color: '#d6e0dc', fontFamily: fonts.body, fontSize: 10.5, lineHeight: 16, maxWidth: 590, marginTop: 6 },
+  stats: { flexDirection: 'row', alignItems: 'center', gap: 15, marginTop: 11 },
   statsMobile: { width: '100%', gap: 9, justifyContent: 'space-between' },
   stat: { minWidth: 74 },
   statMobile: { minWidth: 0, flex: 1 },
-  statValue: { color: colors.white, fontFamily: fonts.display, fontSize: 25 },
-  statValueMobile: { fontSize: 20 },
+  statValue: { color: colors.white, fontFamily: fonts.display, fontSize: 22 },
+  statValueMobile: { fontSize: 19 },
   statLabel: { color: '#8ca69d', fontFamily: fonts.bold, fontSize: 7, letterSpacing: 1.2, marginTop: 3 },
-  statDivider: { width: 1, height: 38, backgroundColor: '#537268' },
-  visual: { width: 510, minHeight: 490, transform: [{ rotate: '1deg' }] },
-  visualMobile: { width: '100%', minHeight: 500 },
-  tape: { position: 'absolute', zIndex: 5, top: -14, left: '39%', width: 108, height: 32, backgroundColor: '#e8d291', opacity: .86, transform: [{ rotate: '-5deg' }] },
-  photoFrame: { height: 355, backgroundColor: colors.paper, padding: 11, paddingBottom: 43, shadowColor: '#000', shadowOpacity: .34, shadowRadius: 14, shadowOffset: { width: 5, height: 11 } },
+  statDivider: { width: 1, height: 31, backgroundColor: '#537268' },
+  visual: { width: 400, minHeight: 188, transform: [{ rotate: '.5deg' }] },
+  visualMobile: { width: '100%', minHeight: 0, transform: [{ rotate: '0deg' }] },
+  tape: { position: 'absolute', zIndex: 5, top: -8, left: '39%', width: 82, height: 18, backgroundColor: '#e8d291', opacity: .86, transform: [{ rotate: '-5deg' }] },
+  photoFrame: { height: 76, backgroundColor: colors.paper, padding: 5, paddingBottom: 12, shadowColor: '#000', shadowOpacity: .28, shadowRadius: 8, shadowOffset: { width: 4, height: 6 } },
   photo: { flex: 1, justifyContent: 'flex-end' },
   photoImage: { backgroundColor: '#759ca4' },
   photoShade: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(5,31,25,.28)' },
-  photoLabel: { padding: 15 },
-  photoLabelTop: { color: colors.lime, fontFamily: fonts.bold, fontSize: 8, letterSpacing: 1.2 },
-  photoLabelMain: { color: colors.white, fontFamily: fonts.display, fontSize: 22, marginTop: 3 },
-  progressCard: { marginTop: -18, marginHorizontal: 22, backgroundColor: colors.paper, borderColor: colors.deep, borderWidth: 1.5, padding: 20, transform: [{ rotate: '-1.5deg' }], shadowColor: colors.lime, shadowOpacity: 1, shadowRadius: 0, shadowOffset: { width: 7, height: 8 } },
+  photoLabel: { padding: 7 },
+  photoLabelTop: { color: colors.lime, fontFamily: fonts.bold, fontSize: 6, letterSpacing: 1 },
+  photoLabelMain: { color: colors.white, fontFamily: fonts.display, fontSize: 14, marginTop: 1 },
+  progressCard: { marginTop: -8, marginHorizontal: 14, backgroundColor: colors.paper, borderColor: colors.deep, borderWidth: 1.5, padding: 11, transform: [{ rotate: '-.7deg' }], shadowColor: colors.lime, shadowOpacity: 1, shadowRadius: 0, shadowOffset: { width: 5, height: 6 } },
+  progressCardMobile: { marginTop: 0, marginHorizontal: 0, padding: 11, transform: [{ rotate: '0deg' }], shadowOffset: { width: 4, height: 5 } },
   progressTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   progressEyebrow: { color: colors.forest, fontFamily: fonts.bold, fontSize: 8, letterSpacing: 1.3 },
-  progressValue: { color: colors.orange, fontFamily: fonts.display, fontSize: 22 },
-  progressTrack: { height: 7, backgroundColor: '#d9d6cc', marginTop: 9, overflow: 'hidden' },
+  progressValue: { color: colors.orange, fontFamily: fonts.display, fontSize: 19 },
+  progressTrack: { height: 6, backgroundColor: '#d9d6cc', marginTop: 6, overflow: 'hidden' },
   progressFill: { height: '100%', backgroundColor: colors.orange },
-  progressCounts: { flexDirection: 'row', gap: 35, marginTop: 14 },
-  countValue: { color: colors.forest, fontFamily: fonts.display, fontSize: 23 },
+  progressBottom: {},
+  progressBottomMobile: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 },
+  progressCounts: { flexDirection: 'row', gap: 35, marginTop: 6 },
+  progressCountsMobile: { flex: 1, minWidth: 0, gap: 12, marginTop: 0 },
+  countValue: { color: colors.forest, fontFamily: fonts.display, fontSize: 17 },
   countLabel: { color: colors.muted, fontFamily: fonts.bold, fontSize: 7, letterSpacing: 1, marginTop: 2 },
-  findButton: { marginTop: 16, backgroundColor: colors.lime, minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
-  findHover: { transform: [{ translateY: -1 }] },
+  findButton: { marginTop: 7, backgroundColor: colors.lime, minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderColor: colors.deep, borderWidth: 1 },
+  findButtonMobile: { flex: 1, minWidth: 0, marginTop: 0, paddingHorizontal: 5, gap: 4 },
+  findHover: { borderColor: colors.orange, borderWidth: 2, transform: [{ translateY: -1 }] },
   findText: { color: colors.deep, fontFamily: fonts.bold, fontSize: 9, letterSpacing: 1 },
 });
