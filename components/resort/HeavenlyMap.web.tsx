@@ -26,6 +26,10 @@ import {
   heavenlyLocalFallbackStyle,
   OSM_GEOMETRY_ATTRIBUTION,
 } from './map/heavenlyMapStyle';
+import {
+  getHeavenlyRunLabelPriority,
+  HEAVENLY_LABEL_ZOOM,
+} from './map/heavenlyMapCartography';
 
 type HeavenlyMapProps = {
   compact: boolean;
@@ -58,26 +62,6 @@ const RESORT_VIEW_CAMERA = {
   pitch: 48,
   exaggeration: 1.04,
 };
-
-const LANDMARK_RUN_IDS = new Set([
-  'ridge-run',
-  'skyline-trail',
-  'california-trail',
-  'maggies',
-  'orion',
-  'big-dipper',
-  'stagecoach',
-  'galaxy',
-  'gunbarrel',
-  'world-cup',
-  'east-bowl',
-  'boulder-bowl',
-  'easy-street',
-  'boundary-chutes',
-  'outer-limits',
-  'snake-eyes',
-  'hully-gully',
-]);
 
 const CANYON_SUBAREA_LABELS: Record<string, string> = {
   'mott-canyon': 'MOTT CANYON',
@@ -217,7 +201,7 @@ function createRunSources() {
         ...feature.properties,
         mountainArea: run?.mountainArea ?? null,
         difficultySymbol: DIFFICULTY_SYMBOLS[String(feature.properties.effectiveMapDifficulty)] ?? '',
-        labelPriority: LANDMARK_RUN_IDS.has(runId) ? 1 : 2,
+        labelPriority: getHeavenlyRunLabelPriority(runId),
       },
     };
   });
@@ -278,7 +262,7 @@ function createRunSources() {
   });
 
   const landmarkFeatures = [...labelFeatureByRun.values()]
-    .filter((feature) => feature.properties.labelPriority === 1)
+    .filter((feature) => feature.properties.labelPriority <= 2)
     .map((feature) => ({
       type: 'Feature' as const,
       id: `landmark/${feature.properties.flurraRunId}`,
@@ -328,9 +312,9 @@ function createRunSources() {
         minLatitude,
         maxLongitude,
         maxLatitude,
-        labelOffsetWhole: isKillebrew ? [0.3, 0.2] : [0.3, -0.2],
-        labelOffsetClose: [0.15, 0],
-        textAnchor: 'left',
+        labelOffsetWhole: [0.15, 0],
+        labelOffsetClose: [0.1, 0],
+        textAnchor: isKillebrew ? 'bottom-left' : 'top-left',
         areaRestriction: 'EXPERTS ONLY · GATED TERRAIN',
         assignmentMethod: 'manual-reviewed official-map labels; anchor derived from an interior-biased point within verified OSM run extents',
       },
@@ -549,8 +533,8 @@ function applyTerrainTreatment(map: MapLibreMap, mode: HeavenlyMapMode) {
   if (map.getLayer('winter-forest')) {
     map.setPaintProperty('winter-forest', 'fill-color', HEAVENLY_WINTER_PALETTE.forest);
     map.setPaintProperty('winter-forest', 'fill-opacity', resortView
-      ? ['interpolate', ['linear'], ['zoom'], 10, 0.04, 12, 0.07, 14, 0.16, 16, 0.3]
-      : ['interpolate', ['linear'], ['zoom'], 10, 0.05, 12, 0.09, 14, 0.2, 16, 0.34]);
+      ? ['interpolate', ['linear'], ['zoom'], 10, 0.015, 12, 0.035, 13.5, 0.09, 15, 0.2, 16, 0.3]
+      : ['interpolate', ['linear'], ['zoom'], 10, 0.025, 12, 0.05, 13.5, 0.12, 15, 0.23, 16, 0.34]);
   }
   if (map.getLayer('winter-water')) {
     map.setPaintProperty('winter-water', 'fill-color', HEAVENLY_WINTER_PALETTE.water);
@@ -565,7 +549,7 @@ function applyTerrainTreatment(map: MapLibreMap, mode: HeavenlyMapMode) {
     map.setPaintProperty('terrain-hillshade', 'hillshade-shadow-color', resortView ? '#87999b' : '#829396');
     map.setPaintProperty('terrain-hillshade', 'hillshade-highlight-color', HEAVENLY_WINTER_PALETTE.hillshadeHighlight);
     map.setPaintProperty('terrain-hillshade', 'hillshade-accent-color', resortView ? '#b4c0bd' : '#aab8b6');
-    map.setPaintProperty('terrain-hillshade', 'hillshade-exaggeration', resortView ? 0.22 : 0.32);
+    map.setPaintProperty('terrain-hillshade', 'hillshade-exaggeration', resortView ? 0.27 : 0.35);
   }
   if (map.getLayer('major-contours')) {
     map.setPaintProperty('major-contours', 'line-color', HEAVENLY_WINTER_PALETTE.contour);
@@ -601,52 +585,57 @@ function applyTerrainTreatment(map: MapLibreMap, mode: HeavenlyMapMode) {
 function applyRunAndLiftTreatment(map: MapLibreMap, mode: HeavenlyMapMode) {
   const resortView = mode === 'resort';
   const runWidth = resortView
-    ? ['interpolate', ['linear'], ['zoom'], 11, 2.05, 13, 2.8, 15, 4.35]
-    : 3.5;
+    ? ['interpolate', ['linear'], ['zoom'], 11, 1.75, 12.5, 2.35, 14, 3.25, 16, 5]
+    : ['interpolate', ['linear'], ['zoom'], 11, 2, 13, 2.9, 15, 4.45, 16, 5.2];
   const expertWidth = resortView
-    ? ['interpolate', ['linear'], ['zoom'], 11, 2.1, 13, 2.9, 15, 4.45]
-    : 5.2;
+    ? ['interpolate', ['linear'], ['zoom'], 11, 1.85, 12.5, 2.45, 14, 3.35, 16, 5.1]
+    : ['interpolate', ['linear'], ['zoom'], 11, 2.1, 13, 3, 15, 4.55, 16, 5.3];
 
   map.setPaintProperty('verified-run-casing', 'line-width', resortView
-    ? ['interpolate', ['linear'], ['zoom'], 11, 4.4, 13, 5.6, 15, 8.1]
-    : 6);
+    ? ['interpolate', ['linear'], ['zoom'], 11, 3.8, 12.5, 4.8, 14, 6.3, 16, 9]
+    : ['interpolate', ['linear'], ['zoom'], 11, 4.2, 13, 5.7, 15, 8, 16, 9.2]);
   for (const layerId of ['verified-green', 'verified-blue', 'verified-black']) {
     map.setPaintProperty(layerId, 'line-width', runWidth);
   }
   map.setPaintProperty('verified-expert', 'line-width', expertWidth);
-  setLayerVisibility(map, 'verified-expert-markers', !resortView);
+  setLayerVisibility(map, 'verified-expert-markers', false);
 
   for (const layerId of [
     'major-run-labels',
+    'area-landmark-run-labels',
     'area-run-labels',
     'selected-run-label',
     'black-difficulty-markers',
     'expert-difficulty-markers',
     'mountain-area-labels',
     'expert-canyon-labels',
+    'expert-canyon-detail-labels',
     'canyon-run-labels',
     'major-lift-labels',
     'all-lift-labels',
-  ]) setLayerVisibility(map, layerId, resortView);
+  ]) setLayerVisibility(map, layerId, true);
 
   // Peaks and named resort bases are provider-backed geographic context, not
   // trail labels, and remain useful in both presentation modes.
   setLayerVisibility(map, 'verified-peak-labels', true);
   setLayerVisibility(map, 'verified-base-labels', true);
 
-  setLayerVisibility(map, 'heavenly-lifts-topographic', !resortView);
+  setLayerVisibility(map, 'heavenly-lifts-topographic', false);
   for (const layerId of ['heavenly-lift-casing', 'heavenly-lifts', 'heavenly-gondola-casing', 'heavenly-gondola']) {
-    setLayerVisibility(map, layerId, resortView);
+    setLayerVisibility(map, layerId, true);
   }
 
-  map.setPaintProperty('selected-run-halo', 'line-opacity', resortView ? 1 : 0);
+  map.setPaintProperty('selected-run-halo', 'line-opacity', 1);
+  map.setPaintProperty('selected-run-halo', 'line-width', resortView
+    ? ['interpolate', ['linear'], ['zoom'], 11, 8.8, 13, 11.2, 15, 15.5]
+    : ['interpolate', ['linear'], ['zoom'], 11, 9.2, 13, 12, 15, 16]);
   map.setPaintProperty('selected-run-casing', 'line-width', resortView
     ? ['interpolate', ['linear'], ['zoom'], 11, 7.1, 13, 9.2, 15, 12.5]
-    : 10);
+    : ['interpolate', ['linear'], ['zoom'], 11, 6.6, 13, 9.2, 15, 12.8]);
   map.setPaintProperty('selected-run', 'line-width', resortView
     ? ['interpolate', ['linear'], ['zoom'], 11, 2.45, 13, 3.35, 15, 5.15]
-    : 6.5);
-  map.setPaintProperty('selected-run', 'line-color', resortView ? selectedDifficultyColor : colors.lime);
+    : ['interpolate', ['linear'], ['zoom'], 11, 2.7, 13, 3.7, 15, 5.6]);
+  map.setPaintProperty('selected-run', 'line-color', selectedDifficultyColor);
 }
 
 function terrainIsApplied(map: MapLibreMap) {
@@ -1155,19 +1144,19 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
         type: 'symbol',
         source: 'mountain-areas',
         minzoom: 11.2,
-        maxzoom: 13.05,
+        maxzoom: 13.4,
         filter: ['!=', ['get', 'mountainArea'], 'Mott & Killebrew Canyons'],
         layout: {
           'text-field': ['get', 'mountainArea'],
           'text-font': ['Noto Sans Bold'],
-          'text-size': ['interpolate', ['linear'], ['zoom'], 11, 10.5, 13.3, 15],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 11, 9.5, 13.3, 13.5],
           'text-letter-spacing': 0.12,
           'text-transform': 'uppercase',
           'text-offset': ['get', 'labelOffset'],
           'symbol-sort-key': ['get', 'labelPriority'],
           'text-allow-overlap': true,
-          'text-ignore-placement': true,
-          'text-padding': 4,
+          'text-ignore-placement': false,
+          'text-padding': 14,
         },
         paint: {
           'text-color': '#244f44',
@@ -1181,16 +1170,15 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
         type: 'symbol',
         source: 'expert-canyon-areas',
         minzoom: 11.15,
+        maxzoom: 13.55,
         layout: {
           'text-field': [
             'format',
             '◆◆  ', { 'font-scale': 0.82 },
             ['get', 'canyonName'], { 'font-scale': 1.08 },
-            '\n', {},
-            ['get', 'areaRestriction'], { 'font-scale': 0.7 },
           ],
           'text-font': ['Noto Sans Bold'],
-          'text-size': ['interpolate', ['linear'], ['zoom'], 11.15, 8.5, 13.2, 12, 15, 13.5],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 11.15, 7.6, 13.2, 11.2, 15, 13.2],
           'text-letter-spacing': 0.08,
           'text-offset': [
             'interpolate', ['linear'], ['zoom'],
@@ -1201,7 +1189,37 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
           'symbol-sort-key': 1,
           'text-allow-overlap': true,
           'text-ignore-placement': false,
-          'text-padding': 8,
+          'text-padding': 14,
+        },
+        paint: {
+          'text-color': '#8a332d',
+          'text-halo-color': 'rgba(252,248,238,0.98)',
+          'text-halo-width': 2.2,
+          'text-halo-blur': 0.45,
+        },
+      } as any);
+      map.addLayer({
+        id: 'expert-canyon-detail-labels',
+        type: 'symbol',
+        source: 'expert-canyon-areas',
+        minzoom: 13.35,
+        layout: {
+          'text-field': [
+            'format',
+            '◆◆  ', { 'font-scale': 0.82 },
+            ['get', 'canyonName'], { 'font-scale': 1.06 },
+            '\n', {},
+            ['get', 'areaRestriction'], { 'font-scale': 0.68 },
+          ],
+          'text-font': ['Noto Sans Bold'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 13.35, 10.8, 15, 13.2],
+          'text-letter-spacing': 0.08,
+          'text-offset': ['get', 'labelOffsetClose'],
+          'text-anchor': ['get', 'textAnchor'],
+          'symbol-sort-key': 1,
+          'text-allow-overlap': true,
+          'text-ignore-placement': false,
+          'text-padding': 14,
         },
         paint: {
           'text-color': '#8a332d',
@@ -1260,7 +1278,7 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
         id: 'major-lift-labels',
         type: 'symbol',
         source: 'heavenly-lifts',
-        minzoom: 11.5,
+        minzoom: HEAVENLY_LABEL_ZOOM.majorLiftMin,
         maxzoom: 14.4,
         filter: ['in', ['get', 'name'], ['literal', MAJOR_LIFT_NAMES]],
         layout: {
@@ -1268,11 +1286,11 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
           'symbol-spacing': 330,
           'text-field': ['get', 'name'],
           'text-font': ['Noto Sans Bold'],
-          'text-size': ['interpolate', ['linear'], ['zoom'], 11.5, 9, 14, 11],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 11.65, 8.3, 14, 11],
           'text-letter-spacing': 0.08,
           'text-keep-upright': true,
           'text-allow-overlap': false,
-          'text-padding': 12,
+          'text-padding': 14,
         },
         paint: {
           'text-color': '#b85238',
@@ -1284,14 +1302,14 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
         id: 'all-lift-labels',
         type: 'symbol',
         source: 'heavenly-lifts',
-        minzoom: 13.35,
+        minzoom: HEAVENLY_LABEL_ZOOM.secondaryLiftMin,
         filter: ['all', ['has', 'name'], ['!', ['in', ['get', 'name'], ['literal', MAJOR_LIFT_NAMES]]]],
         layout: {
           'symbol-placement': 'line',
           'symbol-spacing': 300,
           'text-field': ['get', 'name'],
           'text-font': ['Noto Sans Regular'],
-          'text-size': ['interpolate', ['linear'], ['zoom'], 13.35, 9, 16, 12],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 13.75, 8.8, 16, 12],
           'text-keep-upright': true,
           'text-allow-overlap': false,
           'text-padding': 9,
@@ -1306,18 +1324,18 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
         id: 'major-run-labels',
         type: 'symbol',
         source: 'landmark-run-labels',
-        minzoom: 11.45,
-        maxzoom: 13.65,
+        minzoom: HEAVENLY_LABEL_ZOOM.wholeMountainRunMin,
+        maxzoom: HEAVENLY_LABEL_ZOOM.wholeMountainRunMax,
         filter: ['==', ['get', 'labelPriority'], 1],
         layout: {
           'text-field': ['concat', ['get', 'difficultySymbol'], '  ', ['get', 'flurraRunName']],
           'text-font': ['Noto Sans Bold'],
-          'text-size': ['interpolate', ['linear'], ['zoom'], 11.45, 8.2, 13.6, 10.4],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 11.55, 8, 13.55, 10.2],
           'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
           'text-radial-offset': 0.7,
           'text-allow-overlap': false,
-          'text-ignore-placement': true,
-          'text-padding': 6,
+          'text-ignore-placement': false,
+          'text-padding': 12,
         },
         paint: {
           'text-color': '#153d34',
@@ -1327,20 +1345,44 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
         },
       } as any);
       map.addLayer({
+        id: 'area-landmark-run-labels',
+        type: 'symbol',
+        source: 'landmark-run-labels',
+        minzoom: HEAVENLY_LABEL_ZOOM.areaRunMin,
+        maxzoom: HEAVENLY_LABEL_ZOOM.areaRunMax,
+        filter: ['==', ['get', 'labelPriority'], 2],
+        layout: {
+          'text-field': ['concat', ['get', 'difficultySymbol'], '  ', ['get', 'flurraRunName']],
+          'text-font': ['Noto Sans Bold'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 13.2, 8.2, 14.55, 10.8],
+          'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
+          'text-radial-offset': 0.75,
+          'text-allow-overlap': false,
+          'text-ignore-placement': false,
+          'text-padding': 10,
+        },
+        paint: {
+          'text-color': '#153d34',
+          'text-halo-color': 'rgba(252,250,242,0.98)',
+          'text-halo-width': 2,
+          'text-halo-blur': 0.35,
+        },
+      } as any);
+      map.addLayer({
         id: 'canyon-run-labels',
         type: 'symbol',
         source: 'run-labels',
-        minzoom: 13.05,
+        minzoom: HEAVENLY_LABEL_ZOOM.trailRunMin,
         filter: ['in', ['get', 'canyonSubarea'], ['literal', ['mott-canyon', 'killebrew-canyon']]],
         layout: {
           'symbol-placement': 'line',
-          'symbol-spacing': 300,
+          'symbol-spacing': 420,
           'text-field': ['concat', ['get', 'difficultySymbol'], '  ', ['get', 'flurraRunName']],
           'text-font': ['Noto Sans Bold'],
-          'text-size': ['interpolate', ['linear'], ['zoom'], 13.05, 9, 16, 12.2],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 14.15, 8.8, 16, 12.2],
           'text-keep-upright': true,
           'text-allow-overlap': false,
-          'text-padding': 9,
+          'text-padding': 11,
         },
         paint: {
           'text-color': '#153d34',
@@ -1353,7 +1395,7 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
         id: 'area-run-labels',
         type: 'symbol',
         source: 'run-labels',
-        minzoom: 13.05,
+        minzoom: HEAVENLY_LABEL_ZOOM.trailRunMin,
         filter: [
           'all',
           ['!=', ['get', 'canyonSubarea'], 'mott-canyon'],
@@ -1361,13 +1403,13 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
         ],
         layout: {
           'symbol-placement': 'line',
-          'symbol-spacing': 300,
+          'symbol-spacing': 380,
           'text-field': ['concat', ['get', 'difficultySymbol'], '  ', ['get', 'flurraRunName']],
           'text-font': ['Noto Sans Regular'],
-          'text-size': ['interpolate', ['linear'], ['zoom'], 13.05, 9.5, 16, 12.5],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 14.15, 9.2, 16, 12.5],
           'text-keep-upright': true,
           'text-allow-overlap': false,
-          'text-padding': 8,
+          'text-padding': 10,
         },
         paint: {
           'text-color': '#153d34',
@@ -1380,11 +1422,11 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
         id: 'black-difficulty-markers',
         type: 'symbol',
         source: 'run-labels',
-        minzoom: 13.55,
+        minzoom: HEAVENLY_LABEL_ZOOM.difficultSymbolMin,
         filter: ['==', ['get', 'effectiveMapDifficulty'], 'most-difficult'],
         layout: {
           'symbol-placement': 'line',
-          'symbol-spacing': 520,
+          'symbol-spacing': 600,
           'text-field': '◆',
           'text-font': ['Noto Sans Bold'],
           'text-size': 8,
@@ -1397,11 +1439,11 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
         id: 'expert-difficulty-markers',
         type: 'symbol',
         source: 'run-labels',
-        minzoom: 13.1,
+        minzoom: HEAVENLY_LABEL_ZOOM.difficultSymbolMin,
         filter: ['==', ['get', 'effectiveMapDifficulty'], 'experts-only'],
         layout: {
           'symbol-placement': 'line',
-          'symbol-spacing': 420,
+          'symbol-spacing': 520,
           'text-field': '◆◆',
           'text-font': ['Noto Sans Bold'],
           'text-size': 8,
@@ -1438,10 +1480,33 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
           'line-color': '#000000',
-          'line-width': 20,
+          'line-width': ['interpolate', ['linear'], ['zoom'], 11, 22, 14, 26, 16, 30],
           'line-opacity': 0.01,
         },
       });
+
+      // MapLibre resolves symbol collisions using style order. Promote labels
+      // from detailed navigation context to primary mountain identity so a
+      // dense trail cluster cannot displace an area, peak, base, or canyon
+      // label. The selected-run label remains the final and strongest layer.
+      for (const layerId of [
+        'major-run-labels',
+        'area-landmark-run-labels',
+        'canyon-run-labels',
+        'area-run-labels',
+        'black-difficulty-markers',
+        'expert-difficulty-markers',
+        'all-lift-labels',
+        'major-lift-labels',
+        'verified-base-labels',
+        'verified-peak-labels',
+        'mountain-area-labels',
+        'expert-canyon-labels',
+        'expert-canyon-detail-labels',
+        'selected-run-label',
+      ]) {
+        if (map.getLayer(layerId)) map.moveLayer(layerId);
+      }
 
       if (!interactionsBound) {
         for (const layerId of runLayerIds) {
@@ -1586,6 +1651,7 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
       ? ['!=', ['get', 'flurraRunId'], selectedRunId]
       : ['has', 'flurraRunId'];
     map.setFilter('major-run-labels', ['all', ['==', ['get', 'labelPriority'], 1], excludeSelectedFilter]);
+    map.setFilter('area-landmark-run-labels', ['all', ['==', ['get', 'labelPriority'], 2], excludeSelectedFilter]);
     map.setFilter('canyon-run-labels', [
       'all',
       ['in', ['get', 'canyonSubarea'], ['literal', ['mott-canyon', 'killebrew-canyon']]],
@@ -1607,22 +1673,21 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
     map.setFilter('expert-canyon-labels', CANYON_SUBAREA_LABELS[selectedCanyonSubarea]
       ? ['==', ['get', 'subarea'], '__selected-canyon-shown-in-overlay__']
       : ['in', ['get', 'subarea'], ['literal', ['mott-canyon', 'killebrew-canyon']]]);
+    map.setFilter('expert-canyon-detail-labels', CANYON_SUBAREA_LABELS[selectedCanyonSubarea]
+      ? ['==', ['get', 'subarea'], '__selected-canyon-shown-in-overlay__']
+      : ['in', ['get', 'subarea'], ['literal', ['mott-canyon', 'killebrew-canyon']]]);
 
     const resortView = effectiveMapMode === 'resort'
       && terrainProviderStatus === 'available'
       && Boolean(map.getSource('terrain-dem'));
-    setLayerVisibility(map, 'mountain-area-labels', resortView && !selectedRunId);
+    setLayerVisibility(map, 'mountain-area-labels', !selectedRunId);
     const adjacentRunIds = selectedRunId ? [...(runAdjacencyIndex.get(selectedRunId) ?? [])] : [];
     const contextRunIds = selectedRunId ? [selectedRunId, ...adjacentRunIds] : [];
     const baseOpacity = selectedRunId
-      ? (resortView
-        ? ['case', ['in', ['get', 'flurraRunId'], ['literal', contextRunIds]], 0.64, 0.3]
-        : 0.26)
+      ? ['case', ['in', ['get', 'flurraRunId'], ['literal', contextRunIds]], resortView ? 0.64 : 0.68, resortView ? 0.28 : 0.3]
       : 0.97;
     map.setPaintProperty('verified-run-casing', 'line-opacity', selectedRunId
-      ? (resortView
-        ? ['case', ['in', ['get', 'flurraRunId'], ['literal', contextRunIds]], 0.58, 0.27]
-        : 0.16)
+      ? ['case', ['in', ['get', 'flurraRunId'], ['literal', contextRunIds]], resortView ? 0.58 : 0.62, resortView ? 0.24 : 0.26]
       : 0.92);
     for (const layerId of ['verified-green', 'verified-blue', 'verified-black']) {
       map.setPaintProperty(layerId, 'line-opacity', baseOpacity);
@@ -1632,6 +1697,22 @@ export function HeavenlyMap({ compact, workspace = false, bottomInset = 0, selec
     map.setPaintProperty('heavenly-lifts-topographic', 'line-opacity', selectedRunId ? 0.5 : 0.92);
     for (const layerId of ['heavenly-lift-casing', 'heavenly-lifts', 'heavenly-gondola-casing', 'heavenly-gondola']) {
       map.setPaintProperty(layerId, 'line-opacity', selectedRunId ? 0.52 : (layerId.includes('gondola') ? 0.84 : 0.86));
+    }
+    const labelOpacity = selectedRunId
+      ? ['case', ['in', ['get', 'flurraRunId'], ['literal', contextRunIds]], 0.58, 0.16]
+      : 1;
+    for (const layerId of [
+      'major-run-labels',
+      'area-landmark-run-labels',
+      'canyon-run-labels',
+      'area-run-labels',
+      'black-difficulty-markers',
+      'expert-difficulty-markers',
+    ]) {
+      map.setPaintProperty(layerId, 'text-opacity', labelOpacity);
+    }
+    for (const layerId of ['major-lift-labels', 'all-lift-labels']) {
+      map.setPaintProperty(layerId, 'text-opacity', selectedRunId ? 0.32 : 1);
     }
   }, [effectiveMapMode, ready, selectedRunId, terrainProviderStatus]);
 
