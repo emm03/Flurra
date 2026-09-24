@@ -12,6 +12,7 @@ import {
   type HeavenlyAccessRestriction,
   type HeavenlyCanyonSubarea,
 } from './heavenlyCanyonAccess';
+import { getResortById } from './resorts';
 
 export type DifficultyKey = 'Green' | 'Blue' | 'Black';
 export type RunFeature = 'confidence-friendly' | 'scenic' | 'groomed' | 'recent-reports';
@@ -77,13 +78,17 @@ export type SkiGroup = {
   members: number;
 };
 
+const heavenlyRegistryRecord = getResortById('heavenly');
+
+if (!heavenlyRegistryRecord) throw new Error('Heavenly is missing from the canonical resort registry.');
+
 export const heavenlyResort = {
-  name: 'Heavenly',
-  location: 'South Lake Tahoe, CA',
-  vertical: '3,500 ft',
+  name: heavenlyRegistryRecord.shortName,
+  location: heavenlyRegistryRecord.location.display,
+  vertical: heavenlyRegistryRecord.facts.verticalRise?.display ?? '3,500 ft',
   trails: heavenlyTrailCatalogProvenance.currentPublishedTrailCount.value,
-  peak: '10,067 ft',
-  image: 'https://images.unsplash.com/photo-1486911278844-a81c5267e227?auto=format&fit=crop&w=1600&q=90',
+  peak: heavenlyRegistryRecord.facts.summitElevation?.display ?? '10,067 ft',
+  heroImage: heavenlyRegistryRecord.heroImage,
 };
 
 const difficultyKey: Record<OfficialRunDifficulty, DifficultyKey> = {
