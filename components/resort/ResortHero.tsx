@@ -1,13 +1,15 @@
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import type { ResortImageMetadata } from '@/data/resorts';
 import { colors, fonts } from '@/theme';
 import { TopographicLines } from '../TopographicLines';
+import { ResortImage, ResortImageCredit } from './ResortImage';
 
 type ResortHeroProps = {
   name: string;
   location: string;
-  image: string;
+  heroImage: ResortImageMetadata;
   vertical: string;
   trails: number;
   peak: string;
@@ -18,7 +20,7 @@ type ResortHeroProps = {
   onFindRun: () => void;
 };
 
-export function ResortHero({ name, location, image, vertical, trails, peak, completedCount, savedCount, explorationProgress, compact, onFindRun }: ResortHeroProps) {
+export function ResortHero({ name, location, heroImage, vertical, trails, peak, completedCount, savedCount, explorationProgress, compact, onFindRun }: ResortHeroProps) {
   const router = useRouter();
 
   return <View style={styles.hero}>
@@ -53,10 +55,11 @@ export function ResortHero({ name, location, image, vertical, trails, peak, comp
         {!compact ? <>
           <View style={styles.tape} />
           <View style={styles.photoFrame}>
-            <ImageBackground source={{ uri: image }} style={styles.photo} imageStyle={styles.photoImage}>
+            <ResortImage image={heroImage} style={styles.photo} imageStyle={styles.photoImage}>
               <View style={styles.photoShade} />
-              <View style={styles.photoLabel}><Text style={styles.photoLabelTop}>SAMPLE EDITORIAL IMAGE · NOT LIVE</Text><Text style={styles.photoLabelMain}>Mountain-day energy ↗</Text></View>
-            </ImageBackground>
+              <View style={styles.photoLabel}><Text style={styles.photoLabelTop}>VERIFIED RESORT PHOTO · NOT LIVE</Text><Text style={styles.photoLabelMain}>Heavenly mountain file ↗</Text></View>
+            </ResortImage>
+            <View style={styles.photoCredit}><ResortImageCredit image={heroImage} inverse /></View>
           </View>
         </> : null}
         <View style={[styles.progressCard, compact && styles.progressCardMobile]}>
@@ -120,6 +123,7 @@ const styles = StyleSheet.create({
   photoLabel: { padding: 7 },
   photoLabelTop: { color: colors.lime, fontFamily: fonts.bold, fontSize: 6, letterSpacing: 1 },
   photoLabelMain: { color: colors.white, fontFamily: fonts.display, fontSize: 14, marginTop: 1 },
+  photoCredit: { position: 'absolute', right: 7, bottom: -2, maxWidth: 225 },
   progressCard: { marginTop: -8, marginHorizontal: 14, backgroundColor: colors.paper, borderColor: colors.deep, borderWidth: 1.5, padding: 11, transform: [{ rotate: '-.7deg' }], shadowColor: colors.lime, shadowOpacity: 1, shadowRadius: 0, shadowOffset: { width: 5, height: 6 } },
   progressCardMobile: { marginTop: 0, marginHorizontal: 0, padding: 11, transform: [{ rotate: '0deg' }], shadowOffset: { width: 4, height: 5 } },
   progressTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
